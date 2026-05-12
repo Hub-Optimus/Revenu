@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Revenu — Hotel Sign Up</title>
+<meta name="description" content="Revenu helps hotels recover lost revenue through smart check-ins, automated upsells, and real-time guest operations. Join India's hotel revenue platform."/>
+<title>Revenu — Hotel Revenue Platform by Optimus</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -14,69 +15,181 @@
   --green:#15803d;--green-light:#dcfce7;
   --red:#b91c1c;--red-light:#fee2e2;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-nav{padding:18px 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--white);border-bottom:1px solid var(--border)}
-.logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--text);letter-spacing:-0.3px}
-.logo em{font-style:italic;color:var(--blue)}
-.login-link{font-size:13px;color:var(--muted);text-decoration:none}
-.login-link span{color:var(--blue);font-weight:500}
-.login-link:hover span{text-decoration:underline}
-.wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 61px)}
-.left{background:var(--blue-dark);padding:3.5rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
-.left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.04)}
-.left::after{content:'';position:absolute;bottom:-60px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.03)}
-.left-content{position:relative;z-index:1}
-.left-tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:1.5rem;display:block}
-.left h2{font-family:'Instrument Serif',serif;font-size:36px;line-height:1.2;color:#fff;margin-bottom:1.25rem;font-weight:400}
-.left h2 em{font-style:italic;color:#93c5fd}
-.left p{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:320px}
-.stats{display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
-.stat-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.08)}
-.stat-num{font-family:'Instrument Serif',serif;font-size:22px;color:#fff;min-width:60px}
-.stat-label{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5}
-.right{background:var(--white);padding:3rem;display:flex;align-items:center;justify-content:center;overflow-y:auto}
-.form-wrap{width:100%;max-width:400px}
-.form-title{font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:4px;font-weight:400}
-.form-sub{font-size:13px;color:var(--muted);margin-bottom:1.75rem}
-.field{margin-bottom:13px}
-.field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--text);margin-bottom:5px;text-transform:uppercase}
-.field input,.field select{width:100%;padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;transition:border 0.15s}
-.field input:focus,.field select:focus{border-color:var(--blue);background:var(--white)}
-.field input::placeholder{color:#c0bfbc}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── NAV ── */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 2rem;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Instrument Serif',serif;font-size:20px;color:var(--text)}
+.nav-logo em{font-style:italic;color:var(--blue)}
+.nav-links{display:flex;align-items:center;gap:24px}
+.nav-links a{font-size:13px;color:var(--muted)}
+.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-cta{font-size:13px;padding:8px 18px;border:1.5px solid var(--blue);border-radius:8px;color:var(--blue);font-weight:500;background:transparent}
+.nav-cta:hover{background:var(--blue-light);text-decoration:none}
+
+/* ── HERO SPLIT ── */
+.hero-split{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 57px)}
+
+/* LEFT */
+.hero-left{background:var(--blue-dark);padding:3.5rem 3rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.hero-left::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.04)}
+.hero-left::after{content:'';position:absolute;bottom:-40px;left:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.03)}
+.hero-tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px;position:relative;z-index:1}
+.hero-title{font-family:'Instrument Serif',serif;font-size:38px;line-height:1.2;color:#fff;margin-bottom:16px;font-weight:400;position:relative;z-index:1}
+.hero-title em{font-style:italic;color:#93c5fd}
+.hero-desc{font-size:15px;color:rgba(255,255,255,0.65);line-height:1.7;max-width:380px;margin-bottom:2rem;position:relative;z-index:1}
+
+/* WHAT WE DO */
+.what-we-do{display:flex;flex-direction:column;gap:12px;margin-bottom:2rem;position:relative;z-index:1}
+.wwd-item{display:flex;align-items:flex-start;gap:10px}
+.wwd-icon{width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;margin-top:1px}
+.wwd-text{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5}
+.wwd-text strong{color:#fff;display:block;font-size:13px;margin-bottom:1px}
+
+/* STATS */
+.stats-row{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.stat-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,0.08)}
+.stat-num{font-family:'Instrument Serif',serif;font-size:20px;color:#fff;min-width:64px}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.4}
+
+/* RIGHT — FORM */
+.hero-right{background:var(--white);padding:2.5rem 2.5rem;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto}
+.form-wrap{width:100%;max-width:420px;padding-top:8px}
+.form-title{font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:4px;font-weight:400}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:10px 13px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;transition:border 0.15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);background:var(--white)}
+.field input::placeholder,.field textarea::placeholder{color:#c0bfbc}
 .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer;transition:background 0.15s;margin-top:4px}
+.field-hint{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.div-label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.btn{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:10px;background:var(--blue);color:#fff;cursor:pointer;transition:background 0.15s;margin-top:4px}
 .btn:hover{background:var(--blue-dark)}
 .btn:disabled{background:#93c5fd;cursor:not-allowed}
-.terms{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6}
-.msg{font-size:13px;padding:11px 14px;border-radius:8px;margin-bottom:14px;display:none;line-height:1.5}
+.msg{font-size:13px;padding:10px 13px;border-radius:8px;margin-bottom:12px;display:none;line-height:1.5}
 .msg.error{background:var(--red-light);color:var(--red);display:block}
 .msg.success{background:var(--green-light);color:var(--green);display:block}
-@media(max-width:720px){
-  .wrap{grid-template-columns:1fr}
-  .left{display:none}
-  .right{padding:2rem 1.25rem}
+.terms{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6}
+.terms a{color:var(--blue)}
+
+/* ── HOW IT WORKS ── */
+.section{padding:5rem 2rem}
+.section-tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:center;margin-bottom:10px}
+.section-title{font-family:'Instrument Serif',serif;font-size:32px;text-align:center;font-weight:400;margin-bottom:8px}
+.section-sub{font-size:15px;color:var(--muted);text-align:center;max-width:480px;margin:0 auto 3rem;line-height:1.7}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;max-width:960px;margin:0 auto}
+.step-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.5rem;position:relative}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--blue-light);color:var(--blue);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.step-icon{font-size:28px;margin-bottom:12px}
+.step-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.step-arrow{position:absolute;top:2rem;right:-1rem;font-size:18px;color:var(--border);z-index:1}
+
+/* ── PARTNER CTA ── */
+.partner-section{background:var(--blue-dark);padding:5rem 2rem;text-align:center;position:relative;overflow:hidden}
+.partner-section::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,0.03)}
+.partner-tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:12px;position:relative;z-index:1}
+.partner-title{font-family:'Instrument Serif',serif;font-size:34px;color:#fff;font-weight:400;margin-bottom:10px;position:relative;z-index:1}
+.partner-title em{font-style:italic;color:#93c5fd}
+.partner-sub{font-size:15px;color:rgba(255,255,255,0.6);max-width:440px;margin:0 auto 2rem;line-height:1.7;position:relative;z-index:1}
+.partner-cards{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:2rem;position:relative;z-index:1}
+.partner-card{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:16px 20px;text-align:center}
+.partner-card-icon{font-size:24px;margin-bottom:6px}
+.partner-card-text{font-size:12px;color:rgba(255,255,255,0.7)}
+.partner-btn{display:inline-block;padding:13px 28px;background:#fff;color:var(--blue-dark);border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;position:relative;z-index:1}
+.partner-btn:hover{background:var(--blue-light);text-decoration:none}
+.partner-note{font-size:12px;color:rgba(255,255,255,0.4);margin-top:12px;position:relative;z-index:1}
+
+/* ── FOOTER ── */
+footer{background:var(--white);border-top:1px solid var(--border);padding:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-logo{font-family:'Instrument Serif',serif;font-size:16px}
+.footer-logo em{font-style:italic;color:var(--blue)}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{font-size:12px;color:var(--muted)}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{font-size:12px;color:var(--muted)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .hero-split{grid-template-columns:1fr}
+  .hero-left{padding:2rem 1.25rem;min-height:auto}
+  .hero-right{padding:2rem 1.25rem}
+  .steps-grid{grid-template-columns:1fr 1fr}
+  .step-arrow{display:none}
+  .nav-links{display:none}
+  footer{flex-direction:column;text-align:center}
+}
+@media(max-width:480px){
+  .steps-grid{grid-template-columns:1fr}
+  .hero-title{font-size:28px}
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo">Re<em>venu</em></div>
-  <a class="login-link" href="login.html">Already registered? <span>Login →</span></a>
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Re<em>venu</em></div>
+  <div class="nav-links">
+    <a href="#how-it-works">How it works</a>
+    <a href="#partner">For hotels</a>
+    <a href="mailto:hello@revenu.in">Contact</a>
+  </div>
+  <a class="nav-cta" href="login.html">Login →</a>
 </nav>
 
-<div class="wrap">
-  <div class="left">
-    <div class="left-content">
-      <span class="left-tag">For hotel owners</span>
-      <h2>Your hotel earns more <em>after</em> the booking</h2>
-      <p>Revenu helps you recover lost revenue through smart check-ins, automated upsells, and real-time guest operations.</p>
+<!-- HERO SPLIT -->
+<div class="hero-split">
+
+  <!-- LEFT -->
+  <div class="hero-left">
+    <div>
+      <div class="hero-tag">For hotel owners</div>
+      <h1 class="hero-title">Your hotel earns more<br><em>after</em> the booking</h1>
+      <p class="hero-desc">Revenu is a smart operations platform that helps hotels recover lost revenue, reduce front-desk chaos, and give guests a seamless experience — all from one dashboard.</p>
+
+      <div class="what-we-do">
+        <div class="wwd-item">
+          <div class="wwd-icon">✓</div>
+          <div class="wwd-text">
+            <strong>Zero paperwork check-in</strong>
+            Guests verify ID and check in before arrival from their phone.
+          </div>
+        </div>
+        <div class="wwd-item">
+          <div class="wwd-icon">₹</div>
+          <div class="wwd-text">
+            <strong>Automated upsells</strong>
+            Offer early check-in, upgrades, and breakfast — guests pay before they arrive.
+          </div>
+        </div>
+        <div class="wwd-item">
+          <div class="wwd-icon">🍽</div>
+          <div class="wwd-text">
+            <strong>In-app food and services</strong>
+            Guests order food, request towels, track delivery — hotel keeps the revenue.
+          </div>
+        </div>
+        <div class="wwd-item">
+          <div class="wwd-icon">📊</div>
+          <div class="wwd-text">
+            <strong>Real-time dashboard</strong>
+            See every booking, order, request, and payment in one place.
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="stats">
+
+    <div class="stats-row">
       <div class="stat-item">
         <div class="stat-num">₹2–5L</div>
-        <div class="stat-label">extra revenue per hotel per year on average</div>
+        <div class="stat-label">extra revenue per hotel<br>per year on average</div>
       </div>
       <div class="stat-item">
         <div class="stat-num">Zero</div>
@@ -89,88 +202,167 @@ nav{padding:18px 2rem;display:flex;align-items:center;justify-content:space-betw
     </div>
   </div>
 
-  <div class="right">
+  <!-- RIGHT — SIGNUP FORM -->
+  <div class="hero-right">
     <div class="form-wrap">
       <div class="form-title">Create your account</div>
-      <div class="form-sub">Set up Revenu for your hotel in 2 minutes.</div>
+      <div class="form-sub">Set up Revenu for your hotel in 2 minutes. Free to start.</div>
 
       <div class="msg" id="msg"></div>
 
+      <div class="div-label">Hotel details</div>
       <div class="field">
-        <label>Hotel Name</label>
-        <input type="text" id="hotel_name" placeholder="e.g. Lacasa Hotel Mumbai"/>
+        <label>Hotel name</label>
+        <input type="text" id="hotel_name" placeholder="e.g. LaCasa Hotel Mumbai"/>
       </div>
-
+      <div class="field">
+        <label>Type of hotel</label>
+        <select id="hotel_type">
+          <option value="">Select type…</option>
+          <option>Budget hotel</option>
+          <option>3-star hotel</option>
+          <option>4-star hotel</option>
+          <option>5-star hotel</option>
+          <option>Boutique hotel</option>
+          <option>Resort</option>
+          <option>Serviced apartment</option>
+        </select>
+      </div>
       <div class="row2">
         <div class="field">
-          <label>First Name</label>
+          <label>City</label>
+          <input type="text" id="city" placeholder="Mumbai"/>
+        </div>
+        <div class="field">
+          <label>Pincode</label>
+          <input type="text" id="pincode" placeholder="400001"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Hotel address</label>
+        <input type="text" id="address" placeholder="Street, Area, Landmark"/>
+      </div>
+
+      <div class="divider"></div>
+      <div class="div-label">Your details</div>
+      <div class="row2">
+        <div class="field">
+          <label>First name</label>
           <input type="text" id="first_name" placeholder="Rahul"/>
         </div>
         <div class="field">
-          <label>Last Name</label>
+          <label>Last name</label>
           <input type="text" id="last_name" placeholder="Sharma"/>
         </div>
       </div>
-
       <div class="field">
-        <label>Work Email</label>
+        <label>Work email</label>
         <input type="email" id="email" placeholder="you@yourhotel.com"/>
       </div>
-
       <div class="field">
-        <label>Phone Number</label>
+        <label>Phone number</label>
         <input type="tel" id="phone" placeholder="+91 98765 43210"/>
       </div>
 
-      <div class="field">
-        <label>Hotel City</label>
-        <input type="text" id="city" placeholder="e.g. Mumbai"/>
-      </div>
-
-      <div class="row2">
-        <div class="field">
-          <label>Hotel Type</label>
-          <select id="hotel_type">
-            <option value="">Select…</option>
-            <option>Budget hotel</option>
-            <option>3-star hotel</option>
-            <option>4-star hotel</option>
-            <option>5-star hotel</option>
-            <option>Boutique hotel</option>
-            <option>Resort</option>
-            <option>Serviced apartment</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>No. of Rooms</label>
-          <select id="room_count">
-            <option value="">Select…</option>
-            <option>1–10 rooms</option>
-            <option>11–25 rooms</option>
-            <option>26–50 rooms</option>
-            <option>51–100 rooms</option>
-            <option>100+ rooms</option>
-          </select>
-        </div>
-      </div>
-
+      <div class="divider"></div>
+      <div class="div-label">Security</div>
       <div class="field">
         <label>Password</label>
         <input type="password" id="password" placeholder="Minimum 8 characters"/>
       </div>
 
+      <div class="divider"></div>
+      <div class="div-label">Payments <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px">(optional)</span></div>
       <div class="field">
-        <label>UPI ID <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:#6b7280">(optional — lets guests pay you directly)</span></label>
+        <label>UPI ID</label>
         <input type="text" id="upi_id" placeholder="yourname@upi or yourname@okicici"/>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.5">Payments go directly from your guests to you. Revenu never touches your money.</div>
+        <div class="field-hint">Lets guests pay you directly. Revenu never touches your money.</div>
       </div>
 
       <button class="btn" id="btn" onclick="handleSignup()">Create my Revenu account →</button>
-
-      <div class="terms">By signing up you agree to Revenu's Terms of Service and Privacy Policy.</div>
+      <div class="terms">By signing up you agree to Revenu's <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a>.</div>
     </div>
   </div>
 </div>
+
+<!-- HOW IT WORKS -->
+<div class="section" id="how-it-works" style="background:var(--bg)">
+  <div class="section-tag">How it works</div>
+  <h2 class="section-title">Simple for staff. Powerful for owners.</h2>
+  <p class="section-sub">Revenu plugs into your hotel operations in one day — no tech team needed.</p>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-icon">🏨</div>
+      <div class="step-title">Sign up your hotel</div>
+      <div class="step-desc">Create your account, set up your rooms and services. Takes 2 minutes.</div>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-icon">📋</div>
+      <div class="step-title">Add guest bookings</div>
+      <div class="step-desc">Add bookings from OYO, MakeMyTrip, walk-in or any source in 20 seconds.</div>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-icon">📱</div>
+      <div class="step-title">Guest gets a link</div>
+      <div class="step-desc">Guest receives a WhatsApp link to check in, order food, request services — from their phone.</div>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-icon">📊</div>
+      <div class="step-title">You see everything</div>
+      <div class="step-desc">Track revenue, guest requests, food orders, and staff tasks — all in real time.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTNER CTA -->
+<div class="partner-section" id="partner">
+  <div class="partner-tag">Coming soon — early access</div>
+  <h2 class="partner-title">Be one of our<br><em>first hotel partners</em></h2>
+  <p class="partner-sub">Revenu is currently onboarding its first hotels. Early partners get priority support, free setup, and locked-in pricing.</p>
+  <div class="partner-cards">
+    <div class="partner-card">
+      <div class="partner-card-icon">🏨</div>
+      <div class="partner-card-text">Budget hotels</div>
+    </div>
+    <div class="partner-card">
+      <div class="partner-card-icon">⭐</div>
+      <div class="partner-card-text">3 & 4 star hotels</div>
+    </div>
+    <div class="partner-card">
+      <div class="partner-card-icon">✈️</div>
+      <div class="partner-card-text">Airport hotels</div>
+    </div>
+    <div class="partner-card">
+      <div class="partner-card-icon">🏢</div>
+      <div class="partner-card-text">Business hotels</div>
+    </div>
+    <div class="partner-card">
+      <div class="partner-card-icon">🌴</div>
+      <div class="partner-card-text">Resorts</div>
+    </div>
+  </div>
+  <button class="partner-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Sign up as an early partner →</button>
+  <div class="partner-note">Free to start. No credit card required.</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Re<em>venu</em> <span style="font-size:12px;color:var(--muted);font-family:'DM Sans',sans-serif"> by Optimus</span></div>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="mailto:hello@revenu.in">hello@revenu.in</a>
+    <a href="login.html">Hotel Login</a>
+  </div>
+  <div class="footer-copy">© 2026 Optimus Technologies. All rights reserved.</div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -179,53 +371,56 @@ const sb = window.supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dGlva2JnYnRvZXR3cGp4Z25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDk0ODQsImV4cCI6MjA5MzQ4NTQ4NH0.odfG2wPNcQSQOI4JlxlA4VG4S0RHrvINW1zM8E0MRcM'
 );
 
-function showMsg(text,type){
-  const el=document.getElementById('msg');
-  el.textContent=text;
-  el.className='msg '+type;
+function showMsg(text, type){
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
 }
 
 async function handleSignup(){
-  const hotel_name=document.getElementById('hotel_name').value.trim();
-  const first_name=document.getElementById('first_name').value.trim();
-  const last_name=document.getElementById('last_name').value.trim();
-  const email=document.getElementById('email').value.trim();
-  const phone=document.getElementById('phone').value.trim();
-  const city=document.getElementById('city').value.trim();
-  const hotel_type=document.getElementById('hotel_type').value;
-  const room_count=document.getElementById('room_count').value;
-  const password=document.getElementById('password').value;
-  const upi_id=document.getElementById('upi_id').value.trim();
-  const btn=document.getElementById('btn');
+  const hotel_name  = document.getElementById('hotel_name').value.trim();
+  const hotel_type  = document.getElementById('hotel_type').value;
+  const city        = document.getElementById('city').value.trim();
+  const pincode     = document.getElementById('pincode').value.trim();
+  const address     = document.getElementById('address').value.trim();
+  const first_name  = document.getElementById('first_name').value.trim();
+  const last_name   = document.getElementById('last_name').value.trim();
+  const email       = document.getElementById('email').value.trim();
+  const phone       = document.getElementById('phone').value.trim();
+  const password    = document.getElementById('password').value;
+  const upi_id      = document.getElementById('upi_id').value.trim();
+  const btn         = document.getElementById('btn');
 
-  if(!hotel_name||!first_name||!last_name||!email||!phone||!city||!hotel_type||!room_count||!password){
-    showMsg('Please fill in all fields.','error');return;
+  if(!hotel_name||!hotel_type||!city||!pincode||!address||!first_name||!last_name||!email||!phone||!password){
+    showMsg('Please fill in all required fields.','error'); return;
   }
-  if(password.length<8){
-    showMsg('Password must be at least 8 characters.','error');return;
+  if(password.length < 8){
+    showMsg('Password must be at least 8 characters.','error'); return;
   }
 
-  btn.disabled=true;
-  btn.textContent='Creating your account…';
+  btn.disabled = true;
+  btn.textContent = 'Creating your account…';
 
-  const {data,error}=await sb.auth.signUp({
-    email,password,
-    options:{data:{hotel_name,first_name,last_name,phone,city,hotel_type,room_count,upi_id}}
+  const {data, error} = await sb.auth.signUp({
+    email, password,
+    options:{
+      data:{ hotel_name, hotel_type, city, pincode, address, first_name, last_name, phone, upi_id }
+    }
   });
 
   if(error){
-    showMsg(error.message,'error');
-    btn.disabled=false;
-    btn.textContent='Create my Revenu account →';
+    showMsg(error.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Create my Revenu account →';
   } else {
-    showMsg('✓ Account created! Check your email to confirm, then login.','success');
-    btn.textContent='Account created!';
-    setTimeout(()=>{window.location.href='login.html';},3000);
+    showMsg('Account created! Check your email to confirm, then login.', 'success');
+    btn.textContent = 'Account created!';
+    setTimeout(()=>{ window.location.href = 'login.html'; }, 3000);
   }
 }
 
-document.getElementById('password').addEventListener('keydown',e=>{
-  if(e.key==='Enter')handleSignup();
+document.getElementById('password').addEventListener('keydown', e => {
+  if(e.key === 'Enter') handleSignup();
 });
 </script>
 </body>
