@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Revenu — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a56a0;--blue-dark:#0f3875;--blue-light:#dbeafe;
+  --text:#0f0f0f;--muted:#6b7280;--border:#e4e4e7;
+  --bg:#fafaf9;--white:#fff;
+  --green:#15803d;--green-light:#dcfce7;
+  --red:#b91c1c;--red-light:#fee2e2;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+nav{padding:18px 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--white);border-bottom:1px solid var(--border)}
+.logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--text)}
+.logo em{font-style:italic;color:var(--blue)}
+.signup-link{font-size:13px;color:var(--muted);text-decoration:none}
+.signup-link span{color:var(--blue);font-weight:500}
+.signup-link:hover span{text-decoration:underline}
+.wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 61px)}
+.left{background:var(--blue-dark);padding:3.5rem;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.04)}
+.left::after{content:'';position:absolute;bottom:-60px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.03)}
+.left-content{position:relative;z-index:1}
+.left-tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:1.5rem;display:block}
+.left h2{font-family:'Instrument Serif',serif;font-size:36px;line-height:1.2;color:#fff;margin-bottom:1.25rem;font-weight:400}
+.left h2 em{font-style:italic;color:#93c5fd}
+.left p{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:320px}
+.right{background:var(--white);padding:3rem;display:flex;align-items:center;justify-content:center}
+.form-wrap{width:100%;max-width:380px}
+.form-title{font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:4px;font-weight:400}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:1.75rem}
+.field{margin-bottom:14px}
+.field label{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--text);margin-bottom:5px;text-transform:uppercase}
+.field input{width:100%;padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;transition:border 0.15s}
+.field input:focus{border-color:var(--blue);background:var(--white)}
+.field input::placeholder{color:#c0bfbc}
+.forgot{font-size:11px;color:var(--blue);text-decoration:none;font-weight:500;text-transform:none;letter-spacing:0}
+.forgot:hover{text-decoration:underline}
+.btn{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer;transition:background 0.15s;margin-top:4px}
+.btn:hover{background:var(--blue-dark)}
+.btn:disabled{background:#93c5fd;cursor:not-allowed}
+.msg{font-size:13px;padding:11px 14px;border-radius:8px;margin-bottom:14px;display:none;line-height:1.5}
+.msg.error{background:var(--red-light);color:var(--red);display:block}
+.msg.success{background:var(--green-light);color:var(--green);display:block}
+.bottom-link{font-size:13px;color:var(--muted);text-align:center;margin-top:16px}
+.bottom-link a{color:var(--blue);font-weight:500;text-decoration:none}
+.bottom-link a:hover{text-decoration:underline}
+@media(max-width:720px){
+  .wrap{grid-template-columns:1fr}
+  .left{display:none}
+  .right{padding:2rem 1.25rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Re<em>venu</em></div>
+  <a class="signup-link" href="index.html">No account? <span>Sign up free →</span></a>
+</nav>
+
+<div class="wrap">
+  <div class="left">
+    <div class="left-content">
+      <span class="left-tag">Welcome back</span>
+      <h2>Good to see you <em>again</em></h2>
+      <p>Log in to manage your hotel's check-ins, upsells, food orders, and staff — all in one place.</p>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="form-wrap">
+      <div class="form-title">Login to Revenu</div>
+      <div class="form-sub">Enter your email and password to continue.</div>
+
+      <div class="msg" id="msg"></div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@yourhotel.com"/>
+      </div>
+
+      <div class="field">
+        <label>
+          Password
+          <a class="forgot" href="#" onclick="handleForgot(event)">Forgot password?</a>
+        </label>
+        <input type="password" id="password" placeholder="Your password"/>
+      </div>
+
+      <button class="btn" id="btn" onclick="handleLogin()">Login to my dashboard →</button>
+
+      <div class="bottom-link">
+        Don't have an account? <a href="index.html">Sign up free</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = window.supabase.createClient(
+  'https://hytiokbgbtoetwpjxgnb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dGlva2JnYnRvZXR3cGp4Z25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDk0ODQsImV4cCI6MjA5MzQ4NTQ4NH0.odfG2wPNcQSQOI4JlxlA4VG4S0RHrvINW1zM8E0MRcM'
+);
+
+function showMsg(text,type){
+  const el=document.getElementById('msg');
+  el.textContent=text;
+  el.className='msg '+type;
+}
+
+async function handleLogin(){
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+  const btn=document.getElementById('btn');
+
+  if(!email||!password){showMsg('Please enter your email and password.','error');return;}
+
+  btn.disabled=true;
+  btn.textContent='Logging in…';
+
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
+
+  if(error){
+    showMsg(error.message,'error');
+    btn.disabled=false;
+    btn.textContent='Login to my dashboard →';
+  } else {
+    showMsg('✓ Login successful! Taking you to your dashboard…','success');
+    btn.textContent='Redirecting…';
+    setTimeout(()=>{window.location.href='dashboard.html';},1500);
+  }
+}
+
+async function handleForgot(e){
+  e.preventDefault();
+  const email=document.getElementById('email').value.trim();
+  if(!email){showMsg('Enter your email above first, then click Forgot password.','error');return;}
+  const {error}=await sb.auth.resetPasswordForEmail(email);
+  if(error){showMsg(error.message,'error');}
+  else{showMsg('✓ Password reset email sent! Check your inbox.','success');}
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin();});
+</script>
+</body>
+</html>

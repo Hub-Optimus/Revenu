@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Revenu — Guest Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1a56a0;--blue-light:#dbeafe;--blue-dark:#0f3875;--text:#0f0f0f;--muted:#6b7280;--border:#e4e4e7;--bg:#f4f4f3;--white:#fff;--green:#15803d;--green-light:#dcfce7;--amber:#92400e;--amber-light:#fef3c7;--red:#b91c1c;--red-light:#fee2e2;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center}
+.shell{width:100%;max-width:420px;min-height:100vh;background:var(--white);display:flex;flex-direction:column}
+
+/* VERIFY */
+.verify-hero{background:var(--blue-dark);padding:32px 20px 36px;position:relative;overflow:hidden}
+.verify-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.05)}
+.v-logo{font-family:'Instrument Serif',serif;font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:14px;position:relative;z-index:1}
+.v-logo em{font-style:italic;color:#93c5fd}
+.v-title{font-family:'Instrument Serif',serif;font-size:26px;color:#fff;line-height:1.3;position:relative;z-index:1}
+.v-title em{font-style:italic;color:#93c5fd}
+.v-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-top:8px;position:relative;z-index:1}
+.verify-body{padding:24px 20px;flex:1}
+.err{font-size:13px;padding:10px 14px;border-radius:8px;background:var(--red-light);color:var(--red);margin-bottom:14px;display:none}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text);margin-bottom:5px}
+.field input{width:100%;padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none;transition:border 0.15s}
+.field input:focus{border-color:var(--blue);background:var(--white)}
+.field input::placeholder{color:#bbb}
+.btn-p{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+.btn-p:disabled{background:#93c5fd;cursor:not-allowed}
+.v-note{font-size:12px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
+
+/* APP HEADER */
+.app-header{background:var(--blue-dark);padding:16px 20px;position:relative;overflow:hidden}
+.app-header::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05)}
+.a-logo{font-family:'Instrument Serif',serif;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px;position:relative;z-index:1}
+.a-logo em{font-style:italic;color:#93c5fd}
+.a-welcome{font-family:'Instrument Serif',serif;font-size:20px;color:#fff;position:relative;z-index:1}
+.a-welcome em{font-style:italic;color:#93c5fd}
+.a-pills{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;position:relative;z-index:1}
+.pill{background:rgba(255,255,255,0.12);border-radius:999px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.8)}
+
+/* BOTTOM NAV */
+.bottom-nav{display:flex;border-top:1px solid var(--border);background:var(--white);position:sticky;bottom:0;z-index:50}
+.nb{flex:1;padding:10px 2px 8px;text-align:center;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;color:var(--muted);font-size:9px;transition:color 0.15s;position:relative}
+.nb.active{color:var(--blue)}
+.nb-icon{font-size:20px;display:block;margin-bottom:2px}
+.cbadge{position:absolute;top:5px;right:calc(50% - 16px);background:var(--red);color:#fff;font-size:9px;font-weight:700;width:15px;height:15px;border-radius:50%;display:none;align-items:center;justify-content:center}
+.cbadge.show{display:flex}
+
+/* PAGES */
+.page{display:none;flex:1;flex-direction:column;overflow-y:auto;padding-bottom:10px}
+.page.active{display:flex}
+.sec-title{font-size:16px;font-weight:600;padding:16px 16px 8px}
+.sec-sub{font-size:13px;color:var(--muted);padding:0 16px 12px}
+
+/* HOME */
+.booking-card{margin:16px;background:var(--bg);border-radius:14px;padding:16px;border:1px solid var(--border)}
+.bc-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)}
+.bc-row:last-child{border-bottom:none}
+.bc-lbl{color:var(--muted)}
+.bc-val{font-weight:500}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 16px}
+.mc{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.15s;text-align:center}
+.mc:hover{border-color:var(--blue);background:var(--blue-light)}
+.mc-icon{font-size:30px;margin-bottom:8px}
+.mc-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.mc-sub{font-size:11px;color:var(--muted);line-height:1.4}
+
+/* CHECK-IN */
+.opt-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all 0.15s;margin:0 16px 10px}
+.opt-card:hover{border-color:var(--blue)}
+.opt-card.selected{border-color:var(--blue);background:var(--blue-light)}
+.opt-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.opt-sub{font-size:12px;color:var(--muted);line-height:1.5}
+.opt-price{font-size:14px;font-weight:600;color:var(--green);margin-top:5px}
+.form-sec{padding:0 16px 16px}
+.flabel{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text);margin-bottom:5px}
+.finput{width:100%;padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none;margin-bottom:12px}
+.finput:focus{border-color:var(--blue);background:var(--white)}
+.fselect{width:100%;padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none;margin-bottom:12px;appearance:none}
+.btn-action{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+.success-bar{background:var(--green-light);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--green);font-weight:500;margin:0 16px 10px;display:none}
+
+/* FOOD */
+.filters{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filt{padding:6px 14px;border-radius:999px;font-size:12px;font-weight:500;border:1px solid var(--border);background:var(--white);cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.filt.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.schedule-box{margin:0 16px 12px;background:var(--bg);border-radius:12px;padding:14px;border:1px solid var(--border)}
+.sched-row{display:flex;gap:8px;margin-top:8px}
+.sched-row input{flex:1;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--white);outline:none}
+.food-items{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.food-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--white)}
+.f-emoji{font-size:32px;flex-shrink:0}
+.f-info{flex:1}
+.f-name{font-size:14px;font-weight:500}
+.f-desc{font-size:11px;color:var(--muted);margin-top:1px}
+.f-time{font-size:11px;color:var(--blue);margin-top:2px}
+.f-price{font-size:14px;font-weight:600;margin-right:8px;flex-shrink:0}
+.f-add{width:32px;height:32px;border-radius:8px;background:var(--blue);color:#fff;border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif}
+
+/* TRACKING */
+.tracking-box{margin:0 16px 12px;background:var(--bg);border-radius:12px;padding:14px;border:1px solid var(--border)}
+.t-title{font-size:13px;font-weight:600;margin-bottom:10px}
+.t-steps{display:flex;align-items:center}
+.t-step{display:flex;flex-direction:column;align-items:center;flex:1}
+.t-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:9px;margin-bottom:4px;transition:all 0.4s}
+.t-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.t-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;animation:pulse 1.5s infinite}
+.t-lbl{font-size:9px;color:var(--muted);text-align:center}
+.t-line{flex:1;height:2px;background:var(--border);margin-bottom:18px;transition:background 0.4s}
+.t-line.done{background:var(--green)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* SERVICES */
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px}
+.svc-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;cursor:pointer;transition:all 0.15s}
+.svc-card:hover{border-color:var(--blue);background:var(--blue-light)}
+.svc-card.done{border-color:var(--green);background:var(--green-light)}
+.svc-icon{font-size:26px;margin-bottom:6px}
+.svc-name{font-size:13px;font-weight:500}
+.svc-time{font-size:11px;color:var(--muted);margin-top:2px}
+.svc-price{font-size:12px;font-weight:600;color:var(--green);margin-top:2px}
+
+/* CART */
+.cart-empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.ci-list{padding:16px;display:flex;flex-direction:column;gap:8px}
+.ci{display:flex;align-items:center;gap:8px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:var(--white)}
+.ci-type{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;flex-shrink:0}
+.ci-type.food{background:#dcfce7;color:#15803d}
+.ci-type.service{background:#fef3c7;color:#92400e}
+.ci-type.upsell{background:#dbeafe;color:#1a56a0}
+.ci-type.feedback{background:#f1f0e8;color:#5f5e5a}
+.ci-name{flex:1;font-size:13px;font-weight:500}
+.ci-amt{font-size:13px;font-weight:600;color:var(--green);flex-shrink:0}
+.ci-status{font-size:10px;padding:2px 7px;border-radius:5px;flex-shrink:0}
+.s-pending{background:#fef3c7;color:#92400e}
+.s-preparing{background:#dbeafe;color:#1a56a0}
+.s-delivered{background:#dcfce7;color:#15803d}
+.s-scheduled{background:#ede9fe;color:#6d28d9}
+.cart-total{margin:0 16px 12px;background:var(--blue-light);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.ct-label{font-size:13px;font-weight:600;color:var(--blue)}
+.ct-note{font-size:11px;color:var(--blue);margin-top:2px}
+.ct-amt{font-size:22px;font-weight:700;color:var(--blue)}
+
+/* RATING */
+.stars{display:flex;gap:6px;justify-content:center;margin:8px 0 4px}
+.star{font-size:30px;cursor:pointer;filter:grayscale(1);opacity:0.4;transition:all 0.15s}
+.star.active{filter:none;opacity:1}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- VERIFY SCREEN -->
+  <div id="verify-screen" style="display:flex;flex-direction:column;flex:1">
+    <div class="verify-hero">
+      <div class="v-logo">Re<em>venu</em></div>
+      <div class="v-title">Access your booking<br><em>&amp; hotel services</em></div>
+      <div class="v-sub">Enter your PNR and last name to continue</div>
+    </div>
+    <div class="verify-body">
+      <div class="err" id="err"></div>
+      <div class="field" id="pnr-field"><label>PNR / Booking ID</label><input type="text" id="v-pnr" placeholder="e.g. OYO-839201 or XYZABC"/></div>
+      <div class="field"><label>Last name</label><input type="text" id="v-lastname" placeholder="e.g. Sharma"/></div>
+      <button class="btn-p" id="vbtn" onclick="verifyGuest()">Access my booking →</button>
+      <div class="v-note" id="v-hint">Your PNR is in your booking confirmation email.<br>Last name should match your booking.</div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" style="display:none;flex-direction:column;flex:1">
+    <div class="app-header">
+      <div class="a-logo">Re<em>venu</em> · <span id="h-hotel">Hotel</span></div>
+      <div class="a-welcome">Welcome, <em id="h-name">Guest</em> 👋</div>
+      <div class="a-pills">
+        <span class="pill">🏨 Room <span id="h-room">—</span></span>
+        <span class="pill">📅 <span id="h-checkin">—</span></span>
+        <span class="pill">🔖 <span id="h-pnr">—</span></span>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <div class="page active" id="pg-home">
+      <div class="booking-card">
+        <div class="bc-row"><span class="bc-lbl">Guest</span><span class="bc-val" id="bc-name">—</span></div>
+        <div class="bc-row"><span class="bc-lbl">Room</span><span class="bc-val" id="bc-room">—</span></div>
+        <div class="bc-row"><span class="bc-lbl">Check-in</span><span class="bc-val" id="bc-cin">—</span></div>
+        <div class="bc-row"><span class="bc-lbl">Check-out</span><span class="bc-val" id="bc-cout">—</span></div>
+        <div class="bc-row"><span class="bc-lbl">Source</span><span class="bc-val" id="bc-src">—</span></div>
+      </div>
+      <div class="sec-title">What would you like?</div>
+      <div class="menu-grid">
+        <div class="mc" onclick="goPage('pg-checkin',1)"><div class="mc-icon">🏨</div><div class="mc-title">Check-in</div><div class="mc-sub">Complete check-in & request upgrades</div></div>
+        <div class="mc" onclick="goPage('pg-food',2)"><div class="mc-icon">🍽️</div><div class="mc-title">Order food</div><div class="mc-sub">Menu, schedule & live tracking</div></div>
+        <div class="mc" onclick="goPage('pg-services',3)"><div class="mc-icon">🛎️</div><div class="mc-title">Services</div><div class="mc-sub">Towels, laundry & more</div></div>
+        <div class="mc" onclick="goPage('pg-cart',4)"><div class="mc-icon">🧾</div><div class="mc-title">My orders</div><div class="mc-sub">Cart, history & bill</div></div>
+      </div>
+    </div>
+
+    <!-- CHECK-IN -->
+    <div class="page" id="pg-checkin">
+      <div class="sec-title">Check-in options</div>
+      <div class="sec-sub">Select your preferred check-in time and complete your details.</div>
+      <div class="success-bar" id="ci-success">✓ Check-in details submitted! We'll have everything ready.</div>
+      <div class="opt-card" onclick="selectCI(null,this)">
+        <div class="opt-title">🕑 Standard check-in</div>
+        <div class="opt-sub">Check-in at 2:00 PM — no extra charge.</div>
+        <div class="opt-price">Free</div>
+      </div>
+      <div class="opt-card" id="ci-early" onclick="selectCI('early',this)">
+        <div class="opt-title">⏰ Early check-in</div>
+        <div class="opt-sub">Room ready from 9:00 AM instead of 2:00 PM.</div>
+        <div class="opt-price">₹999</div>
+      </div>
+      <div class="opt-card" id="ci-late" onclick="selectCI('late',this)">
+        <div class="opt-title">🌙 Late check-out</div>
+        <div class="opt-sub">Stay until 4:00 PM instead of 11:00 AM.</div>
+        <div class="opt-price">₹799</div>
+      </div>
+      <div class="form-sec">
+        <label class="flabel">Expected arrival time</label>
+        <input type="time" class="finput" id="ci-time" value="14:00"/>
+        <label class="flabel">ID type</label>
+        <select class="fselect" id="ci-id-type"><option value="">Select...</option><option>Aadhaar card</option><option>Passport</option><option>PAN card</option><option>Driving licence</option></select>
+        <label class="flabel">ID number</label>
+        <input type="text" class="finput" id="ci-id-num" placeholder="Enter your ID number"/>
+        <label class="flabel">Special requests (optional)</label>
+        <input type="text" class="finput" id="ci-special" placeholder="e.g. High floor, extra pillow…"/>
+        <button class="btn-action" onclick="submitCheckin()">Submit check-in details →</button>
+      </div>
+    </div>
+
+    <!-- FOOD -->
+    <div class="page" id="pg-food">
+      <div class="sec-title">Order food</div>
+      <div class="filters">
+        <div class="filt active" onclick="filterFood(this,'all')">All</div>
+        <div class="filt" onclick="filterFood(this,'main')">Main course</div>
+        <div class="filt" onclick="filterFood(this,'snacks')">Snacks</div>
+        <div class="filt" onclick="filterFood(this,'drinks')">Drinks</div>
+        <div class="filt" onclick="filterFood(this,'breakfast')">Breakfast</div>
+      </div>
+      <div class="schedule-box">
+        <div style="font-size:13px;font-weight:600">📅 Schedule order (optional)</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Leave empty to order now</div>
+        <div class="sched-row">
+          <input type="date" id="o-date" placeholder="Date"/>
+          <input type="time" id="o-time" placeholder="Time"/>
+        </div>
+      </div>
+      <div id="tracking-box" style="display:none" class="tracking-box">
+        <div class="t-title">🔴 Live — Order #<span id="o-num">1</span> · <span id="o-eta">~25 mins</span></div>
+        <div class="t-steps">
+          <div class="t-step"><div class="t-dot done" id="td1">✓</div><div class="t-lbl">Received</div></div>
+          <div class="t-line" id="tl1"></div>
+          <div class="t-step"><div class="t-dot" id="td2">🍳</div><div class="t-lbl">Preparing</div></div>
+          <div class="t-line" id="tl2"></div>
+          <div class="t-step"><div class="t-dot" id="td3">🛵</div><div class="t-lbl">On way</div></div>
+          <div class="t-line" id="tl3"></div>
+          <div class="t-step"><div class="t-dot" id="td4">✓</div><div class="t-lbl">Delivered</div></div>
+        </div>
+      </div>
+      <div class="food-items" id="food-items">
+        <div class="food-card" data-cat="main"><div class="f-emoji">🍛</div><div class="f-info"><div class="f-name">Paneer butter masala</div><div class="f-desc">Rich tomato gravy with paneer</div><div class="f-time">⏱ 20–25 min</div></div><div class="f-price">₹299</div><button class="f-add" onclick="addFood('Paneer butter masala',299)">+</button></div>
+        <div class="food-card" data-cat="main"><div class="f-emoji">🍗</div><div class="f-info"><div class="f-name">Chicken biryani</div><div class="f-desc">Fragrant basmati with spiced chicken</div><div class="f-time">⏱ 30–35 min</div></div><div class="f-price">₹349</div><button class="f-add" onclick="addFood('Chicken biryani',349)">+</button></div>
+        <div class="food-card" data-cat="snacks"><div class="f-emoji">🍕</div><div class="f-info"><div class="f-name">Margherita pizza</div><div class="f-desc">Classic with mozzarella and basil</div><div class="f-time">⏱ 25–30 min</div></div><div class="f-price">₹349</div><button class="f-add" onclick="addFood('Margherita pizza',349)">+</button></div>
+        <div class="food-card" data-cat="snacks"><div class="f-emoji">🥪</div><div class="f-info"><div class="f-name">Club sandwich</div><div class="f-desc">Triple decker with fries</div><div class="f-time">⏱ 15–20 min</div></div><div class="f-price">₹199</div><button class="f-add" onclick="addFood('Club sandwich',199)">+</button></div>
+        <div class="food-card" data-cat="drinks"><div class="f-emoji">☕</div><div class="f-info"><div class="f-name">Cold coffee</div><div class="f-desc">Chilled and creamy</div><div class="f-time">⏱ 10 min</div></div><div class="f-price">₹149</div><button class="f-add" onclick="addFood('Cold coffee',149)">+</button></div>
+        <div class="food-card" data-cat="drinks"><div class="f-emoji">🧃</div><div class="f-info"><div class="f-name">Fresh lime soda</div><div class="f-desc">Sweet or salted</div><div class="f-time">⏱ 5 min</div></div><div class="f-price">₹99</div><button class="f-add" onclick="addFood('Fresh lime soda',99)">+</button></div>
+        <div class="food-card" data-cat="breakfast"><div class="f-emoji">🥞</div><div class="f-info"><div class="f-name">Full English breakfast</div><div class="f-desc">Eggs, toast, beans and more</div><div class="f-time">⏱ 20–25 min</div></div><div class="f-price">₹299</div><button class="f-add" onclick="addFood('Full English breakfast',299)">+</button></div>
+        <div class="food-card" data-cat="breakfast"><div class="f-emoji">🍳</div><div class="f-info"><div class="f-name">Masala omelette</div><div class="f-desc">Spiced eggs with toast</div><div class="f-time">⏱ 10–15 min</div></div><div class="f-price">₹149</div><button class="f-add" onclick="addFood('Masala omelette',149)">+</button></div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="page" id="pg-services">
+      <div class="sec-title">Hotel services</div>
+      <div class="svc-grid">
+        <div class="svc-card" id="s1" onclick="doService(this,'🛁 Extra towels',0)"><div class="svc-icon">🛁</div><div class="svc-name">Extra towels</div><div class="svc-time">10 min</div><div class="svc-price">Free</div></div>
+        <div class="svc-card" id="s2" onclick="doService(this,'💧 Mineral water',60)"><div class="svc-icon">💧</div><div class="svc-name">Mineral water</div><div class="svc-time">5 min</div><div class="svc-price">₹60/bottle</div></div>
+        <div class="svc-card" id="s3" onclick="doService(this,'🧹 Housekeeping',0)"><div class="svc-icon">🧹</div><div class="svc-name">Housekeeping</div><div class="svc-time">15–20 min</div><div class="svc-price">Free</div></div>
+        <div class="svc-card" id="s4" onclick="doService(this,'🧺 Laundry',150)"><div class="svc-icon">🧺</div><div class="svc-name">Laundry</div><div class="svc-time">Same day</div><div class="svc-price">₹150/item</div></div>
+        <div class="svc-card" id="s5" onclick="doService(this,'🔌 Charger/cable',0)"><div class="svc-icon">🔌</div><div class="svc-name">Charger/cable</div><div class="svc-time">5 min</div><div class="svc-price">Free</div></div>
+        <div class="svc-card" id="s6" onclick="doService(this,'📞 Wake-up call',0)"><div class="svc-icon">📞</div><div class="svc-name">Wake-up call</div><div class="svc-time">Scheduled</div><div class="svc-price">Free</div></div>
+        <div class="svc-card" id="s7" onclick="doService(this,'🌡️ AC/temp',0)"><div class="svc-icon">🌡️</div><div class="svc-name">AC / temp</div><div class="svc-time">Instant</div><div class="svc-price">Free</div></div>
+        <div class="svc-card" id="s8" onclick="doService(this,'👔 Ironing',100)"><div class="svc-icon">👔</div><div class="svc-name">Ironing</div><div class="svc-time">30 min</div><div class="svc-price">₹100/item</div></div>
+      </div>
+      <div class="sec-title" style="padding-top:0">Upgrade your stay</div>
+      <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px">
+        <div class="opt-card" onclick="doUpsell('⬆️ Room upgrade',1499)"><div class="opt-title">⬆️ Room upgrade</div><div class="opt-sub">Upgrade to Deluxe with city view</div><div class="opt-price">₹1,499</div></div>
+        <div class="opt-card" onclick="doUpsell('🍳 Breakfast package',499)"><div class="opt-title">🍳 Breakfast package</div><div class="opt-sub">Full buffet breakfast daily</div><div class="opt-price">₹499/day</div></div>
+        <div class="opt-card" onclick="doUpsell('🚗 Airport transfer',700)"><div class="opt-title">🚗 Airport transfer</div><div class="opt-sub">Pickup/drop to nearest airport</div><div class="opt-price">₹700</div></div>
+      </div>
+    </div>
+
+    <!-- CART -->
+    <div class="page" id="pg-cart">
+      <div class="sec-title">My orders & bill</div>
+      <div id="cart-body"><div class="cart-empty"><div style="font-size:48px;margin-bottom:12px">🧾</div><div style="font-size:14px;font-weight:500;margin-bottom:6px">No orders yet</div><div style="font-size:13px">Order food or request services.</div></div></div>
+      <div style="padding:0 16px 16px;margin-top:8px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Rate your experience</div>
+        <div class="stars" id="stars"><span class="star" onclick="rateStar(1)">⭐</span><span class="star" onclick="rateStar(2)">⭐</span><span class="star" onclick="rateStar(3)">⭐</span><span class="star" onclick="rateStar(4)">⭐</span><span class="star" onclick="rateStar(5)">⭐</span></div>
+        <div id="r-text" style="font-size:13px;color:var(--muted);text-align:center"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <button class="nb active" onclick="goPage('pg-home',this)"><span class="nb-icon">🏠</span>Home</button>
+      <button class="nb" onclick="goPage('pg-checkin',this)"><span class="nb-icon">🏨</span>Check-in</button>
+      <button class="nb" onclick="goPage('pg-food',this)"><span class="nb-icon">🍽️</span>Food</button>
+      <button class="nb" onclick="goPage('pg-services',this)"><span class="nb-icon">🛎️</span>Services</button>
+      <button class="nb" onclick="goPage('pg-cart',this)"><span class="nb-icon">🧾</span>Orders<div class="cbadge" id="cbadge">0</div></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = window.supabase.createClient(
+  'https://hytiokbgbtoetwpjxgnb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dGlva2JnYnRvZXR3cGp4Z25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDk0ODQsImV4cCI6MjA5MzQ4NTQ4NH0.odfG2wPNcQSQOI4JlxlA4VG4S0RHrvINW1zM8E0MRcM'
+);
+
+let booking={}, cart=[], orderCount=0, trackTimer=null;
+
+// VERIFY
+const urlParams = new URLSearchParams(window.location.search);
+const urlBookingId = urlParams.get('booking');
+
+// If booking link has ID — only ask last name. If no ID — ask PNR + last name.
+window.addEventListener('DOMContentLoaded', function(){
+  if(urlBookingId){
+    document.getElementById('pnr-field').style.display='none';
+    document.getElementById('v-hint').innerHTML = 'Enter your last name to access your booking.';
+  }
+});
+
+async function verifyGuest(){
+  const pnr = urlBookingId ? null : document.getElementById('v-pnr').value.trim().toUpperCase();
+  const ln = document.getElementById('v-lastname').value.trim().toLowerCase();
+  const btn = document.getElementById('vbtn');
+  const err = document.getElementById('err');
+
+  if(!ln){ showErr('Please enter your last name.'); return; }
+  if(!urlBookingId && !pnr){ showErr('Please enter your PNR and last name.'); return; }
+
+  btn.textContent='Verifying…'; btn.disabled=true; err.style.display='none';
+
+  let data, error;
+
+  if(urlBookingId){
+    // Have booking ID from link — fetch by ID
+    const res = await sb.from('bookings').select('*').eq('id', urlBookingId).single();
+    data = res.data; error = res.error;
+  } else {
+    // No booking ID — search by PNR
+    const res = await sb.from('bookings').select('*').ilike('pnr', pnr).single();
+    data = res.data; error = res.error;
+  }
+
+  if(error || !data){ showErr('Booking not found. Please check your details.'); reset(); return; }
+
+  // Verify last name
+  const gln = data.guest_name.split(' ').pop().toLowerCase();
+  if(gln !== ln){ showErr('Last name does not match. Please try again.'); reset(); return; }
+
+  booking = data;
+  document.getElementById('verify-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  renderBooking();
+  loadRequests();
+}
+
+function showErr(m){ const e=document.getElementById('err'); e.textContent=m; e.style.display='block'; }
+function reset(){ const b=document.getElementById('vbtn'); b.textContent='Access my booking →'; b.disabled=false; }
+
+function renderBooking(){
+  const n=booking.guest_name||'Guest';
+  document.getElementById('h-name').textContent=n.split(' ')[0];
+  document.getElementById('h-hotel').textContent=booking.hotel_name||'Hotel';
+  document.getElementById('h-room').textContent=booking.room_no||'—';
+  document.getElementById('h-checkin').textContent=fmtDate(booking.checkin);
+  document.getElementById('h-pnr').textContent='PNR: '+(booking.pnr||'—');
+  document.getElementById('bc-name').textContent=n;
+  document.getElementById('bc-room').textContent=`${booking.room_no||'—'} — ${booking.room_type||''}`;
+  document.getElementById('bc-cin').textContent=fmtDate(booking.checkin);
+  document.getElementById('bc-cout').textContent=fmtDate(booking.checkout);
+  document.getElementById('bc-src').textContent=booking.source||'Direct';
+}
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
+
+// NAV
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  if(el&&el.classList) el.classList.add('active');
+}
+
+// SAVE REQUEST
+async function saveReq(type,name,amount,note){
+  if(!booking.id)return null;
+  const {data}=await sb.from('guest_requests').insert([{booking_id:booking.id,request_type:type,item_name:name,amount:amount||0,status:'pending',notes:note||null}]).select().single();
+  return data;
+}
+
+async function loadRequests(){
+  if(!booking.id)return;
+  const {data}=await sb.from('guest_requests').select('*').eq('booking_id',booking.id).order('created_at',{ascending:false});
+  if(data&&data.length>0){cart=data.map(r=>({id:r.id,type:r.request_type,name:r.item_name,amount:r.amount,status:r.status}));renderCart();}
+}
+
+// CHECK-IN
+let ciSel=null;
+function selectCI(type,el){
+  ciSel=type;
+  document.querySelectorAll('.opt-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+async function submitCheckin(){
+  if(ciSel==='early'){await saveReq('upsell','⏰ Early check-in',999);cart.unshift({type:'upsell',name:'⏰ Early check-in',amount:999,status:'pending'});}
+  if(ciSel==='late'){await saveReq('upsell','🌙 Late check-out',799);cart.unshift({type:'upsell',name:'🌙 Late check-out',amount:799,status:'pending'});}
+  document.getElementById('ci-success').style.display='block';
+  renderCart();
+}
+
+// FOOD
+function filterFood(el,cat){
+  document.querySelectorAll('.filt').forEach(f=>f.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.food-card').forEach(c=>{c.style.display=(cat==='all'||c.dataset.cat===cat)?'flex':'none';});
+}
+
+async function addFood(name,price){
+  const dateVal=document.getElementById('o-date').value;
+  const timeVal=document.getElementById('o-time').value;
+  const scheduled=dateVal&&timeVal?`Scheduled: ${dateVal} at ${timeVal}`:null;
+  const isNow=!scheduled;
+  const data=await saveReq('food',name,price,scheduled);
+  cart.unshift({id:data?.id,type:'food',name,amount:price,status:isNow?'preparing':'scheduled'});
+  renderCart();
+  if(isNow){orderCount++;document.getElementById('o-num').textContent=orderCount;startTracking();document.getElementById('tracking-box').style.display='block';}
+  else{alert(`✓ "${name}" scheduled for ${dateVal} at ${timeVal}`);}
+}
+
+let trackStep=0,trackEtas=['','~25 mins','~12 mins','~3 mins','Delivered! 🎉'];
+function startTracking(){
+  clearInterval(trackTimer);trackStep=1;
+  [1,2,3,4].forEach(i=>document.getElementById('td'+i).className='t-dot');
+  [1,2,3].forEach(i=>document.getElementById('tl'+i).className='t-line');
+  document.getElementById('td1').className='t-dot done';
+  document.getElementById('td2').className='t-dot active';
+  document.getElementById('o-eta').textContent=trackEtas[1];
+  trackTimer=setInterval(()=>{
+    trackStep++;
+    if(trackStep<=4){
+      document.getElementById('td'+(trackStep-1)).className='t-dot done';
+      if(trackStep<4){document.getElementById('tl'+(trackStep-1)).className='t-line done';document.getElementById('td'+trackStep).className='t-dot active';}
+      else{document.getElementById('tl3').className='t-line done';document.getElementById('td4').className='t-dot done';clearInterval(trackTimer);}
+      document.getElementById('o-eta').textContent=trackEtas[trackStep]||'';
+      if(trackStep>=4){const fi=cart.find(i=>i.type==='food'&&i.status==='preparing');if(fi)fi.status='delivered';renderCart();}
+    }
+  },7000);
+}
+
+// SERVICES
+async function doService(el,name,price){
+  if(el.classList.contains('done')){alert('Already requested!');return;}
+  el.classList.add('done');
+  await saveReq('service',name,price);
+  cart.unshift({type:'service',name,amount:price,status:'pending'});
+  renderCart();
+  alert(`✓ "${name}" requested! Our team will be with you shortly.`);
+}
+
+async function doUpsell(name,price){
+  await saveReq('upsell',name,price);
+  cart.unshift({type:'upsell',name,amount:price,status:'pending'});
+  renderCart();
+  alert(`✓ "${name}" added! We'll arrange it for you.`);
+}
+
+// CART
+function renderCart(){
+  const badge=document.getElementById('cbadge');
+  if(cart.length>0){badge.textContent=cart.length;badge.classList.add('show');}
+  else badge.classList.remove('show');
+  const total=cart.reduce((s,i)=>s+(i.amount||0),0);
+  const body=document.getElementById('cart-body');
+  if(cart.length===0){body.innerHTML='<div class="cart-empty"><div style="font-size:48px;margin-bottom:12px">🧾</div><div style="font-size:14px;font-weight:500;margin-bottom:6px">No orders yet</div><div style="font-size:13px">Order food or request services.</div></div>';return;}
+  const sc={pending:'s-pending',preparing:'s-preparing',delivered:'s-delivered',scheduled:'s-scheduled'};
+  const sl={pending:'Pending',preparing:'Preparing',delivered:'Delivered ✓',scheduled:'Scheduled'};
+  body.innerHTML=`
+    <div class="ci-list">
+      ${cart.map(i=>`<div class="ci"><span class="ci-type ${i.type}">${i.type}</span><span class="ci-name">${i.name}</span><span class="ci-amt">${i.amount>0?'₹'+i.amount.toLocaleString('en-IN'):'Free'}</span><span class="ci-status ${sc[i.status]||'s-pending'}">${sl[i.status]||'Pending'}</span></div>`).join('')}
+    </div>
+    ${total>0?`
+      <div class="cart-total">
+        <div><div class="ct-label">Total bill</div><div class="ct-note">Settled at checkout</div></div>
+        <div class="ct-amt">₹${total.toLocaleString('en-IN')}</div>
+      </div>
+      ${booking.upi_id ? `
+        <div style="display:flex;flex-direction:column;gap:8px;padding:0 0 4px">
+          <button onclick="payNow(${total})" style="width:100%;padding:13px;background:#15803d;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+            <span style="font-size:18px">💸</span> Pay now via UPI — ₹${total.toLocaleString('en-IN')}
+          </button>
+          <div style="font-size:11px;color:var(--muted);text-align:center">Opens GPay / PhonePe / Paytm automatically</div>
+        </div>
+      ` : ''}
+    `:''}
+  `;
+}
+
+// PAY NOW
+function payNow(amount){
+  const upi = booking.upi_id;
+  const hotelName = (booking.hotel_name || 'Hotel').replace(/\s+/g, '%20');
+  const note = `Booking%20${booking.pnr || booking.id.slice(0,8)}`;
+
+  // UPI deeplink — works with GPay, PhonePe, Paytm, any UPI app
+  const upiLink = `upi://pay?pa=${upi}&pn=${hotelName}&am=${amount}&cu=INR&tn=${note}`;
+
+  // Try opening UPI app
+  window.location.href = upiLink;
+
+  // Fallback after 2 seconds — show manual UPI details
+  setTimeout(()=>{
+    const msg = `Pay ₹${amount} to UPI ID: ${upi}\n\nOpen any UPI app (GPay, PhonePe, Paytm) and send payment to this ID.`;
+    if(confirm(msg + '\n\nMark as payment initiated?')){
+      saveReq('payment', 'UPI payment initiated — ₹'+amount, amount, 'UPI: '+upi);
+    }
+  }, 2500);
+}
+
+// RATING
+const rtxt=['','😞 We\'ll do better','😐 Thank you for feedback','🙂 Glad you had a nice stay','😊 Happy you enjoyed it!','🤩 Amazing! Thank you!'];
+function rateStar(n){
+  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('active',i<n));
+  document.getElementById('r-text').textContent=rtxt[n];
+  saveReq('feedback','⭐ Rating: '+n+' stars',0);
+}
+</script>
+</body>
+</html>

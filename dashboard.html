@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Revenu — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a56a0;--blue-light:#dbeafe;--blue-dark:#0f3875;
+  --text:#0f0f0f;--muted:#6b7280;--border:#e4e4e7;
+  --bg:#f4f4f3;--white:#fff;
+  --green:#15803d;--green-light:#dcfce7;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --red:#b91c1c;--red-light:#fee2e2;
+  --purple:#6d28d9;--purple-light:#ede9fe;
+  --sidebar:220px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--blue-dark);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo .logo{font-family:'Instrument Serif',serif;font-size:20px;color:#fff}
+.sidebar-logo .logo em{font-style:italic;color:#93c5fd}
+.sidebar-logo .hotel-name{font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav{flex:1;padding:12px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff}
+.nav-item.active{background:rgba(255,255,255,0.1);color:#fff;border-left-color:#93c5fd}
+.nav-item svg{flex-shrink:0;opacity:0.7}
+.nav-item.active svg{opacity:1}
+.nav-section{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:16px 20px 6px}
+.sidebar-bottom{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08)}
+.logout-btn{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.5);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;width:100%;padding:0}
+.logout-btn:hover{color:#fff}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left h1{font-size:16px;font-weight:600}
+.topbar-left p{font-size:12px;color:var(--muted);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.add-booking-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.15s}
+.add-booking-btn:hover{background:var(--blue-dark)}
+.date-badge{font-size:12px;color:var(--muted);background:var(--bg);padding:6px 12px;border-radius:6px;border:1px solid var(--border)}
+
+/* CONTENT */
+.content{padding:24px;flex:1}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:12px;padding:16px 18px;border:1px solid var(--border)}
+.stat-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.stat-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.stat-trend{font-size:11px;font-weight:500;padding:2px 7px;border-radius:999px}
+.trend-up{background:var(--green-light);color:var(--green)}
+.trend-down{background:var(--red-light);color:var(--red)}
+.stat-val{font-size:26px;font-weight:700;letter-spacing:-0.5px;margin-bottom:2px}
+.stat-label{font-size:12px;color:var(--muted)}
+
+/* GRID LAYOUT */
+.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+
+/* CARDS */
+.card{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h3{font-size:14px;font-weight:600}
+.card-head-right{display:flex;align-items:center;gap:8px}
+.card-body{padding:14px 18px}
+.view-all{font-size:12px;color:var(--blue);cursor:pointer;font-weight:500}
+.view-all:hover{text-decoration:underline}
+
+/* ROOM GRID */
+.room-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:14px 18px}
+.room-cell{border-radius:8px;padding:10px 8px;text-align:center;cursor:pointer;transition:transform 0.1s;border:1px solid transparent}
+.room-cell:hover{transform:scale(1.05)}
+.room-cell.available{background:var(--green-light);border-color:#bbf7d0}
+.room-cell.occupied{background:var(--blue-light);border-color:#bfdbfe}
+.room-cell.checkout{background:var(--amber-light);border-color:#fde68a}
+.room-cell.cleaning{background:#f0fdf4;border-color:#bbf7d0}
+.room-cell.maintenance{background:var(--red-light);border-color:#fecaca}
+.room-num{font-size:13px;font-weight:700}
+.room-cell.available .room-num{color:var(--green)}
+.room-cell.occupied .room-num{color:var(--blue)}
+.room-cell.checkout .room-num{color:var(--amber)}
+.room-cell.cleaning .room-num{color:#166534}
+.room-cell.maintenance .room-num{color:var(--red)}
+.room-type{font-size:10px;color:var(--muted);margin-top:2px}
+.room-status-text{font-size:9px;margin-top:3px;font-weight:500;letter-spacing:0.3px;text-transform:uppercase}
+.room-cell.available .room-status-text{color:var(--green)}
+.room-cell.occupied .room-status-text{color:var(--blue)}
+.room-cell.checkout .room-status-text{color:var(--amber)}
+.room-cell.cleaning .room-status-text{color:#166534}
+.room-cell.maintenance .room-status-text{color:var(--red)}
+
+/* LEGEND */
+.room-legend{display:flex;gap:14px;padding:0 18px 14px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* GUEST TABLE */
+.guest-table{width:100%;border-collapse:collapse}
+.guest-table th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:8px 18px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg)}
+.guest-table td{padding:11px 18px;font-size:13px;border-bottom:1px solid var(--border)}
+.guest-table tr:last-child td{border-bottom:none}
+.guest-table tr:hover td{background:#fafaf9}
+.guest-name{font-weight:500}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.3px}
+.badge-checkedin{background:var(--blue-light);color:var(--blue)}
+.badge-checkout{background:var(--amber-light);color:var(--amber)}
+.badge-arriving{background:var(--green-light);color:var(--green)}
+.badge-vip{background:var(--purple-light);color:var(--purple)}
+.source-badge{font-size:11px;color:var(--muted);background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)}
+
+/* QUICK ACTIONS */
+.actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 18px}
+.action-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid var(--border);cursor:pointer;background:var(--bg);transition:all 0.15s;text-align:left}
+.action-btn:hover{background:var(--blue-light);border-color:#bfdbfe}
+.action-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.action-title{font-size:13px;font-weight:500}
+.action-sub{font-size:11px;color:var(--muted);margin-top:1px}
+
+/* ACTIVITY */
+.activity-list{display:flex;flex-direction:column}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.activity-text{font-size:13px;line-height:1.5}
+.activity-time{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white)}
+.modal-head h2{font-size:16px;font-weight:600}
+.modal-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted)}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:20px 24px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text);margin-bottom:5px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;padding:10px 13px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;transition:border 0.15s}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--blue);background:var(--white)}
+.modal-field textarea{resize:vertical;min-height:70px}
+.modal-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--white)}
+.btn-cancel{padding:9px 18px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-cancel:hover{background:var(--bg)}
+.btn-save{padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:600;background:var(--blue);color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-save:hover{background:var(--blue-dark)}
+.section-divider{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin:18px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.msg{font-size:13px;padding:10px 13px;border-radius:8px;margin-bottom:14px;display:none}
+.msg.success{background:var(--green-light);color:var(--green);display:block}
+.msg.error{background:var(--red-light);color:var(--red);display:block}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+  .room-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo">Re<em>venu</em></div>
+    <div class="hotel-name" id="sb-hotel">Loading…</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="openModal()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Add Booking
+    </div>
+    <div class="nav-section">Hotel</div>
+    <div class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Rooms
+    </div>
+    <div class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Guests
+    </div>
+    <div class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Food Orders
+    </div>
+    <div class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Analytics
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="logout-btn" onclick="handleLogout()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Dashboard</h1>
+      <p id="topbar-date">Loading…</p>
+    </div>
+    <div class="topbar-right">
+      <div class="date-badge" id="owner-name">Welcome back</div>
+      <button class="add-booking-btn" onclick="openModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Add New Booking
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:var(--blue-light)">
+            <svg width="16" height="16" fill="none" stroke="#1a56a0" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          </div>
+          <span class="stat-trend trend-up">↑ 2</span>
+        </div>
+        <div class="stat-val" id="stat-occupied">—</div>
+        <div class="stat-label">Rooms occupied</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:var(--green-light)">
+            <svg width="16" height="16" fill="none" stroke="#15803d" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <span class="stat-trend trend-up">Today</span>
+        </div>
+        <div class="stat-val" id="stat-checkins">—</div>
+        <div class="stat-label">Check-ins today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:var(--amber-light)">
+            <svg width="16" height="16" fill="none" stroke="#92400e" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </div>
+          <span class="stat-trend trend-down">Today</span>
+        </div>
+        <div class="stat-val" id="stat-checkouts">—</div>
+        <div class="stat-label">Check-outs today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:var(--purple-light)">
+            <svg width="16" height="16" fill="none" stroke="#6d28d9" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <span class="stat-trend trend-up">↑ 12%</span>
+        </div>
+        <div class="stat-val">₹0</div>
+        <div class="stat-label">Revenue today</div>
+      </div>
+    </div>
+
+    <!-- ROOM INVENTORY + ACTIVITY -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <h3>Room inventory</h3>
+          <div class="card-head-right">
+            <span style="font-size:12px;color:var(--muted)" id="room-summary">Loading…</span>
+          </div>
+        </div>
+        <div class="room-grid" id="room-grid">
+          <!-- Populated by JS -->
+        </div>
+        <div class="room-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Available</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#1a56a0"></div>Occupied</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Checkout today</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#9ca3af"></div>Cleaning</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Maintenance</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Recent activity</h3></div>
+        <div class="activity-list" id="activity-list">
+          <div class="activity-item">
+            <div class="activity-dot" style="background:#1a56a0"></div>
+            <div>
+              <div class="activity-text">No activity yet. Add your first booking to get started.</div>
+              <div class="activity-time">Just now</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUEST TABLE -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <h3>Current guests</h3>
+        <span class="view-all">View all</span>
+      </div>
+      <table class="guest-table">
+        <thead>
+          <tr>
+            <th>Guest name</th>
+            <th>Room</th>
+            <th>PNR</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Source</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="guest-tbody">
+          <tr>
+            <td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No bookings yet — add your first booking above</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="card">
+      <div class="card-head"><h3>Quick actions</h3></div>
+      <div class="actions-grid">
+        <div class="action-btn" onclick="openModal()">
+          <div class="action-icon" style="background:var(--blue-light)">
+            <svg width="16" height="16" fill="none" stroke="#1a56a0" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div>
+            <div class="action-title">Add new booking</div>
+            <div class="action-sub">Add a PAX booking manually</div>
+          </div>
+        </div>
+        <div class="action-btn">
+          <div class="action-icon" style="background:var(--green-light)">
+            <svg width="16" height="16" fill="none" stroke="#15803d" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="action-title">Check in guest</div>
+            <div class="action-sub">Mark arrival & assign room</div>
+          </div>
+        </div>
+        <div class="action-btn">
+          <div class="action-icon" style="background:var(--amber-light)">
+            <svg width="16" height="16" fill="none" stroke="#92400e" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/></svg>
+          </div>
+          <div>
+            <div class="action-title">Check out guest</div>
+            <div class="action-sub">Process departure & bill</div>
+          </div>
+        </div>
+        <div class="action-btn">
+          <div class="action-icon" style="background:var(--purple-light)">
+            <svg width="16" height="16" fill="none" stroke="#6d28d9" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div>
+            <div class="action-title">Send guest link</div>
+            <div class="action-sub">WhatsApp / email guest portal</div>
+          </div>
+        </div>
+        <div class="action-btn" onclick="openPaymentSettings()">
+          <div class="action-icon" style="background:var(--green-light)">
+            <svg width="16" height="16" fill="none" stroke="#15803d" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="action-title">Payment settings</div>
+            <div class="action-sub">Set your UPI ID for guest payments</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD BOOKING MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add new booking</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="msg" id="modal-msg"></div>
+
+      <div class="section-divider">Booking details</div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>PNR / Booking ID</label>
+          <input type="text" id="pnr" placeholder="e.g. OYO-839201"/>
+        </div>
+        <div class="modal-field">
+          <label>Booking source</label>
+          <select id="source">
+            <option value="">Select…</option>
+            <option>OYO</option>
+            <option>MakeMyTrip</option>
+            <option>Booking.com</option>
+            <option>Agoda</option>
+            <option>Walk-in</option>
+            <option>Direct / phone</option>
+            <option>Corporate</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider">Guest details</div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>First name</label>
+          <input type="text" id="guest_firstname" placeholder="e.g. Rahul"/>
+        </div>
+        <div class="modal-field">
+          <label>Last name</label>
+          <input type="text" id="guest_lastname" placeholder="e.g. Sharma"/>
+        </div>
+      </div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Phone number</label>
+          <input type="tel" id="guest_phone" placeholder="+91 98765 43210"/>
+        </div>
+        <div class="modal-field">
+          <label>Email (optional)</label>
+          <input type="email" id="guest_email" placeholder="guest@email.com"/>
+        </div>
+      </div>
+      <div class="modal-row2">
+        <div class="modal-field" style="grid-column:1/-1">
+          <label>Number of guests</label>
+          <select id="pax_count">
+            <option>1 guest</option>
+            <option>2 guests</option>
+            <option>3 guests</option>
+            <option>4 guests</option>
+            <option>5+ guests</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider">Room & stay</div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Room number</label>
+          <select id="room_no">
+            <option value="">Select room…</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label>Room type</label>
+          <select id="room_type">
+            <option value="">Select…</option>
+            <option>Standard</option>
+            <option>Deluxe</option>
+            <option>Suite</option>
+            <option>Super Deluxe</option>
+            <option>Premium</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Check-in date</label>
+          <input type="date" id="checkin"/>
+        </div>
+        <div class="modal-field">
+          <label>Check-out date</label>
+          <input type="date" id="checkout"/>
+        </div>
+      </div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Expected arrival time</label>
+          <input type="time" id="arrival_time"/>
+        </div>
+        <div class="modal-field">
+          <label>Rate per night (₹)</label>
+          <input type="number" id="rate" placeholder="e.g. 2500"/>
+        </div>
+      </div>
+
+      <div class="section-divider">Additional options</div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Early check-in?</label>
+          <select id="early_checkin">
+            <option>No</option>
+            <option>Yes — offer paid early check-in</option>
+            <option>Yes — complimentary</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label>Late check-out?</label>
+          <select id="late_checkout">
+            <option>No</option>
+            <option>Yes — offer paid late checkout</option>
+            <option>Yes — complimentary</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>Special requests / notes</label>
+        <textarea id="notes" placeholder="e.g. Honeymoon couple, needs flowers. Vegetarian food only."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="save-btn" onclick="saveBooking()">Save booking →</button>
+    </div>
+  </div>
+</div>
+
+<!-- GUEST LINK MODAL -->
+<div class="modal-overlay" id="link-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>&#x2705; Booking saved!</h2>
+      <button class="modal-close" onclick="closeLinkModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;padding:8px 0 20px">
+        <div style="font-size:40px;margin-bottom:10px">&#x1F517;</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:6px" id="lm-guest-name">Guest link ready</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">Share this link with your guest on WhatsApp or email. They can complete check-in, select upgrades, and access hotel services from their phone.</div>
+      </div>
+      <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Guest portal link</div>
+        <div style="font-size:13px;color:var(--blue);word-break:break-all;font-weight:500" id="lm-link">&#x2014;</div>
+      </div>
+      <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">WhatsApp message preview</div>
+        <div style="font-size:13px;line-height:1.6;color:var(--text)" id="lm-message">&#x2014;</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onclick="sendWhatsApp()" style="width:100%;padding:13px;display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;border:none;border-radius:10px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif">
+          <span style="font-size:18px">&#x1F4F1;</span> Send on WhatsApp
+        </button>
+        <button onclick="copyLink()" style="width:100%;padding:13px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);border:none;border-radius:10px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif">
+          <span id="copy-label">&#x1F4CB; Copy link</span>
+        </button>
+        <button onclick="closeLinkModal()" style="width:100%;padding:12px;text-align:center;border:1px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT SETTINGS MODAL -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <h2>💳 Payment settings</h2>
+      <button class="modal-close" onclick="closePaymentSettings()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--green-light);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:var(--green);line-height:1.6">
+        ✅ Guests pay <strong>directly to you</strong> via UPI. Revenu never receives or holds any payments.
+      </div>
+      <div class="msg" id="pay-msg"></div>
+      <div class="modal-field">
+        <label>Your UPI ID</label>
+        <input type="text" id="pay-upi" placeholder="yourname@upi or yourname@okicici"/>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Works with GPay, PhonePe, Paytm, any UPI app.</div>
+      </div>
+      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">How it works</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">When a guest wants to pay their bill, they click "Pay Now" in the guest portal. This opens their UPI app with your UPI ID and the exact amount pre-filled. They pay, money goes directly to you.</div>
+      </div>
+      <button class="btn-save" id="pay-btn" style="width:100%;padding:13px" onclick="savePaymentSettings()">Save UPI ID →</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING DETAIL MODAL -->
+<div class="modal-overlay" id="booking-detail-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-head">
+      <h2>Booking details</h2>
+      <button class="modal-close" onclick="closeBookingDetail()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="booking-detail-body">
+      <div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOTEL SETUP MODAL -->
+<div class="modal-overlay" id="setup-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <h2>👋 Welcome to Revenu!</h2>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.6">Let's set up your hotel profile. This only takes 30 seconds.</p>
+      <div class="msg" id="setup-msg"></div>
+      <div class="modal-field">
+        <label>Your hotel name</label>
+        <input type="text" id="setup-hotel" placeholder="e.g. LaCasa Hotel Mumbai"/>
+      </div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Your first name</label>
+          <input type="text" id="setup-firstname" placeholder="Rahul"/>
+        </div>
+        <div class="modal-field">
+          <label>Your last name</label>
+          <input type="text" id="setup-lastname" placeholder="Sharma"/>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>UPI ID <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(optional)</span></label>
+        <input type="text" id="setup-upi" placeholder="yourname@upi or yourname@okicici"/>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5">Guests pay you directly. Revenu never receives or holds any payments.</div>
+      </div>
+      <button class="btn-save" id="setup-btn" style="width:100%;padding:13px;margin-top:4px" onclick="saveSetup()">Save & continue →</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+const sb = window.supabase.createClient(
+  'https://hytiokbgbtoetwpjxgnb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dGlva2JnYnRvZXR3cGp4Z25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDk0ODQsImV4cCI6MjA5MzQ4NTQ4NH0.odfG2wPNcQSQOI4JlxlA4VG4S0RHrvINW1zM8E0MRcM'
+);
+
+// ── EMAILJS ───────────────────────────────────────────────────────────────────
+// EmailJS initialized
+const EMAILJS_SERVICE = 'service_9zw5vb7';
+const EMAILJS_TEMPLATE = 'template_pkgm3k8';
+
+async function sendGuestEmail(booking, guestLink){
+  if(!booking.guest_email){ return; } // skip if no email
+  const hotelName = document.getElementById('sb-hotel').textContent || 'Your Hotel';
+  try {
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        service_id: EMAILJS_SERVICE,
+        template_id: EMAILJS_TEMPLATE,
+        user_id: 'cN1ObzWUbGHOYpSnA',
+        template_params: {
+          to_email: booking.guest_email,
+          hotel_name: hotelName,
+          guest_name: booking.guest_name,
+          room_no: booking.room_no,
+          room_type: booking.room_type || '',
+          checkin: booking.checkin,
+          checkout: booking.checkout,
+          source: booking.source || 'Direct',
+          pnr: booking.pnr || 'N/A',
+          guest_link: guestLink,
+          email: booking.guest_email
+        }
+      })
+    });
+    if(response.ok){
+      console.log('Email sent successfully to', booking.guest_email);
+    } else {
+      const err = await response.text();
+      console.error('Email API error:', err);
+    }
+  } catch(err){
+    console.error('Email failed:', err);
+  }
+}
+
+// ── ROOMS DATA (demo — will come from DB later) ──────────────────────────────
+const rooms = [
+  {num:'101',type:'Std',status:'occupied'},{num:'102',type:'Std',status:'available'},
+  {num:'103',type:'Std',status:'available'},{num:'104',type:'Dlx',status:'occupied'},
+  {num:'105',type:'Std',status:'cleaning'},{num:'106',type:'Std',status:'available'},
+  {num:'201',type:'Dlx',status:'occupied'},{num:'202',type:'Dlx',status:'available'},
+  {num:'203',type:'Dlx',status:'checkout'},{num:'204',type:'Dlx',status:'occupied'},
+  {num:'205',type:'Dlx',status:'available'},{num:'206',type:'Dlx',status:'cleaning'},
+  {num:'301',type:'Suite',status:'available'},{num:'302',type:'Suite',status:'occupied'},
+  {num:'303',type:'Suite',status:'maintenance'},{num:'304',type:'Suite',status:'available'},
+  {num:'305',type:'Prem',status:'available'},{num:'306',type:'Prem',status:'occupied'},
+];
+
+const statusLabel = {occupied:'Occupied',available:'Available',checkout:'Checkout',cleaning:'Cleaning',maintenance:'Maint.'};
+
+function renderRooms(){
+  const grid = document.getElementById('room-grid');
+  grid.innerHTML = rooms.map(r=>`
+    <div class="room-cell ${r.status}" title="Room ${r.num} — ${r.type} — ${statusLabel[r.status]}">
+      <div class="room-num">${r.num}</div>
+      <div class="room-type">${r.type}</div>
+      <div class="room-status-text">${statusLabel[r.status]}</div>
+    </div>
+  `).join('');
+  const avail = rooms.filter(r=>r.status==='available').length;
+  const occ = rooms.filter(r=>r.status==='occupied').length;
+  document.getElementById('room-summary').textContent = `${avail} available · ${occ} occupied`;
+  document.getElementById('stat-occupied').textContent = occ;
+}
+
+function populateRoomSelect(){
+  const sel = document.getElementById('room_no');
+  rooms.filter(r=>r.status==='available').forEach(r=>{
+    const o = document.createElement('option');
+    o.value = r.num;
+    o.textContent = `Room ${r.num} — ${r.type}`;
+    sel.appendChild(o);
+  });
+}
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+async function initDashboard(){
+  const {data:{session}} = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  currentUserId = session.user.id;
+  const meta = session.user.user_metadata || {};
+  // Try multiple metadata field names for compatibility with all signup versions
+  const hotelName = meta.hotel_name || meta.hotelName || '';
+  const firstName = meta.first_name || meta.firstName ||
+    (meta.full_name ? meta.full_name.split(' ')[0] : '');
+
+  // Show setup modal only if hotel name missing
+  if(!hotelName){
+    document.getElementById('setup-modal').classList.add('open');
+    if(firstName) document.getElementById('setup-firstname').value = firstName;
+  }
+
+  applyProfile(hotelName || 'My Hotel', firstName || 'there');
+  currentUpiId = meta.upi_id || '';
+  const now = new Date();
+  document.getElementById('topbar-date').textContent = now.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const today = now.toISOString().split('T')[0];
+  document.getElementById('checkin').value = today;
+  const tom = new Date(); tom.setDate(tom.getDate()+1);
+  document.getElementById('checkout').value = tom.toISOString().split('T')[0];
+  renderRooms();
+  populateRoomSelect();
+  loadBookings();
+  updateStats();
+}
+
+function applyProfile(hotelName, firstName){
+  document.getElementById('sb-hotel').textContent = hotelName;
+  document.getElementById('owner-name').textContent = 'Hi, ' + (firstName || 'there');
+}
+
+async function saveSetup(){
+  const hotel = document.getElementById('setup-hotel').value.trim();
+  const first = document.getElementById('setup-firstname').value.trim();
+  const last = document.getElementById('setup-lastname').value.trim();
+  const btn = document.getElementById('setup-btn');
+  const msg = document.getElementById('setup-msg');
+
+  if(!hotel || !first){
+    msg.textContent = 'Please enter your hotel name and first name.';
+    msg.className = 'msg error'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const upi = document.getElementById('setup-upi').value.trim();
+  const { error } = await sb.auth.updateUser({
+    data: {
+      hotel_name: hotel,
+      first_name: first,
+      last_name: last,
+      upi_id: upi
+    }
+  });
+
+  if(error){
+    msg.textContent = 'Error: ' + error.message;
+    msg.className = 'msg error';
+    btn.disabled = false; btn.textContent = 'Save & continue →';
+    return;
+  }
+
+  applyProfile(hotel, first);
+  document.getElementById('setup-modal').classList.remove('open');
+  // Update booking form defaults
+  document.getElementById('sb-hotel').textContent = hotel;
+}
+
+// ── BOOKINGS ─────────────────────────────────────────────────────────────────
+let bookings = [];
+let currentUserId = null;
+
+async function loadBookings(){
+  const tbody = document.getElementById('guest-tbody');
+  tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Loading bookings…</td></tr>';
+
+  const {data, error} = await sb.from('bookings')
+    .select('*')
+    .eq('user_id', currentUserId)
+    .order('created_at', {ascending:false});
+
+  if(error){ console.error(error); return; }
+  bookings = data || [];
+
+  if(bookings.length===0){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No bookings yet — add your first booking above</td></tr>';
+    return;
+  }
+  tbody.innerHTML = bookings.map(b=>`
+    <tr style="cursor:pointer" onclick="openBookingDetail('${b.id}')">
+      <td>
+        <div class="guest-name">${b.guest_name}</div>
+        <div style="font-size:11px;color:var(--muted)">${b.guest_phone}</div>
+      </td>
+      <td>${b.room_no} <span style="font-size:11px;color:var(--muted)">${b.room_type||''}</span></td>
+      <td>${b.pnr ? `<span style="font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-light);padding:2px 7px;border-radius:5px">${b.pnr}</span>` : '<span style="color:var(--muted);font-size:12px">—</span>'}</td>
+      <td>${b.checkin}</td>
+      <td>${b.checkout}</td>
+      <td><span class="source-badge">${b.source||'Direct'}</span></td>
+      <td onclick="event.stopPropagation()">
+        <span class="badge badge-checkedin">${b.status||'Booked'}</span>
+        <button onclick="showLinkModal('${b.id}','${b.guest_name}','${b.guest_phone}','${b.source||''}','${b.pnr||''}')" style="margin-left:6px;font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;color:var(--blue);font-family:'DM Sans',sans-serif">&#x1F4F1; Send link</button>
+      </td>
+    </tr>
+  `).join('');
+
+  // update room statuses from real bookings
+  const today = new Date().toISOString().split('T')[0];
+  bookings.forEach(b=>{
+    if(b.checkin <= today && b.checkout > today){
+      const room = rooms.find(r=>r.num===b.room_no);
+      if(room) room.status='occupied';
+    }
+  });
+  renderRooms();
+  updateStats();
+}
+
+function updateStats(){
+  const today = new Date().toISOString().split('T')[0];
+  const checkins = bookings.filter(b=>b.checkin===today).length;
+  const checkouts = bookings.filter(b=>b.checkout===today).length;
+  const occupied = bookings.filter(b=>b.checkin<=today && b.checkout>today).length;
+  document.getElementById('stat-checkins').textContent = checkins;
+  document.getElementById('stat-checkouts').textContent = checkouts;
+  document.getElementById('stat-occupied').textContent = occupied;
+}
+
+function addActivity(text){
+  const list = document.getElementById('activity-list');
+  const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const item = document.createElement('div');
+  item.className='activity-item';
+  item.innerHTML=`
+    <div class="activity-dot" style="background:#1a56a0"></div>
+    <div>
+      <div class="activity-text">${text}</div>
+      <div class="activity-time">${time}</div>
+    </div>`;
+  if(list.children.length===1 && list.children[0].querySelector('.activity-text').textContent.includes('No activity')){
+    list.innerHTML='';
+  }
+  list.prepend(item);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(){ document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
+
+function showModalMsg(text,type){
+  const el=document.getElementById('modal-msg');
+  el.textContent=text; el.className='msg '+type;
+}
+
+async function saveBooking(){
+  const pnr=document.getElementById('pnr').value.trim();
+  const source=document.getElementById('source').value;
+  const guest_firstname=document.getElementById('guest_firstname').value.trim();
+  const guest_lastname=document.getElementById('guest_lastname').value.trim();
+  const guest_name=(guest_firstname+' '+guest_lastname).trim();
+  const guest_phone=document.getElementById('guest_phone').value.trim();
+  const guest_email=document.getElementById('guest_email').value.trim();
+  const pax_count=document.getElementById('pax_count').value;
+  const room_no=document.getElementById('room_no').value;
+  const room_type=document.getElementById('room_type').value;
+  const checkin=document.getElementById('checkin').value;
+  const checkout=document.getElementById('checkout').value;
+  const arrival_time=document.getElementById('arrival_time').value;
+  const rate=document.getElementById('rate').value;
+  const early_checkin=document.getElementById('early_checkin').value;
+  const late_checkout=document.getElementById('late_checkout').value;
+  const notes=document.getElementById('notes').value.trim();
+  const btn=document.getElementById('save-btn');
+
+  if(!guest_firstname||!guest_lastname||!guest_phone||!room_no||!room_type||!checkin||!checkout||!source){
+    showModalMsg('Please fill in all required fields.','error'); return;
+  }
+
+  btn.disabled=true; btn.textContent='Saving…';
+
+  const hotelName = document.getElementById('sb-hotel').textContent || '';
+  const {data, error} = await sb.from('bookings').insert([{
+    user_id: currentUserId,
+    hotel_name: hotelName,
+    upi_id: currentUpiId || null,
+    pnr, source, guest_name, guest_phone, guest_email,
+    pax_count, room_no, room_type, checkin, checkout,
+    arrival_time, rate: rate||null, early_checkin, late_checkout, notes,
+    status: 'booked'
+  }]).select();
+
+  if(error){
+    showModalMsg('Error: '+error.message,'error');
+    btn.disabled=false; btn.textContent='Save booking →';
+    return;
+  }
+  if(!data||data.length===0){
+    showModalMsg('Saved but could not get booking ID. Refresh and try again.','error');
+    btn.disabled=false; btn.textContent='Save booking →';
+    return;
+  }
+
+  addActivity(`New booking added — ${guest_name}, Room ${room_no} (${source}${pnr?' · '+pnr:''})`);
+  showModalMsg('✓ Booking saved! Sending email to guest…','success');
+  btn.textContent='Saved!';
+  await loadBookings();
+
+  // Auto-send email to guest
+  const savedId = data[0].id;
+  const baseUrl = window.location.origin;
+  const guestLink = `${baseUrl}/guest.html?booking=${savedId}`;
+  const bookingData = {guest_name,guest_email,room_no,room_type,checkin,checkout,source,pnr};
+
+  if(guest_email){
+    await sendGuestEmail(bookingData, guestLink);
+    showModalMsg('✓ Booking saved! Email sent to guest automatically.','success');
+    addActivity(`Email sent to ${guest_name} (${guest_email})`);
+  } else {
+    showModalMsg('✓ Booking saved! No email provided — share link manually.','success');
+  }
+
+  setTimeout(()=>{
+    closeModal();
+    btn.disabled=false;
+    btn.textContent='Save booking →';
+    document.getElementById('modal-msg').className='msg';
+    showLinkModal(savedId, guest_name, guest_phone, source, pnr);
+  },1500);
+}
+
+// ── GUEST LINK ─────────────────────────────────────────────────────────────────
+let currentGuestLink = '';
+let currentGuestPhone = '';
+let currentGuestName = '';
+
+let booking_pnr = '';
+function showLinkModal(bookingId, guestName, phone, source, pnr){
+  booking_pnr = pnr || '';
+  const baseUrl = window.location.origin;
+  const link = `${baseUrl}/guest.html?booking=${bookingId}`;
+  const hotelName = document.getElementById('sb-hotel').textContent || 'our hotel';
+  const firstName = guestName.split(' ')[0];
+  const pnrInfo = booking_pnr ? ` | PNR: ${booking_pnr}` : '';
+  const message = `Hi ${firstName} 👋 Your booking at ${hotelName} is confirmed!${pnrInfo}\n\nAccess your booking & hotel services here:\n${link}\n\nTo login: use your PNR${booking_pnr?' ('+booking_pnr+')':''} + your last name.`;
+
+  currentGuestLink = link;
+  currentGuestPhone = phone.replace(/[^0-9+]/g,'');
+  currentGuestName = guestName;
+
+  document.getElementById('lm-guest-name').textContent = `Link ready for ${guestName}`;
+  document.getElementById('lm-link').textContent = link;
+  document.getElementById('lm-message').textContent = message;
+  document.getElementById('link-modal').classList.add('open');
+}
+
+function closeLinkModal(){
+  document.getElementById('link-modal').classList.remove('open');
+}
+
+function sendWhatsApp(){
+  const hotelName = document.getElementById('sb-hotel').textContent || 'our hotel';
+  const firstName = currentGuestName.split(' ')[0];
+  const message = encodeURIComponent(`Hi ${firstName} 👋 Your booking at ${hotelName} is confirmed! Complete your check-in and explore hotel services here: ${currentGuestLink}`);
+  const phone = currentGuestPhone.startsWith('+') ? currentGuestPhone.slice(1) : currentGuestPhone;
+  window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+}
+
+function copyLink(){
+  navigator.clipboard.writeText(currentGuestLink).then(()=>{
+    document.getElementById('copy-label').textContent = '✓ Link copied!';
+    setTimeout(()=>{ document.getElementById('copy-label').textContent = '📋 Copy link'; },2000);
+  });
+}
+
+async function handleLogout(){
+  await sb.auth.signOut();
+  window.location.href='login.html';
+}
+
+// ── BOOKING DETAIL ────────────────────────────────────────────────────────────
+async function openBookingDetail(bookingId){
+  document.getElementById('booking-detail-modal').classList.add('open');
+  document.getElementById('booking-detail-body').innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+
+  // Load booking
+  const {data:b} = await sb.from('bookings').select('*').eq('id',bookingId).single();
+  // Load guest requests
+  const {data:reqs} = await sb.from('guest_requests').select('*').eq('booking_id',bookingId).order('created_at',{ascending:false});
+
+  if(!b){ document.getElementById('booking-detail-body').innerHTML='<p>Booking not found.</p>'; return; }
+
+  const requests = reqs || [];
+  const totalSpend = requests.reduce((s,r)=>s+(r.amount||0),0);
+  const pending = requests.filter(r=>r.status==='pending');
+  const paid = requests.filter(r=>r.status==='paid');
+
+  const typeColor = {upsell:'#185FA5',food:'#15803d',service:'#92400e'};
+  const typeBg = {upsell:'#dbeafe',food:'#dcfce7',service:'#fef3c7'};
+
+  document.getElementById('booking-detail-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--bg);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Guest</div>
+        <div style="font-size:14px;font-weight:600">${b.guest_name}</div>
+        <div style="font-size:12px;color:var(--muted)">${b.guest_phone}</div>
+        ${b.guest_email?`<div style="font-size:12px;color:var(--muted)">${b.guest_email}</div>`:''}
+      </div>
+      <div style="background:var(--bg);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Booking</div>
+        <div style="font-size:14px;font-weight:600">Room ${b.room_no} — ${b.room_type||''}</div>
+        <div style="font-size:12px;color:var(--muted)">PNR: <strong>${b.pnr||'—'}</strong></div>
+        <div style="font-size:12px;color:var(--muted)">${b.source||'Direct'}</div>
+      </div>
+      <div style="background:var(--bg);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Stay</div>
+        <div style="font-size:13px">Check-in: <strong>${b.checkin}</strong></div>
+        <div style="font-size:13px">Check-out: <strong>${b.checkout}</strong></div>
+        ${b.arrival_time?`<div style="font-size:12px;color:var(--muted)">Arrival: ${b.arrival_time}</div>`:''}
+      </div>
+      <div style="background:${totalSpend>0?'#dcfce7':'var(--bg)'};border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Revenue</div>
+        <div style="font-size:20px;font-weight:700;color:${totalSpend>0?'#15803d':'var(--text)'}">₹${totalSpend.toLocaleString('en-IN')}</div>
+        <div style="font-size:12px;color:var(--muted)">${requests.length} request${requests.length!==1?'s':''} · ${pending.length} pending</div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px">Guest requests & orders</div>
+    ${requests.length===0 ? '<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px;background:var(--bg);border-radius:10px">No requests yet — guest has not placed any orders.</div>' :
+      `<div style="display:flex;flex-direction:column;gap:8px">
+        ${requests.map(r=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--white)">
+            <span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:${typeBg[r.request_type]||'#f1f0e8'};color:${typeColor[r.request_type]||'#5f5e5a'};text-transform:uppercase">${r.request_type}</span>
+            <span style="flex:1;font-size:13px;font-weight:500">${r.item_name}</span>
+            <span style="font-size:13px;font-weight:600;color:#15803d">${r.amount>0?'₹'+r.amount.toLocaleString('en-IN'):'Free'}</span>
+            <button onclick="markPaid('${r.id}',this)" style="font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid ${r.status==='paid'?'#15803d':'var(--border)'};background:${r.status==='paid'?'#dcfce7':'var(--bg)'};color:${r.status==='paid'?'#15803d':'var(--muted)'};cursor:pointer;font-family:'DM Sans',sans-serif">${r.status==='paid'?'✓ Paid':'Mark paid'}</button>
+          </div>
+        `).join('')}
+      </div>`
+    }
+
+    ${requests.length>0?`
+    <div style="margin-top:14px;padding:12px 14px;background:var(--blue-light);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;font-weight:600;color:var(--blue)">Total to settle at checkout</div>
+      <div style="font-size:18px;font-weight:700;color:var(--blue)">₹${totalSpend.toLocaleString('en-IN')}</div>
+    </div>`:''}
+
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button onclick="showLinkModal('${b.id}','${b.guest_name}','${b.guest_phone}','${b.source||''}')" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">&#x1F4F1; Resend guest link</button>
+      <button onclick="closeBookingDetail()" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Done</button>
+    </div>
+  `;
+}
+
+async function markPaid(requestId, btn){
+  await sb.from('guest_requests').update({status:'paid'}).eq('id',requestId);
+  btn.textContent = '✓ Paid';
+  btn.style.background = '#dcfce7';
+  btn.style.color = '#15803d';
+  btn.style.borderColor = '#15803d';
+}
+
+function closeBookingDetail(){
+  document.getElementById('booking-detail-modal').classList.remove('open');
+}
+
+// ── PAYMENT SETTINGS ─────────────────────────────────────────────────────────
+let currentUpiId = '';
+
+function openPaymentSettings(){
+  document.getElementById('payment-modal').classList.add('open');
+  document.getElementById('pay-upi').value = currentUpiId || '';
+}
+
+function closePaymentSettings(){
+  document.getElementById('payment-modal').classList.remove('open');
+}
+
+async function savePaymentSettings(){
+  const upi = document.getElementById('pay-upi').value.trim();
+  const btn = document.getElementById('pay-btn');
+  const msg = document.getElementById('pay-msg');
+
+  if(!upi){ msg.textContent='Please enter your UPI ID.'; msg.className='msg error'; return; }
+
+  btn.disabled=true; btn.textContent='Saving…';
+
+  const {error} = await sb.auth.updateUser({data:{upi_id: upi}});
+
+  if(error){
+    msg.textContent='Error: '+error.message; msg.className='msg error';
+    btn.disabled=false; btn.textContent='Save UPI ID →';
+    return;
+  }
+
+  currentUpiId = upi;
+  msg.textContent='✓ UPI ID saved! Guests can now pay you directly.';
+  msg.className='msg success';
+  btn.textContent='Saved!';
+  setTimeout(()=>{ closePaymentSettings(); btn.disabled=false; btn.textContent='Save UPI ID →'; msg.className='msg'; },2000);
+}
+
+initDashboard();
+</script>
+</body>
+</html>

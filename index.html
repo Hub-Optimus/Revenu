@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Revenu — Hotel Sign Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a56a0;--blue-light:#dbeafe;--blue-dark:#0f3875;
+  --text:#0f0f0f;--muted:#6b7280;--border:#e4e4e7;
+  --bg:#fafaf9;--white:#fff;
+  --green:#15803d;--green-light:#dcfce7;
+  --red:#b91c1c;--red-light:#fee2e2;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+nav{padding:18px 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--white);border-bottom:1px solid var(--border)}
+.logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--text);letter-spacing:-0.3px}
+.logo em{font-style:italic;color:var(--blue)}
+.login-link{font-size:13px;color:var(--muted);text-decoration:none}
+.login-link span{color:var(--blue);font-weight:500}
+.login-link:hover span{text-decoration:underline}
+.wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 61px)}
+.left{background:var(--blue-dark);padding:3.5rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.04)}
+.left::after{content:'';position:absolute;bottom:-60px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.03)}
+.left-content{position:relative;z-index:1}
+.left-tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:1.5rem;display:block}
+.left h2{font-family:'Instrument Serif',serif;font-size:36px;line-height:1.2;color:#fff;margin-bottom:1.25rem;font-weight:400}
+.left h2 em{font-style:italic;color:#93c5fd}
+.left p{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:320px}
+.stats{display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
+.stat-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.08)}
+.stat-num{font-family:'Instrument Serif',serif;font-size:22px;color:#fff;min-width:60px}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5}
+.right{background:var(--white);padding:3rem;display:flex;align-items:center;justify-content:center;overflow-y:auto}
+.form-wrap{width:100%;max-width:400px}
+.form-title{font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:4px;font-weight:400}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:1.75rem}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--text);margin-bottom:5px;text-transform:uppercase}
+.field input,.field select{width:100%;padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;transition:border 0.15s}
+.field input:focus,.field select:focus{border-color:var(--blue);background:var(--white)}
+.field input::placeholder{color:#c0bfbc}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer;transition:background 0.15s;margin-top:4px}
+.btn:hover{background:var(--blue-dark)}
+.btn:disabled{background:#93c5fd;cursor:not-allowed}
+.terms{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6}
+.msg{font-size:13px;padding:11px 14px;border-radius:8px;margin-bottom:14px;display:none;line-height:1.5}
+.msg.error{background:var(--red-light);color:var(--red);display:block}
+.msg.success{background:var(--green-light);color:var(--green);display:block}
+@media(max-width:720px){
+  .wrap{grid-template-columns:1fr}
+  .left{display:none}
+  .right{padding:2rem 1.25rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Re<em>venu</em></div>
+  <a class="login-link" href="login.html">Already registered? <span>Login →</span></a>
+</nav>
+
+<div class="wrap">
+  <div class="left">
+    <div class="left-content">
+      <span class="left-tag">For hotel owners</span>
+      <h2>Your hotel earns more <em>after</em> the booking</h2>
+      <p>Revenu helps you recover lost revenue through smart check-ins, automated upsells, and real-time guest operations.</p>
+    </div>
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-num">₹2–5L</div>
+        <div class="stat-label">extra revenue per hotel per year on average</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">Zero</div>
+        <div class="stat-label">paperwork at check-in</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1 day</div>
+        <div class="stat-label">to get your hotel up and running</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="form-wrap">
+      <div class="form-title">Create your account</div>
+      <div class="form-sub">Set up Revenu for your hotel in 2 minutes.</div>
+
+      <div class="msg" id="msg"></div>
+
+      <div class="field">
+        <label>Hotel Name</label>
+        <input type="text" id="hotel_name" placeholder="e.g. Lacasa Hotel Mumbai"/>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="first_name" placeholder="Rahul"/>
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="last_name" placeholder="Sharma"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Work Email</label>
+        <input type="email" id="email" placeholder="you@yourhotel.com"/>
+      </div>
+
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="tel" id="phone" placeholder="+91 98765 43210"/>
+      </div>
+
+      <div class="field">
+        <label>Hotel City</label>
+        <input type="text" id="city" placeholder="e.g. Mumbai"/>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Hotel Type</label>
+          <select id="hotel_type">
+            <option value="">Select…</option>
+            <option>Budget hotel</option>
+            <option>3-star hotel</option>
+            <option>4-star hotel</option>
+            <option>5-star hotel</option>
+            <option>Boutique hotel</option>
+            <option>Resort</option>
+            <option>Serviced apartment</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>No. of Rooms</label>
+          <select id="room_count">
+            <option value="">Select…</option>
+            <option>1–10 rooms</option>
+            <option>11–25 rooms</option>
+            <option>26–50 rooms</option>
+            <option>51–100 rooms</option>
+            <option>100+ rooms</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Minimum 8 characters"/>
+      </div>
+
+      <div class="field">
+        <label>UPI ID <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:#6b7280">(optional — lets guests pay you directly)</span></label>
+        <input type="text" id="upi_id" placeholder="yourname@upi or yourname@okicici"/>
+        <div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.5">Payments go directly from your guests to you. Revenu never touches your money.</div>
+      </div>
+
+      <button class="btn" id="btn" onclick="handleSignup()">Create my Revenu account →</button>
+
+      <div class="terms">By signing up you agree to Revenu's Terms of Service and Privacy Policy.</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = window.supabase.createClient(
+  'https://hytiokbgbtoetwpjxgnb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dGlva2JnYnRvZXR3cGp4Z25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDk0ODQsImV4cCI6MjA5MzQ4NTQ4NH0.odfG2wPNcQSQOI4JlxlA4VG4S0RHrvINW1zM8E0MRcM'
+);
+
+function showMsg(text,type){
+  const el=document.getElementById('msg');
+  el.textContent=text;
+  el.className='msg '+type;
+}
+
+async function handleSignup(){
+  const hotel_name=document.getElementById('hotel_name').value.trim();
+  const first_name=document.getElementById('first_name').value.trim();
+  const last_name=document.getElementById('last_name').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const city=document.getElementById('city').value.trim();
+  const hotel_type=document.getElementById('hotel_type').value;
+  const room_count=document.getElementById('room_count').value;
+  const password=document.getElementById('password').value;
+  const upi_id=document.getElementById('upi_id').value.trim();
+  const btn=document.getElementById('btn');
+
+  if(!hotel_name||!first_name||!last_name||!email||!phone||!city||!hotel_type||!room_count||!password){
+    showMsg('Please fill in all fields.','error');return;
+  }
+  if(password.length<8){
+    showMsg('Password must be at least 8 characters.','error');return;
+  }
+
+  btn.disabled=true;
+  btn.textContent='Creating your account…';
+
+  const {data,error}=await sb.auth.signUp({
+    email,password,
+    options:{data:{hotel_name,first_name,last_name,phone,city,hotel_type,room_count,upi_id}}
+  });
+
+  if(error){
+    showMsg(error.message,'error');
+    btn.disabled=false;
+    btn.textContent='Create my Revenu account →';
+  } else {
+    showMsg('✓ Account created! Check your email to confirm, then login.','success');
+    btn.textContent='Account created!';
+    setTimeout(()=>{window.location.href='login.html';},3000);
+  }
+}
+
+document.getElementById('password').addEventListener('keydown',e=>{
+  if(e.key==='Enter')handleSignup();
+});
+</script>
+</body>
+</html>
