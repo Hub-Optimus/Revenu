@@ -156,6 +156,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .msg.success{background:var(--green-light);color:var(--green);display:block}
 .msg.error{background:var(--red-light);color:var(--red);display:block}
 
+/* ROOMS MODAL */
+.rooms-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.room-row{display:grid;grid-template-columns:60px 1fr 80px 90px 40px;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-size:13px}
+.room-row-num{font-weight:700;color:var(--blue)}
+.room-row-type{color:var(--text)}
+.room-row-cap{font-size:12px;color:var(--muted)}
+.room-row-price{font-size:13px;font-weight:600}
+.rm-del{width:28px;height:28px;border-radius:6px;border:1px solid #fecaca;background:#fee2e2;color:#b91c1c;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.rm-del:hover{background:#fecaca}
+.rooms-empty{text-align:center;padding:24px;color:var(--muted);font-size:13px;background:var(--bg);border-radius:10px;border:1.5px dashed var(--border)}
+.add-room-form{background:var(--bg);border:1.5px solid var(--blue-light);border-radius:12px;padding:16px;margin-top:4px;display:none}
+.add-room-form.open{display:block}
+.add-room-form .modal-row2{margin-bottom:10px}
+
 @media(max-width:900px){
   .sidebar{display:none}
   .main{margin-left:0}
@@ -184,7 +198,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       Add Booking
     </div>
     <div class="nav-section">Hotel</div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="openRoomsModal()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Rooms
     </div>
@@ -278,6 +292,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <h3>Room inventory</h3>
           <div class="card-head-right">
             <span style="font-size:12px;color:var(--muted)" id="room-summary">Loading…</span>
+            <button onclick="openRoomsModal()" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;color:var(--blue);font-family:'DM Sans',sans-serif;font-weight:500">Manage →</button>
           </div>
         </div>
         <div class="room-grid" id="room-grid">
@@ -630,6 +645,81 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- MANAGE ROOMS MODAL -->
+<div class="modal-overlay" id="rooms-modal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-head">
+      <h2>🏨 Manage rooms</h2>
+      <button class="modal-close" onclick="closeRoomsModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="msg" id="rooms-msg"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:13px;color:var(--muted)" id="rooms-count">Loading…</div>
+        <button onclick="toggleAddRoomForm()" id="add-room-toggle" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Add room
+        </button>
+      </div>
+
+      <!-- Add room form -->
+      <div class="add-room-form" id="add-room-form">
+        <div style="font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">New room details</div>
+        <div class="modal-row2">
+          <div class="modal-field">
+            <label>Room number</label>
+            <input type="text" id="new-room-num" placeholder="e.g. 101 or Suite A"/>
+          </div>
+          <div class="modal-field">
+            <label>Room type</label>
+            <select id="new-room-type">
+              <option value="">Select…</option>
+              <option>Standard</option>
+              <option>Deluxe</option>
+              <option>Suite</option>
+              <option>Premium</option>
+              <option>Family</option>
+              <option>Super Deluxe</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-row2">
+          <div class="modal-field">
+            <label>Capacity (guests)</label>
+            <select id="new-room-cap">
+              <option value="1">1 guest</option>
+              <option value="2" selected>2 guests</option>
+              <option value="3">3 guests</option>
+              <option value="4">4 guests</option>
+              <option value="5">5+ guests</option>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label>Price per night (₹)</label>
+            <input type="number" id="new-room-price" placeholder="e.g. 2500"/>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button onclick="toggleAddRoomForm()" style="flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Cancel</button>
+          <button onclick="saveNewRoom()" id="save-room-btn" style="flex:2;padding:9px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Save room →</button>
+        </div>
+      </div>
+
+      <!-- Rooms list -->
+      <div class="rooms-list" id="rooms-list">
+        <div class="rooms-empty">Loading rooms…</div>
+      </div>
+
+      <div style="margin-top:8px;padding:10px 12px;background:var(--blue-light);border-radius:8px;font-size:12px;color:var(--blue);line-height:1.5">
+        💡 Room status updates automatically when you add bookings. You can also click any room in the grid to change its status manually.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save" onclick="closeRoomsModal()">Done</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -680,44 +770,158 @@ async function sendGuestEmail(booking, guestLink){
   }
 }
 
-// ── ROOMS DATA (demo — will come from DB later) ──────────────────────────────
-const rooms = [
-  {num:'101',type:'Std',status:'occupied'},{num:'102',type:'Std',status:'available'},
-  {num:'103',type:'Std',status:'available'},{num:'104',type:'Dlx',status:'occupied'},
-  {num:'105',type:'Std',status:'cleaning'},{num:'106',type:'Std',status:'available'},
-  {num:'201',type:'Dlx',status:'occupied'},{num:'202',type:'Dlx',status:'available'},
-  {num:'203',type:'Dlx',status:'checkout'},{num:'204',type:'Dlx',status:'occupied'},
-  {num:'205',type:'Dlx',status:'available'},{num:'206',type:'Dlx',status:'cleaning'},
-  {num:'301',type:'Suite',status:'available'},{num:'302',type:'Suite',status:'occupied'},
-  {num:'303',type:'Suite',status:'maintenance'},{num:'304',type:'Suite',status:'available'},
-  {num:'305',type:'Prem',status:'available'},{num:'306',type:'Prem',status:'occupied'},
-];
+// ── ROOMS (live from Supabase) ────────────────────────────────────────────────
+let roomsData = [];
 
 const statusLabel = {occupied:'Occupied',available:'Available',checkout:'Checkout',cleaning:'Cleaning',maintenance:'Maint.'};
 
+async function loadRooms(){
+  if(!currentUserId) return;
+  const {data,error} = await sb.from('rooms').select('*').eq('user_id',currentUserId).order('room_number');
+  if(error){ console.error('Rooms load error:',error); return; }
+  roomsData = data || [];
+  renderRooms();
+  populateRoomSelect();
+}
+
 function renderRooms(){
   const grid = document.getElementById('room-grid');
-  grid.innerHTML = rooms.map(r=>`
-    <div class="room-cell ${r.status}" title="Room ${r.num} — ${r.type} — ${statusLabel[r.status]}">
-      <div class="room-num">${r.num}</div>
-      <div class="room-type">${r.type}</div>
-      <div class="room-status-text">${statusLabel[r.status]}</div>
+  if(roomsData.length===0){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:28px 20px;color:var(--muted)">
+      <div style="font-size:24px;margin-bottom:8px">🏨</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">No rooms set up yet</div>
+      <div style="font-size:12px;margin-bottom:12px">Add your rooms to start tracking inventory</div>
+      <button onclick="openRoomsModal()" style="padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Set up rooms →</button>
+    </div>`;
+    document.getElementById('room-summary').textContent = 'No rooms yet';
+    document.getElementById('stat-occupied').textContent = '0';
+    return;
+  }
+  grid.innerHTML = roomsData.map(r=>`
+    <div class="room-cell ${r.status}" title="Room ${r.room_number} — ${r.room_type} — ${statusLabel[r.status]||r.status}">
+      <div class="room-num">${r.room_number}</div>
+      <div class="room-type">${r.room_type.substring(0,4)}</div>
+      <div class="room-status-text">${statusLabel[r.status]||r.status}</div>
     </div>
   `).join('');
-  const avail = rooms.filter(r=>r.status==='available').length;
-  const occ = rooms.filter(r=>r.status==='occupied').length;
+  const avail = roomsData.filter(r=>r.status==='available').length;
+  const occ = roomsData.filter(r=>r.status==='occupied').length;
   document.getElementById('room-summary').textContent = `${avail} available · ${occ} occupied`;
   document.getElementById('stat-occupied').textContent = occ;
 }
 
 function populateRoomSelect(){
   const sel = document.getElementById('room_no');
-  rooms.filter(r=>r.status==='available').forEach(r=>{
+  // Keep first placeholder option only
+  sel.innerHTML = '<option value="">Select room…</option>';
+  roomsData.filter(r=>r.status==='available').forEach(r=>{
     const o = document.createElement('option');
-    o.value = r.num;
-    o.textContent = `Room ${r.num} — ${r.type}`;
+    o.value = r.room_number;
+    o.textContent = `Room ${r.room_number} — ${r.room_type}`;
     sel.appendChild(o);
   });
+}
+
+// ── ROOMS MODAL ───────────────────────────────────────────────────────────────
+function openRoomsModal(){
+  document.getElementById('rooms-modal').classList.add('open');
+  renderRoomsList();
+}
+function closeRoomsModal(){
+  document.getElementById('rooms-modal').classList.remove('open');
+  document.getElementById('add-room-form').classList.remove('open');
+}
+document.getElementById('rooms-modal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('rooms-modal')) closeRoomsModal();
+});
+
+function toggleAddRoomForm(){
+  const form = document.getElementById('add-room-form');
+  form.classList.toggle('open');
+  if(form.classList.contains('open')){
+    document.getElementById('new-room-num').focus();
+    document.getElementById('add-room-toggle').textContent = '✕ Cancel';
+  } else {
+    document.getElementById('add-room-toggle').innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add room';
+  }
+}
+
+function renderRoomsList(){
+  const list = document.getElementById('rooms-list');
+  const count = document.getElementById('rooms-count');
+  count.textContent = `${roomsData.length} room${roomsData.length!==1?'s':''} set up`;
+  if(roomsData.length===0){
+    list.innerHTML = '<div class="rooms-empty">No rooms yet. Click "Add room" to get started.</div>';
+    return;
+  }
+  list.innerHTML = roomsData.map(r=>`
+    <div class="room-row">
+      <div class="room-row-num">${r.room_number}</div>
+      <div class="room-row-type">${r.room_type}</div>
+      <div class="room-row-cap">${r.capacity} guest${r.capacity!=1?'s':''}</div>
+      <div class="room-row-price">₹${Number(r.price_per_night).toLocaleString('en-IN')}/night</div>
+      <button class="rm-del" onclick="deleteRoom('${r.id}')" title="Delete room">🗑</button>
+    </div>
+  `).join('');
+}
+
+async function saveNewRoom(){
+  const num = document.getElementById('new-room-num').value.trim();
+  const type = document.getElementById('new-room-type').value;
+  const cap = parseInt(document.getElementById('new-room-cap').value);
+  const price = parseFloat(document.getElementById('new-room-price').value)||0;
+  const btn = document.getElementById('save-room-btn');
+  const msg = document.getElementById('rooms-msg');
+
+  if(!num||!type){ msg.textContent='Please enter room number and type.'; msg.className='msg error'; return; }
+
+  // Check duplicate
+  if(roomsData.find(r=>r.room_number===num)){
+    msg.textContent=`Room ${num} already exists.`; msg.className='msg error'; return;
+  }
+
+  btn.disabled=true; btn.textContent='Saving…';
+
+  const {data,error} = await sb.from('rooms').insert([{
+    user_id: currentUserId,
+    room_number: num,
+    room_type: type,
+    capacity: cap,
+    price_per_night: price,
+    status: 'available'
+  }]).select();
+
+  if(error){
+    msg.textContent='Error: '+error.message; msg.className='msg error';
+    btn.disabled=false; btn.textContent='Save room →'; return;
+  }
+
+  roomsData.push(data[0]);
+  roomsData.sort((a,b)=>a.room_number.localeCompare(b.room_number,undefined,{numeric:true}));
+
+  // Reset form
+  document.getElementById('new-room-num').value='';
+  document.getElementById('new-room-type').value='';
+  document.getElementById('new-room-price').value='';
+  btn.disabled=false; btn.textContent='Save room →';
+  msg.textContent=`✓ Room ${num} added!`; msg.className='msg success';
+  setTimeout(()=>{ msg.className='msg'; },3000);
+
+  toggleAddRoomForm();
+  renderRoomsList();
+  renderRooms();
+  populateRoomSelect();
+  addActivity(`Room ${num} (${type}) added to inventory`);
+}
+
+async function deleteRoom(roomId){
+  if(!confirm('Remove this room from your inventory?')) return;
+  const {error} = await sb.from('rooms').delete().eq('id',roomId);
+  if(error){ alert('Error: '+error.message); return; }
+  roomsData = roomsData.filter(r=>r.id!==roomId);
+  renderRoomsList();
+  renderRooms();
+  populateRoomSelect();
 }
 
 // ── AUTH ─────────────────────────────────────────────────────────────────────
@@ -745,8 +949,7 @@ async function initDashboard(){
   document.getElementById('checkin').value = today;
   const tom = new Date(); tom.setDate(tom.getDate()+1);
   document.getElementById('checkout').value = tom.toISOString().split('T')[0];
-  renderRooms();
-  populateRoomSelect();
+  await loadRooms();
   loadBookings();
   updateStats();
 }
@@ -835,7 +1038,7 @@ async function loadBookings(){
   const today = new Date().toISOString().split('T')[0];
   bookings.forEach(b=>{
     if(b.checkin <= today && b.checkout > today){
-      const room = rooms.find(r=>r.num===b.room_no);
+      const room = roomsData.find(r=>r.room_number===b.room_no);
       if(room) room.status='occupied';
     }
   });
