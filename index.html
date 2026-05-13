@@ -4,328 +4,390 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content="Revenu helps hotels recover lost revenue through smart check-ins, automated upsells, and real-time guest operations."/>
-<title>Revenu — Hotel Revenue Platform by Optimus</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<title>Revenu — Hotel Revenue Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --blue:#1a56a0;--blue-light:#dbeafe;--blue-dark:#0f3875;
-  --text:#0f0f0f;--muted:#6b7280;--border:#e4e4e7;
-  --bg:#fafaf9;--white:#fff;
-  --green:#15803d;--green-light:#dcfce7;
-  --red:#b91c1c;--red-light:#fee2e2;
+  --ink:#0a0a0a;--ink2:#3d3d3d;--ink3:#7a7a7a;
+  --blue:#1847a3;--blue-l:#e8eef9;--blue-d:#0f2d6b;
+  --gold:#c8973a;--gold-l:#fdf3e3;
+  --border:#e8e8e6;--bg:#f7f6f3;--white:#fff;
+  --green:#15803d;--green-l:#dcfce7;
+  --red:#b91c1c;--red-l:#fee2e2;
+  --r:12px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--ink);line-height:1.6;overflow-x:hidden}
 a{color:var(--blue);text-decoration:none}
-a:hover{text-decoration:underline}
 
 /* NAV */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2rem;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.nav-logo{font-family:'Instrument Serif',serif;font-size:20px;color:var(--text)}
-.nav-logo em{font-style:italic;color:var(--blue)}
-.nav-right{display:flex;align-items:center;gap:16px}
-.nav-right a{font-size:13px;color:var(--muted)}
-.nav-right a:hover{color:var(--text);text-decoration:none}
-.nav-cta{font-size:13px;padding:7px 16px;border:1.5px solid var(--blue);border-radius:8px;color:var(--blue);font-weight:500}
-.nav-cta:hover{background:var(--blue-light);text-decoration:none}
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:56px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px)}
+.logo{font-family:'Fraunces',serif;font-size:22px;font-weight:400;letter-spacing:-0.5px;color:var(--ink)}
+.logo em{font-style:italic;color:var(--blue)}
+.nav-r{display:flex;align-items:center;gap:8px}
+.nav-link{font-size:13px;color:var(--ink3);padding:6px 12px;border-radius:6px;transition:background 0.15s}
+.nav-link:hover{background:var(--bg);color:var(--ink);text-decoration:none}
+.nav-btn{font-size:13px;font-weight:500;padding:7px 16px;border-radius:8px;background:var(--ink);color:#fff;transition:background 0.15s}
+.nav-btn:hover{background:#333;text-decoration:none}
 
-/* HERO SPLIT — desktop */
-.hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 53px)}
+/* HERO GRID */
+.hero{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 56px);max-height:800px;min-height:600px}
 
-/* LEFT */
-.hero-left{background:var(--blue-dark);padding:2.5rem 2.5rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
-.hero-left::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04)}
-.hl-top{position:relative;z-index:1}
-.hero-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:12px}
-.hero-title{font-family:'Instrument Serif',serif;font-size:32px;line-height:1.2;color:#fff;margin-bottom:12px;font-weight:400}
-.hero-title em{font-style:italic;color:#93c5fd}
-.hero-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1.5rem}
-
-/* BULLETS */
-.bullets{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
-.bullet{display:flex;align-items:flex-start;gap:8px}
-.b-icon{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
-.b-text{font-size:12px;color:rgba(255,255,255,0.65);line-height:1.5}
-.b-text strong{color:#fff;font-size:12px}
-
-/* STATS */
-.stats{display:flex;gap:0;position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.1)}
-.stat{flex:1;padding:12px 0;text-align:center;border-right:1px solid rgba(255,255,255,0.1)}
+/* LEFT PANEL */
+.hl{background:var(--ink);padding:3rem 3rem 2.5rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.hl::after{content:'';position:absolute;bottom:-120px;right:-120px;width:360px;height:360px;border-radius:50%;background:linear-gradient(135deg,var(--blue) 0%,transparent 70%);opacity:0.15}
+.hl-eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:18px}
+.hl-title{font-family:'Fraunces',serif;font-size:44px;line-height:1.1;color:#fff;font-weight:300;margin-bottom:18px;letter-spacing:-1px}
+.hl-title em{font-style:italic;color:#7da8f0}
+.hl-desc{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:2.5rem;max-width:340px}
+/* FEATURE TILES */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:2.5rem}
+.feat{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px}
+.feat-ico{font-size:18px;margin-bottom:6px}
+.feat-t{font-size:12px;font-weight:600;color:#fff;margin-bottom:2px}
+.feat-d{font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4}
+/* STATS ROW */
+.stats-row{display:flex;gap:0;border-top:1px solid rgba(255,255,255,0.1);padding-top:0}
+.stat{flex:1;padding:14px 0;text-align:center;border-right:1px solid rgba(255,255,255,0.08)}
 .stat:last-child{border-right:none}
-.stat-n{font-family:'Instrument Serif',serif;font-size:18px;color:#fff}
-.stat-l{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;line-height:1.3}
+.stat-n{font-family:'Fraunces',serif;font-size:22px;color:#fff;font-weight:400;font-style:italic}
+.stat-l{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;letter-spacing:0.3px}
 
-/* RIGHT */
-.hero-right{background:var(--white);padding:1.5rem 2rem;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center}
-.form-wrap{width:100%;max-width:400px}
-.form-title{font-family:'Instrument Serif',serif;font-size:20px;margin-bottom:2px;font-weight:400}
-.form-sub{font-size:12px;color:var(--muted);margin-bottom:1rem}
-.sec-label{font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:12px;display:block;padding-bottom:5px;border-bottom:1px solid var(--border)}
-.field{margin-bottom:8px}
-.field label{display:block;font-size:10px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;color:var(--text);margin-bottom:3px}
-.field input,.field select{width:100%;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;transition:border 0.15s}
-.field input:focus,.field select:focus{border-color:var(--blue);background:var(--white)}
-.field input::placeholder{color:#c0bfbc}
-.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer}
+/* RIGHT PANEL */
+.hr{background:var(--bg);padding:2rem 2.5rem;overflow-y:auto;display:flex;align-items:center;justify-content:center}
+.form-box{background:var(--white);border-radius:16px;border:1px solid var(--border);padding:2rem;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+.form-head{margin-bottom:1.25rem}
+.form-title{font-family:'Fraunces',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:3px}
+.form-sub{font-size:12px;color:var(--ink3)}
+/* FORM FIELDS */
+.grp{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:10px}
+.grp-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;display:block}
+.f{margin-bottom:8px}
+.f:last-child{margin-bottom:0}
+.f label{display:block;font-size:10px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase;color:var(--ink2);margin-bottom:3px}
+.f input,.f select,.f textarea{width:100%;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--ink);outline:none;transition:border 0.15s,box-shadow 0.15s}
+.f input:focus,.f select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,71,163,0.08)}
+.f input::placeholder{color:#c0bfbc}
+.f select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237a7a7a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.hint{font-size:10px;color:var(--muted);margin-top:2px}
-.btn{width:100%;padding:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:9px;background:var(--blue);color:#fff;cursor:pointer;transition:background 0.15s;margin-top:10px}
-.btn:hover{background:var(--blue-dark)}
-.btn:disabled{background:#93c5fd;cursor:not-allowed}
-.msg{font-size:12px;padding:9px 12px;border-radius:7px;margin-bottom:10px;display:none;line-height:1.5}
-.msg.error{background:var(--red-light);color:var(--red);display:block}
-.msg.success{background:var(--green-light);color:var(--green);display:block}
-.terms{font-size:10px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.5}
-.terms a{color:var(--blue)}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.hint{font-size:10px;color:var(--ink3);margin-top:3px;line-height:1.4}
+.submit-btn{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:10px;background:var(--ink);color:#fff;cursor:pointer;transition:all 0.15s;margin-top:4px;letter-spacing:0.2px}
+.submit-btn:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.submit-btn:disabled{background:#aaa;cursor:not-allowed;transform:none;box-shadow:none}
+.msg{font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:10px;display:none;line-height:1.5}
+.msg.error{background:var(--red-l);color:var(--red);display:block}
+.msg.success{background:var(--green-l);color:var(--green);display:block}
+.form-footer{font-size:10px;color:var(--ink3);text-align:center;margin-top:10px;line-height:1.5}
+.form-footer a{color:var(--blue)}
 
 /* HOW IT WORKS */
-.hiw{padding:3rem 2rem;background:var(--white);border-top:1px solid var(--border)}
-.hiw-head{text-align:center;margin-bottom:2rem}
-.hiw-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:8px}
-.hiw-title{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin-bottom:6px}
-.hiw-sub{font-size:13px;color:var(--muted);max-width:400px;margin:0 auto}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:860px;margin:0 auto}
-.step{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;position:relative}
-.step-num{width:26px;height:26px;border-radius:50%;background:var(--blue-light);color:var(--blue);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
-.step-ico{font-size:22px;margin-bottom:6px}
-.step-t{font-size:13px;font-weight:600;margin-bottom:4px}
-.step-d{font-size:12px;color:var(--muted);line-height:1.5}
-.step-arr{position:absolute;top:1.5rem;right:-0.7rem;font-size:14px;color:var(--border);z-index:1}
+.hiw{padding:4rem 2.5rem;background:var(--white);border-top:1px solid var(--border)}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem}
+.sh-left{}
+.sh-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-weight:500;margin-bottom:6px}
+.sh-title{font-family:'Fraunces',serif;font-size:28px;font-weight:400;color:var(--ink);letter-spacing:-0.5px}
+.sh-sub{font-size:13px;color:var(--ink3);max-width:300px;line-height:1.6}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:14px;overflow:hidden}
+.step{background:var(--white);padding:1.5rem;position:relative}
+.step:hover{background:var(--bg)}
+.step-n{font-family:'Fraunces',serif;font-size:36px;color:var(--border);font-weight:300;line-height:1;margin-bottom:10px}
+.step-i{font-size:24px;margin-bottom:10px}
+.step-t{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:5px}
+.step-d{font-size:12px;color:var(--ink3);line-height:1.5}
 
 /* PARTNER */
-.partner{background:var(--blue-dark);padding:3rem 2rem;text-align:center;position:relative;overflow:hidden}
-.partner::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03)}
-.p-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;position:relative;z-index:1}
-.p-title{font-family:'Instrument Serif',serif;font-size:28px;color:#fff;font-weight:400;margin-bottom:8px;position:relative;z-index:1}
-.p-title em{font-style:italic;color:#93c5fd}
-.p-sub{font-size:13px;color:rgba(255,255,255,0.55);max-width:380px;margin:0 auto 1.5rem;line-height:1.6;position:relative;z-index:1}
-.p-types{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:1.5rem;position:relative;z-index:1}
-.p-type{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;font-size:12px;color:rgba(255,255,255,0.7)}
-.p-btn{display:inline-block;padding:11px 24px;background:#fff;color:var(--blue-dark);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;position:relative;z-index:1}
-.p-btn:hover{background:var(--blue-light);text-decoration:none}
-.p-note{font-size:11px;color:rgba(255,255,255,0.35);margin-top:10px;position:relative;z-index:1}
+.partner{padding:4rem 2.5rem;background:var(--bg);border-top:1px solid var(--border)}
+.partner-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.pi-left{}
+.pi-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:10px}
+.pi-title{font-family:'Fraunces',serif;font-size:32px;font-weight:400;color:var(--ink);line-height:1.2;margin-bottom:10px;letter-spacing:-0.5px}
+.pi-title em{font-style:italic;color:var(--blue)}
+.pi-sub{font-size:13px;color:var(--ink3);line-height:1.7;margin-bottom:1.5rem}
+.pi-types{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem}
+.pi-type{background:var(--white);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;color:var(--ink2)}
+.pi-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--ink);color:#fff;border-radius:10px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;cursor:pointer;transition:all 0.15s}
+.pi-btn:hover{background:#333;transform:translateY(-1px);text-decoration:none}
+.pi-note{font-size:11px;color:var(--ink3);margin-top:8px}
+.pi-right{background:var(--white);border-radius:16px;border:1px solid var(--border);padding:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,0.04)}
+.pir-title{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+.benefit{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.benefit:last-child{border-bottom:none}
+.benefit-ico{width:28px;height:28px;border-radius:7px;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.benefit-t{font-size:13px;font-weight:500;color:var(--ink)}
+.benefit-d{font-size:11px;color:var(--ink3);margin-top:1px;line-height:1.4}
 
 /* FOOTER */
-footer{background:var(--white);border-top:1px solid var(--border);padding:1.25rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.f-logo{font-family:'Instrument Serif',serif;font-size:15px}
+footer{border-top:1px solid var(--border);padding:1.5rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.f-logo{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--ink)}
 .f-logo em{font-style:italic;color:var(--blue)}
-.f-links{display:flex;gap:16px;flex-wrap:wrap}
-.f-links a{font-size:11px;color:var(--muted)}
-.f-links a:hover{color:var(--text)}
-.f-copy{font-size:11px;color:var(--muted)}
+.f-links{display:flex;gap:18px}
+.f-links a{font-size:11px;color:var(--ink3)}
+.f-links a:hover{color:var(--ink);text-decoration:none}
+.f-copy{font-size:11px;color:var(--ink3)}
 
 /* RESPONSIVE */
-@media(max-width:768px){
-  .hero{grid-template-columns:1fr;min-height:auto}
-  .hero-left{padding:1.5rem;min-height:auto}
-  .hero-title{font-size:24px}
-  .bullets{display:none}
-  .stats{margin-top:1rem}
-  .hero-right{padding:1.5rem}
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;height:auto;max-height:none}
+  .hl{min-height:auto;padding:2rem 1.5rem}
+  .hl-title{font-size:32px}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .hr{padding:1.5rem}
+  .form-box{box-shadow:none;border:none;background:transparent;padding:0}
+  .grp{background:var(--white);border:1px solid var(--border)}
   .steps{grid-template-columns:1fr 1fr}
-  .step-arr{display:none}
-  .nav-right a:not(.nav-cta){display:none}
-  footer{flex-direction:column;text-align:center}
-  .f-links{justify-content:center}
+  .partner-inner{grid-template-columns:1fr}
+  .pi-right{display:none}
+  .hiw,.partner{padding:2.5rem 1.5rem}
+  .section-head{flex-direction:column;align-items:flex-start;gap:6px}
+  nav{padding:0 1.25rem}
+  footer{padding:1.25rem 1.5rem}
 }
-@media(max-width:420px){
+@media(max-width:480px){
+  .feat-grid{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr}
-  .hero-title{font-size:22px}
+  .hl-title{font-size:26px}
+  .nav-link{display:none}
 }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="nav">
-  <div class="nav-logo">Re<em>venu</em></div>
-  <div class="nav-right">
-    <a href="#hiw">How it works</a>
-    <a href="#partner">For hotels</a>
-    <a class="nav-cta" href="login.html">Login →</a>
+<nav>
+  <div class="logo">Re<em>venu</em></div>
+  <div class="nav-r">
+    <a class="nav-link" href="#hiw">How it works</a>
+    <a class="nav-link" href="#partner">For hotels</a>
+    <a class="nav-btn" href="login.html">Login →</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
   <!-- LEFT -->
-  <div class="hero-left">
-    <div class="hl-top">
-      <div class="hero-tag">For hotel owners · India</div>
-      <h1 class="hero-title">Your hotel earns more<br><em>after</em> the booking</h1>
-      <p class="hero-desc">Revenu is a smart platform that helps hotels increase revenue, reduce front-desk work, and give guests a seamless experience.</p>
-      <div class="bullets">
-        <div class="bullet">
-          <div class="b-icon">✓</div>
-          <div class="b-text"><strong>Zero paperwork check-in</strong> Guests verify ID and check in before arrival.</div>
+  <div class="hl">
+    <div>
+      <div class="hl-eyebrow">Hotel revenue platform · India</div>
+      <h1 class="hl-title">Your hotel earns<br>more <em>after</em><br>the booking</h1>
+      <p class="hl-desc">Revenu helps hotels increase revenue, reduce front-desk chaos, and deliver a seamless guest experience — all from one dashboard.</p>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="feat-ico">✓</div>
+          <div class="feat-t">Zero-paper check-in</div>
+          <div class="feat-d">Guests verify ID before arrival from their phone</div>
         </div>
-        <div class="bullet">
-          <div class="b-icon">₹</div>
-          <div class="b-text"><strong>Automated upsells</strong> Offer early check-in, upgrades, breakfast — guests pay upfront.</div>
+        <div class="feat">
+          <div class="feat-ico">₹</div>
+          <div class="feat-t">Automated upsells</div>
+          <div class="feat-d">Early check-in, upgrades, breakfast — paid upfront</div>
         </div>
-        <div class="bullet">
-          <div class="b-icon">🍽</div>
-          <div class="b-text"><strong>Food and services in-app</strong> Guests order and track — hotel keeps the revenue.</div>
+        <div class="feat">
+          <div class="feat-ico">🍽</div>
+          <div class="feat-t">In-app food orders</div>
+          <div class="feat-d">Guests order and track — revenue stays with the hotel</div>
         </div>
-        <div class="bullet">
-          <div class="b-icon">📊</div>
-          <div class="b-text"><strong>Real-time dashboard</strong> Every booking, order, and payment in one place.</div>
+        <div class="feat">
+          <div class="feat-ico">📊</div>
+          <div class="feat-t">Live dashboard</div>
+          <div class="feat-d">Every booking, order and payment in real time</div>
         </div>
       </div>
     </div>
-    <div class="stats">
+    <div class="stats-row">
       <div class="stat">
         <div class="stat-n">₹2–5L</div>
-        <div class="stat-l">extra revenue<br>per year</div>
+        <div class="stat-l">extra revenue / year</div>
       </div>
       <div class="stat">
         <div class="stat-n">Zero</div>
-        <div class="stat-l">paperwork<br>at check-in</div>
+        <div class="stat-l">paperwork at check-in</div>
       </div>
       <div class="stat">
         <div class="stat-n">1 day</div>
-        <div class="stat-l">to get up<br>and running</div>
+        <div class="stat-l">to get started</div>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT — FORM -->
-  <div class="hero-right">
-    <div class="form-wrap">
-      <div class="form-title">Create your account</div>
-      <div class="form-sub">Free to start. Set up in 2 minutes.</div>
+  <!-- RIGHT -->
+  <div class="hr">
+    <div class="form-box">
+      <div class="form-head">
+        <div class="form-title">Create your account</div>
+        <div class="form-sub">Free to start · Set up in 2 minutes</div>
+      </div>
       <div class="msg" id="msg"></div>
 
-      <span class="sec-label">Hotel details</span>
-      <div class="field">
-        <label>Hotel name</label>
-        <input type="text" id="hotel_name" placeholder="e.g. LaCasa Hotel Mumbai"/>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>Type of hotel</label>
-          <select id="hotel_type">
-            <option value="">Select…</option>
-            <option>Budget hotel</option>
-            <option>3-star hotel</option>
-            <option>4-star hotel</option>
-            <option>5-star hotel</option>
-            <option>Boutique hotel</option>
-            <option>Resort</option>
-            <option>Serviced apartment</option>
-          </select>
+      <div class="grp">
+        <span class="grp-label">Hotel details</span>
+        <div class="f">
+          <label>Hotel name</label>
+          <input type="text" id="hotel_name" placeholder="e.g. LaCasa Hotel Mumbai"/>
         </div>
-        <div class="field">
-          <label>City</label>
-          <input type="text" id="city" placeholder="Mumbai"/>
+        <div class="row2">
+          <div class="f">
+            <label>Type</label>
+            <select id="hotel_type">
+              <option value="">Select…</option>
+              <option>Budget hotel</option>
+              <option>3-star hotel</option>
+              <option>4-star hotel</option>
+              <option>5-star hotel</option>
+              <option>Boutique hotel</option>
+              <option>Resort</option>
+              <option>Serviced apartment</option>
+            </select>
+          </div>
+          <div class="f">
+            <label>City</label>
+            <input type="text" id="city" placeholder="Mumbai"/>
+          </div>
         </div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>Pincode</label>
-          <input type="text" id="pincode" placeholder="400001"/>
+        <div class="row2">
+          <div class="f">
+            <label>Pincode</label>
+            <input type="text" id="pincode" placeholder="400001"/>
+          </div>
+          <div class="f">
+            <label>Phone</label>
+            <input type="tel" id="phone" placeholder="+91 98765…"/>
+          </div>
         </div>
-        <div class="field">
-          <label>Phone number</label>
-          <input type="tel" id="phone" placeholder="+91 98765…"/>
+        <div class="f">
+          <label>Address</label>
+          <input type="text" id="address" placeholder="Street, Area, Landmark"/>
         </div>
-      </div>
-      <div class="field">
-        <label>Hotel address</label>
-        <input type="text" id="address" placeholder="Street, Area, Landmark"/>
       </div>
 
-      <span class="sec-label">Your details</span>
-      <div class="row2">
-        <div class="field">
-          <label>First name</label>
-          <input type="text" id="first_name" placeholder="Rahul"/>
+      <div class="grp">
+        <span class="grp-label">Your details</span>
+        <div class="row2">
+          <div class="f">
+            <label>First name</label>
+            <input type="text" id="first_name" placeholder="Rahul"/>
+          </div>
+          <div class="f">
+            <label>Last name</label>
+            <input type="text" id="last_name" placeholder="Sharma"/>
+          </div>
         </div>
-        <div class="field">
-          <label>Last name</label>
-          <input type="text" id="last_name" placeholder="Sharma"/>
+        <div class="f">
+          <label>Work email</label>
+          <input type="email" id="email" placeholder="you@yourhotel.com"/>
+        </div>
+        <div class="f">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Minimum 8 characters"/>
         </div>
       </div>
-      <div class="field">
-        <label>Work email</label>
-        <input type="email" id="email" placeholder="you@yourhotel.com"/>
+
+      <div class="grp">
+        <span class="grp-label">Payments <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:var(--ink3)">(optional)</span></span>
+        <div class="f">
+          <label>UPI ID</label>
+          <input type="text" id="upi_id" placeholder="yourname@upi"/>
+          <div class="hint">Guests pay you directly. Revenu never touches your money.</div>
+        </div>
       </div>
 
-      <span class="sec-label">Security</span>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="Minimum 8 characters"/>
-      </div>
-
-      <span class="sec-label">Payments <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(optional)</span></span>
-      <div class="field">
-        <label>UPI ID</label>
-        <input type="text" id="upi_id" placeholder="yourname@upi"/>
-        <div class="hint">Lets guests pay you directly. Revenu never touches your money.</div>
-      </div>
-
-      <button class="btn" id="btn" onclick="handleSignup()">Create my Revenu account →</button>
-      <div class="terms">By signing up you agree to our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</div>
+      <button class="submit-btn" id="btn" onclick="handleSignup()">Create my Revenu account →</button>
+      <div class="form-footer">By signing up you agree to our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</div>
     </div>
   </div>
 </div>
 
 <!-- HOW IT WORKS -->
 <div class="hiw" id="hiw">
-  <div class="hiw-head">
-    <div class="hiw-tag">How it works</div>
-    <h2 class="hiw-title">Simple for staff. Powerful for owners.</h2>
-    <p class="hiw-sub">Plugs into your hotel in one day — no tech team needed.</p>
+  <div class="section-head">
+    <div class="sh-left">
+      <div class="sh-tag">How it works</div>
+      <div class="sh-title">Simple for staff.<br>Powerful for owners.</div>
+    </div>
+    <div class="sh-sub">Plugs into your hotel in one day — no tech team needed.</div>
   </div>
   <div class="steps">
     <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-ico">🏨</div>
+      <div class="step-n">01</div>
+      <div class="step-i">🏨</div>
       <div class="step-t">Sign up your hotel</div>
-      <div class="step-d">Set up rooms and services in 2 minutes.</div>
-      <div class="step-arr">→</div>
+      <div class="step-d">Create your account and set up rooms and services in 2 minutes.</div>
     </div>
     <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-ico">📋</div>
+      <div class="step-n">02</div>
+      <div class="step-i">📋</div>
       <div class="step-t">Add guest bookings</div>
-      <div class="step-d">From OYO, MakeMyTrip, walk-in — anywhere.</div>
-      <div class="step-arr">→</div>
+      <div class="step-d">Add bookings from OYO, MakeMyTrip, walk-in or any source in 20 seconds.</div>
     </div>
     <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-ico">📱</div>
+      <div class="step-n">03</div>
+      <div class="step-i">📱</div>
       <div class="step-t">Guest gets a link</div>
-      <div class="step-d">Check in, order food, request services from their phone.</div>
-      <div class="step-arr">→</div>
+      <div class="step-d">Guest checks in, orders food and requests services from their phone.</div>
     </div>
     <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-ico">📊</div>
+      <div class="step-n">04</div>
+      <div class="step-i">📊</div>
       <div class="step-t">You see everything</div>
-      <div class="step-d">Revenue, requests, orders — all in real time.</div>
+      <div class="step-d">Revenue, guest requests, food orders and staff tasks — all in real time.</div>
     </div>
   </div>
 </div>
 
 <!-- PARTNER -->
 <div class="partner" id="partner">
-  <div class="p-tag">Coming soon — early access</div>
-  <h2 class="p-title">Be one of our <em>first hotel partners</em></h2>
-  <p class="p-sub">Early partners get priority support, free setup, and locked-in pricing.</p>
-  <div class="p-types">
-    <div class="p-type">🏨 Budget hotels</div>
-    <div class="p-type">⭐ 3 & 4 star</div>
-    <div class="p-type">✈️ Airport hotels</div>
-    <div class="p-type">🌴 Resorts</div>
+  <div class="partner-inner">
+    <div class="pi-left">
+      <div class="pi-tag">Early access · Coming soon</div>
+      <h2 class="pi-title">Be one of our<br><em>first hotel partners</em></h2>
+      <p class="pi-sub">Revenu is currently onboarding its first hotels across India. Early partners get priority support, free setup assistance, and locked-in pricing.</p>
+      <div class="pi-types">
+        <span class="pi-type">🏨 Budget hotels</span>
+        <span class="pi-type">⭐ 3 &amp; 4 star</span>
+        <span class="pi-type">✈️ Airport hotels</span>
+        <span class="pi-type">🌴 Resorts</span>
+        <span class="pi-type">🏢 Business hotels</span>
+      </div>
+      <a class="pi-btn" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Sign up as early partner →</a>
+      <div class="pi-note">Free to start. No credit card required.</div>
+    </div>
+    <div class="pi-right">
+      <div class="pir-title">What early partners get</div>
+      <div class="benefit">
+        <div class="benefit-ico">🚀</div>
+        <div>
+          <div class="benefit-t">Priority onboarding</div>
+          <div class="benefit-d">Dedicated setup support to get your hotel live in 1 day</div>
+        </div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-ico">🔒</div>
+        <div>
+          <div class="benefit-t">Locked-in pricing</div>
+          <div class="benefit-d">Founding partner rates — never increases as we scale</div>
+        </div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-ico">💬</div>
+        <div>
+          <div class="benefit-t">Direct founder access</div>
+          <div class="benefit-d">WhatsApp support directly from the Revenu team</div>
+        </div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-ico">⚡</div>
+        <div>
+          <div class="benefit-t">Feature influence</div>
+          <div class="benefit-d">Your feedback shapes what we build next</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <a class="p-btn" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Sign up as early partner →</a>
-  <div class="p-note">Free to start. No credit card required.</div>
 </div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="f-logo">Re<em>venu</em> <span style="font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif">by Optimus</span></div>
+  <div class="f-logo">Re<em>venu</em> <span style="font-size:11px;color:var(--ink3);font-family:'DM Sans',sans-serif;font-weight:400"> by Optimus</span></div>
   <div class="f-links">
     <a href="privacy.html">Privacy Policy</a>
     <a href="terms.html">Terms of Service</a>
@@ -337,7 +399,7 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:1.25re
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const sb = window.supabase.createClient(
+const sb=window.supabase.createClient(
   'https://hytiokbgbtoetwpjxgnb.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dGlva2JnYnRvZXR3cGp4Z25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDk0ODQsImV4cCI6MjA5MzQ4NTQ4NH0.odfG2wPNcQSQOI4JlxlA4VG4S0RHrvINW1zM8E0MRcM'
 );
