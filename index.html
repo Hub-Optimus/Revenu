@@ -29,10 +29,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5r
 .nav-btn:hover{background:#333;text-decoration:none}
 
 /* HERO */
-.hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 52px)}
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 52px);align-items:stretch}
 
 /* LEFT */
-.hl{background:var(--ink);padding:2.5rem;display:flex;flex-direction:column;justify-content:flex-start;gap:1.75rem;position:relative;overflow:hidden}
+.hl{background:var(--ink);padding:2.5rem;display:flex;flex-direction:column;justify-content:flex-start;gap:1.75rem;position:relative;overflow:hidden;min-height:100%}
 .hl::after{content:'';position:absolute;bottom:-100px;right:-100px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(24,71,163,0.4) 0%,transparent 70%)}
 .hl-top{position:relative;z-index:1}
 .hl-eye{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px}
@@ -45,7 +45,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5r
 .feat-body{}
 .feat-t{font-size:12px;font-weight:600;color:#fff;line-height:1.2}
 .feat-d{font-size:11px;color:rgba(255,255,255,0.38);line-height:1.35;margin-top:2px}
-.hl-bottom{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;display:flex;gap:0}
+.hl-bottom{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;padding-bottom:6px;display:flex;gap:0}
 .stat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.07)}
 .stat:last-child{border-right:none}
 .stat-n{font-family:'Fraunces',serif;font-size:19px;color:#fff;font-weight:400;font-style:italic;line-height:1}
@@ -160,9 +160,9 @@ footer{border-top:1px solid rgba(255,255,255,0.08);background:var(--ink);padding
       <h1 class="hl-title">Your hotel earns<br>more <em>after</em><br>the booking</h1>
       <p class="hl-desc">Revenu helps hotels increase revenue, streamline check-ins, and give guests a seamless experience — all from one dashboard.</p>
       <div class="feat-grid">
-        <div class="feat"><div class="feat-ico">✓</div><div class="feat-body"><div class="feat-t">Zero-paper check-in</div><div class="feat-d">Guests verify ID before arrival</div></div></div>
-        <div class="feat"><div class="feat-ico">₹</div><div class="feat-body"><div class="feat-t">Automated upsells</div><div class="feat-d">Early check-in, upgrades paid upfront</div></div></div>
-        <div class="feat"><div class="feat-ico">🍽</div><div class="feat-body"><div class="feat-t">In-app food orders</div><div class="feat-d">Guests order, hotel keeps revenue</div></div></div>
+        <div class="feat"><div class="feat-ico">✅</div><div class="feat-body"><div class="feat-t">Zero-paper check-in</div><div class="feat-d">Guests verify ID before arrival</div></div></div>
+        <div class="feat"><div class="feat-ico">💰</div><div class="feat-body"><div class="feat-t">Automated upsells</div><div class="feat-d">Early check-in, upgrades paid upfront</div></div></div>
+        <div class="feat"><div class="feat-ico">🍽️</div><div class="feat-body"><div class="feat-t">In-app food orders</div><div class="feat-d">Guests order, hotel keeps revenue</div></div></div>
         <div class="feat"><div class="feat-ico">📊</div><div class="feat-body"><div class="feat-t">Live dashboard</div><div class="feat-d">Every booking and payment in real time</div></div></div>
       </div>
     </div>
