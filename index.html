@@ -32,7 +32,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5r
 .hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 52px)}
 
 /* LEFT */
-.hl{background:var(--ink);padding:2.5rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.hl{background:var(--ink);padding:2.5rem;display:flex;flex-direction:column;justify-content:flex-start;gap:1.75rem;position:relative;overflow:hidden}
 .hl::after{content:'';position:absolute;bottom:-100px;right:-100px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(24,71,163,0.4) 0%,transparent 70%)}
 .hl-top{position:relative;z-index:1}
 .hl-eye{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px}
@@ -211,16 +211,12 @@ footer{border-top:1px solid rgba(255,255,255,0.08);background:var(--ink);padding
             <div class="f"><label>Last name</label><input type="text" id="last_name" placeholder="Sharma"/></div>
           </div>
           <div class="f"><label>Work email</label><input type="email" id="email" placeholder="you@yourhotel.com"/></div>
-          <div class="f"><label>Password</label><input type="password" id="password" placeholder="Minimum 8 characters"/></div>
-        </div>
-
-        <div class="grp">
-          <span class="grp-lbl">Payment <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:var(--ink3)">(optional)</span></span>
           <div class="f">
-            <label>UPI ID</label>
+            <label>UPI ID <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:var(--ink3)">(optional)</span></label>
             <input type="text" id="upi_id" placeholder="yourname@upi"/>
-            <div class="hint">Guests pay you directly via GPay, PhonePe or Paytm. Revenu never touches your money.</div>
+            <div class="hint">Guests pay you directly. Revenu never touches your money.</div>
           </div>
+          <div class="f"><label>Password</label><input type="password" id="password" placeholder="Minimum 8 characters"/></div>
         </div>
 
       </div>
