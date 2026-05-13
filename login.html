@@ -55,6 +55,33 @@ nav{padding:18px 2rem;display:flex;align-items:center;justify-content:space-betw
   .left{display:none}
   .right{padding:2rem 1.25rem}
 }
+
+/* ── ANIMATIONS ── */
+
+/* 1. Page entrance — left slides from left, right slides from right */
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+.left{animation:slideInLeft 0.55s cubic-bezier(0.22,1,0.36,1) both}
+.right{animation:slideInRight 0.55s cubic-bezier(0.22,1,0.36,1) 0.15s both}
+
+/* 2. Breathing circles on left panel */
+@keyframes breathe{0%,100%{transform:scale(1);opacity:0.04}50%{transform:scale(1.12);opacity:0.07}}
+.left::before{animation:breathe 6s ease-in-out infinite}
+.left::after{animation:breathe 6s ease-in-out 3s infinite}
+
+/* 3. Input field focus lift */
+.field input{transition:border 0.15s, box-shadow 0.2s, transform 0.2s}
+.field input:focus{transform:translateY(-2px);box-shadow:0 4px 16px rgba(26,86,160,0.12)}
+
+/* 4. Button arrow slide on hover */
+.btn{position:relative;overflow:hidden;transition:background 0.15s, box-shadow 0.2s}
+.btn:hover{box-shadow:0 4px 20px rgba(26,86,160,0.3)}
+.btn .arr{display:inline-block;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.btn:hover .arr{transform:translateX(5px)}
+
+/* 5. "again" shimmer */
+@keyframes shimmer{0%,100%{color:#93c5fd}50%{color:#bfdbfe}}
+.again{animation:shimmer 3s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -68,7 +95,7 @@ nav{padding:18px 2rem;display:flex;align-items:center;justify-content:space-betw
   <div class="left">
     <div class="left-content">
       <span class="left-tag">Welcome back</span>
-      <h2>Good to see you <em>again</em></h2>
+      <h2>Good to see you <em class="again">again</em></h2>
       <p>Log in to manage your hotel's check-ins, upsells, food orders, and staff — all in one place.</p>
     </div>
   </div>
@@ -93,7 +120,7 @@ nav{padding:18px 2rem;display:flex;align-items:center;justify-content:space-betw
         <input type="password" id="password" placeholder="Your password"/>
       </div>
 
-      <button class="btn" id="btn" onclick="handleLogin()">Login to my dashboard →</button>
+      <button class="btn" id="btn" onclick="handleLogin()">Login to my dashboard <span class="arr">→</span></button>
 
       <div class="bottom-link">
         Don't have an account? <a href="index.html">Sign up free</a>
