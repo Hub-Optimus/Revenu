@@ -29,7 +29,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5r
 .nav-btn:hover{background:#333;text-decoration:none}
 
 /* HERO */
-.hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 52px);align-items:stretch}
+.hero{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 52px);align-items:stretch}
 
 /* LEFT */
 .hl{background:var(--ink);padding:2.5rem;display:flex;flex-direction:column;justify-content:flex-start;gap:1.75rem;position:relative;overflow:hidden;min-height:100%}
@@ -52,10 +52,28 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5r
 .stat-l{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;letter-spacing:0.2px}
 
 /* RIGHT */
-.hr{background:var(--bg);padding:0.4rem 1.5rem 1.25rem;display:flex;align-items:flex-start;justify-content:center}
+.hr{background:var(--bg);padding:0.4rem 1.5rem 1.25rem;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;height:100%}
 .form-box{background:var(--white);border-radius:14px;border:1px solid var(--border);padding:1rem 1.25rem 1.25rem;width:100%;box-shadow:0 2px 20px rgba(0,0,0,0.05)}
-.form-title{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--ink);margin-bottom:2px}
-.form-sub{font-size:11px;color:var(--ink3);margin-bottom:0.6rem}
+.form-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:var(--ink);margin-bottom:1px}
+.form-sub{font-size:11px;color:var(--ink3);margin-bottom:0.5rem}
+
+/* City lock */
+.city-wrap{position:relative}
+.city-edit{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--blue);cursor:pointer;font-weight:600;background:var(--white);padding:1px 4px;border-radius:3px}
+input[readonly]{background:#f7f6f3 !important;color:var(--ink3) !important}
+
+/* Searchable country code picker */
+.cc-wrap{position:relative}
+.cc-trigger{width:100%;padding:7px 10px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--ink);outline:none;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between}
+.cc-trigger:focus,.cc-trigger.open{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,71,163,0.07)}
+.cc-trigger svg{flex-shrink:0;opacity:0.5}
+.cc-dropdown{position:absolute;top:calc(100% + 4px);left:0;width:260px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;display:none}
+.cc-dropdown.open{display:block}
+.cc-search-input{width:100%;padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:none;border-bottom:1px solid var(--border);border-radius:10px 10px 0 0;outline:none;background:var(--bg)}
+.cc-list{max-height:200px;overflow-y:auto}
+.cc-opt{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.cc-opt:hover{background:var(--bg)}
+.cc-opt-code{font-weight:600;color:var(--blue);font-size:12px;margin-left:auto}
 .grp{background:var(--bg);border-radius:9px;padding:8px;margin-bottom:0}
 .grp-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;display:block}
 .f{margin-bottom:7px}
@@ -118,7 +136,8 @@ footer{border-top:1px solid rgba(255,255,255,0.08);background:var(--ink);padding
 
 /* RESPONSIVE */
 @media(max-width:900px){
-  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero{grid-template-columns:1fr;height:auto}
+  .hr{height:auto;overflow-y:visible}
   .hl{padding:1.75rem 1.5rem}
   .hl-title{font-size:28px}
   .feat-d{display:none}
@@ -205,22 +224,27 @@ footer{border-top:1px solid rgba(255,255,255,0.08);background:var(--ink);padding
               <input type="text" id="pincode" placeholder="400001" maxlength="10"/>
               <div class="hint" id="pincode-hint" style="display:none"></div>
             </div>
-            <div class="f"><label>City</label><input type="text" id="city" placeholder="Mumbai"/></div>
+            <div class="f">
+              <label>City</label>
+              <div class="city-wrap">
+                <input type="text" id="city" placeholder="Mumbai"/>
+                <span class="city-edit" id="city-edit-btn" style="display:none" onclick="unlockCity()">✎ Edit</span>
+              </div>
+            </div>
           </div>
           <div class="f"><label>Phone</label>
             <div class="phone-row">
-              <select id="phone_country">
-                <option value="+91">🇮🇳 +91</option>
-                <option value="+1">🇺🇸 +1</option>
-                <option value="+44">🇬🇧 +44</option>
-                <option value="+61">🇦🇺 +61</option>
-                <option value="+971">🇦🇪 +971</option>
-                <option value="+65">🇸🇬 +65</option>
-                <option value="+60">🇲🇾 +60</option>
-                <option value="+966">🇸🇦 +966</option>
-                <option value="+49">🇩🇪 +49</option>
-                <option value="+33">🇫🇷 +33</option>
-              </select>
+              <div class="cc-wrap">
+                <button type="button" class="cc-trigger" id="cc-trigger" onclick="toggleCC()">
+                  <span id="cc-display">🇮🇳 +91</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <input type="hidden" id="phone_country" value="+91"/>
+                <div class="cc-dropdown" id="cc-dropdown">
+                  <input type="text" class="cc-search-input" id="cc-filter" placeholder="Search country or code…" oninput="filterCC(this.value)" autocomplete="off"/>
+                  <div class="cc-list" id="cc-list"></div>
+                </div>
+              </div>
               <input type="tel" id="phone" placeholder="98765 43210"/>
             </div>
           </div>
@@ -301,67 +325,134 @@ const sb=window.supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dGlva2JnYnRvZXR3cGp4Z25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDk0ODQsImV4cCI6MjA5MzQ4NTQ4NH0.odfG2wPNcQSQOI4JlxlA4VG4S0RHrvINW1zM8E0MRcM'
 );
 function showMsg(t,type){const e=document.getElementById('msg');e.textContent=t;e.className='msg '+type;}
-// ── PINCODE VALIDATION (India postal API) ────────────────────────────────────
-var pincodeValid = true; // non-India pincodes pass through
 
-document.getElementById('pincode').addEventListener('blur', async function(){
-  const pin = this.value.trim();
-  const hint = document.getElementById('pincode-hint');
-  if(!pin){ hint.style.display='none'; return; }
+// ── COUNTRY CODE PICKER ───────────────────────────────────────────────────────
+var COUNTRIES=[
+  {f:'🇮🇳',n:'India',c:'+91'},{f:'🇺🇸',n:'United States',c:'+1'},{f:'🇬🇧',n:'United Kingdom',c:'+44'},
+  {f:'🇦🇺',n:'Australia',c:'+61'},{f:'🇦🇪',n:'UAE',c:'+971'},{f:'🇸🇬',n:'Singapore',c:'+65'},
+  {f:'🇲🇾',n:'Malaysia',c:'+60'},{f:'🇸🇦',n:'Saudi Arabia',c:'+966'},{f:'🇩🇪',n:'Germany',c:'+49'},
+  {f:'🇫🇷',n:'France',c:'+33'},{f:'🇨🇦',n:'Canada',c:'+1'},{f:'🇳🇿',n:'New Zealand',c:'+64'},
+  {f:'🇯🇵',n:'Japan',c:'+81'},{f:'🇨🇳',n:'China',c:'+86'},{f:'🇰🇷',n:'South Korea',c:'+82'},
+  {f:'🇹🇭',n:'Thailand',c:'+66'},{f:'🇮🇩',n:'Indonesia',c:'+62'},{f:'🇵🇭',n:'Philippines',c:'+63'},
+  {f:'🇻🇳',n:'Vietnam',c:'+84'},{f:'🇵🇰',n:'Pakistan',c:'+92'},{f:'🇧🇩',n:'Bangladesh',c:'+880'},
+  {f:'🇱🇰',n:'Sri Lanka',c:'+94'},{f:'🇳🇵',n:'Nepal',c:'+977'},{f:'🇲🇻',n:'Maldives',c:'+960'},
+  {f:'🇰🇪',n:'Kenya',c:'+254'},{f:'🇿🇦',n:'South Africa',c:'+27'},{f:'🇳🇬',n:'Nigeria',c:'+234'},
+  {f:'🇪🇬',n:'Egypt',c:'+20'},{f:'🇮🇱',n:'Israel',c:'+972'},{f:'🇹🇷',n:'Turkey',c:'+90'},
+  {f:'🇮🇹',n:'Italy',c:'+39'},{f:'🇪🇸',n:'Spain',c:'+34'},{f:'🇳🇱',n:'Netherlands',c:'+31'},
+  {f:'🇸🇪',n:'Sweden',c:'+46'},{f:'🇳🇴',n:'Norway',c:'+47'},{f:'🇩🇰',n:'Denmark',c:'+45'},
+  {f:'🇫🇮',n:'Finland',c:'+358'},{f:'🇨🇭',n:'Switzerland',c:'+41'},{f:'🇦🇹',n:'Austria',c:'+43'},
+  {f:'🇧🇪',n:'Belgium',c:'+32'},{f:'🇵🇹',n:'Portugal',c:'+351'},{f:'🇵🇱',n:'Poland',c:'+48'},
+  {f:'🇷🇺',n:'Russia',c:'+7'},{f:'🇧🇷',n:'Brazil',c:'+55'},{f:'🇲🇽',n:'Mexico',c:'+52'},
+  {f:'🇦🇷',n:'Argentina',c:'+54'},{f:'🇨🇴',n:'Colombia',c:'+57'},{f:'🇨🇱',n:'Chile',c:'+56'},
+  {f:'🇭🇰',n:'Hong Kong',c:'+852'},{f:'🇹🇼',n:'Taiwan',c:'+886'},{f:'🇶🇦',n:'Qatar',c:'+974'},
+  {f:'🇰🇼',n:'Kuwait',c:'+965'},{f:'🇧🇭',n:'Bahrain',c:'+973'},{f:'🇴🇲',n:'Oman',c:'+968'},
+  {f:'🇯🇴',n:'Jordan',c:'+962'},{f:'🇱🇧',n:'Lebanon',c:'+961'},{f:'🇲🇦',n:'Morocco',c:'+212'},
+  {f:'🇬🇭',n:'Ghana',c:'+233'},{f:'🇹🇿',n:'Tanzania',c:'+255'},{f:'🇺🇬',n:'Uganda',c:'+256'},
+  {f:'🇵🇪',n:'Peru',c:'+51'},{f:'🇪🇨',n:'Ecuador',c:'+593'},{f:'🇺🇿',n:'Uzbekistan',c:'+998'},
+  {f:'🇰🇿',n:'Kazakhstan',c:'+7'},{f:'🇲🇲',n:'Myanmar',c:'+95'},{f:'🇰🇭',n:'Cambodia',c:'+855'},
+  {f:'🇱🇰',n:'Sri Lanka',c:'+94'},{f:'🇦🇫',n:'Afghanistan',c:'+93'},{f:'🇮🇶',n:'Iraq',c:'+964'},
+  {f:'🇮🇷',n:'Iran',c:'+98'},{f:'🇺🇦',n:'Ukraine',c:'+380'},{f:'🇬🇷',n:'Greece',c:'+30'},
+  {f:'🇨🇿',n:'Czech Republic',c:'+420'},{f:'🇭🇺',n:'Hungary',c:'+36'},{f:'🇷🇴',n:'Romania',c:'+40'},
+];
 
-  const country = document.getElementById('phone_country').value;
-  if(country !== '+91'){
-    // Non-India: just check numeric format
-    pincodeValid = /^\d{4,10}$/.test(pin);
-    hint.style.display = pincodeValid ? 'none' : 'block';
-    hint.style.color = '#b91c1c';
-    if(!pincodeValid) hint.textContent = 'Enter a valid pincode.';
-    return;
-  }
+function renderCC(filter){
+  var list=document.getElementById('cc-list');
+  var filtered=filter?COUNTRIES.filter(c=>c.n.toLowerCase().includes(filter.toLowerCase())||c.c.includes(filter)):COUNTRIES;
+  list.innerHTML=filtered.map(c=>`<div class="cc-opt" onclick="selectCC('${c.c}','${c.f}','${c.n}')">${c.f} ${c.n}<span class="cc-opt-code">${c.c}</span></div>`).join('');
+}
 
-  // India: validate via postal API
-  if(!/^\d{6}$/.test(pin)){
-    hint.style.display='block'; hint.style.color='#b91c1c';
-    hint.textContent='Indian pincodes must be exactly 6 digits.';
-    pincodeValid = false; return;
-  }
+function toggleCC(){
+  var dd=document.getElementById('cc-dropdown');
+  var tr=document.getElementById('cc-trigger');
+  var isOpen=dd.classList.contains('open');
+  dd.classList.toggle('open');
+  tr.classList.toggle('open');
+  if(!isOpen){ document.getElementById('cc-filter').value=''; renderCC(''); setTimeout(()=>document.getElementById('cc-filter').focus(),50); }
+}
 
-  hint.style.display='block'; hint.style.color='var(--ink3)';
-  hint.textContent='Checking pincode…';
+function filterCC(v){ renderCC(v); }
 
-  try {
-    const res  = await fetch('https://api.postalpincode.in/pincode/'+pin);
-    const data = await res.json();
-    if(data[0].Status==='Success'){
-      const po = data[0].PostOffice[0];
-      hint.style.color='#15803d';
-      hint.textContent='✓ '+po.District+', '+po.State;
-      // Auto-fill city if empty
-      const cityEl = document.getElementById('city');
-      if(!cityEl.value) cityEl.value = po.District;
-      pincodeValid = true;
-    } else {
-      hint.style.color='#b91c1c';
-      hint.textContent='Pincode not found — please check and re-enter.';
-      pincodeValid = false;
-    }
-  } catch(e){
-    hint.style.display='none'; pincodeValid = true; // fail open if API down
+function selectCC(code,flag,name){
+  document.getElementById('phone_country').value=code;
+  document.getElementById('cc-display').textContent=flag+' '+code;
+  document.getElementById('cc-dropdown').classList.remove('open');
+  document.getElementById('cc-trigger').classList.remove('open');
+}
+
+// Close picker on outside click
+document.addEventListener('click',function(e){
+  var wrap=document.querySelector('.cc-wrap');
+  if(wrap&&!wrap.contains(e.target)){
+    document.getElementById('cc-dropdown').classList.remove('open');
+    document.getElementById('cc-trigger').classList.remove('open');
   }
 });
 
+renderCC('');
+
+// ── PINCODE VALIDATION ────────────────────────────────────────────────────────
+var pincodeValid=true;
+
+document.getElementById('pincode').addEventListener('blur',async function(){
+  var pin=this.value.trim();
+  var hint=document.getElementById('pincode-hint');
+  if(!pin){hint.style.display='none';return;}
+  var country=document.getElementById('phone_country').value;
+  if(country!=='+91'){
+    pincodeValid=/^\d{4,10}$/.test(pin);
+    hint.style.display=pincodeValid?'none':'block';
+    hint.style.color='#b91c1c';
+    if(!pincodeValid)hint.textContent='Enter a valid pincode.';
+    return;
+  }
+  if(!/^\d{6}$/.test(pin)){
+    hint.style.display='block';hint.style.color='#b91c1c';
+    hint.textContent='Indian pincodes must be exactly 6 digits.';
+    pincodeValid=false;return;
+  }
+  hint.style.display='block';hint.style.color='var(--ink3)';hint.textContent='Checking…';
+  try{
+    var res=await fetch('https://api.postalpincode.in/pincode/'+pin);
+    var data=await res.json();
+    if(data[0].Status==='Success'){
+      var po=data[0].PostOffice[0];
+      hint.style.color='#15803d';
+      hint.textContent='✓ '+po.District+', '+po.State;
+      // Lock city to validated value
+      var cityEl=document.getElementById('city');
+      cityEl.value=po.District;
+      cityEl.setAttribute('readonly','true');
+      document.getElementById('city-edit-btn').style.display='block';
+      pincodeValid=true;
+    } else {
+      hint.style.color='#b91c1c';
+      hint.textContent='Pincode not found — please re-enter.';
+      pincodeValid=false;
+    }
+  } catch(e){hint.style.display='none';pincodeValid=true;}
+});
+
+function unlockCity(){
+  var cityEl=document.getElementById('city');
+  cityEl.removeAttribute('readonly');
+  cityEl.style.background='';
+  cityEl.style.color='';
+  cityEl.focus();
+  document.getElementById('city-edit-btn').style.display='none';
+}
+
+// ── SIGNUP ────────────────────────────────────────────────────────────────────
 async function handleSignup(){
-  const v=id=>document.getElementById(id).value.trim();
-  const hotel_name=v('hotel_name'),hotel_type=v('hotel_type'),city=v('city'),pincode=v('pincode'),
+  var v=function(id){return document.getElementById(id).value.trim();};
+  var hotel_name=v('hotel_name'),hotel_type=v('hotel_type'),city=v('city'),pincode=v('pincode'),
     address=v('address'),first_name=v('first_name'),last_name=v('last_name'),
     email=v('email'),upi_id=v('upi_id');
-  const password=document.getElementById('password').value;
-  const phone_country=v('phone_country');
-  const phone_raw=v('phone');
-  const phone=phone_country+phone_raw.replace(/[^0-9]/g,'');
-  const btn=document.getElementById('btn');
+  var password=document.getElementById('password').value;
+  var phone_country=v('phone_country');
+  var phone_raw=v('phone');
+  var phone=phone_country+phone_raw.replace(/[^0-9]/g,'');
+  var btn=document.getElementById('btn');
 
-  // Field-by-field validation with clear messages
   if(!hotel_name){showMsg('Please enter your hotel name.','error');return;}
   if(!hotel_type){showMsg('Please select your hotel type.','error');return;}
   if(!city){showMsg('Please enter your city.','error');return;}
@@ -377,11 +468,11 @@ async function handleSignup(){
   if(password.length<8){showMsg('Password must be at least 8 characters.','error');return;}
 
   btn.disabled=true;btn.textContent='Creating your account…';
-  const {error}=await sb.auth.signUp({email,password,
+  var res=await sb.auth.signUp({email,password,
     options:{data:{hotel_name,hotel_type,city,pincode,address,phone,first_name,last_name,upi_id}}
   });
-  if(error){showMsg(error.message,'error');btn.disabled=false;btn.textContent='Create my Revenu account →';}
-  else{showMsg('✅ Account created! Check your email to confirm your address, then login.','success');btn.textContent='Check your email →';setTimeout(()=>{window.location.href='login.html';},4000);}
+  if(res.error){showMsg(res.error.message,'error');btn.disabled=false;btn.textContent='Create my Revenu account →';}
+  else{showMsg('✅ Account created! Check your email to confirm, then login.','success');btn.textContent='Check your email →';setTimeout(()=>{window.location.href='login.html';},4000);}
 }
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')handleSignup();});
 </script>
