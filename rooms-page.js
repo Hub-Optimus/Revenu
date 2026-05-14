@@ -81,7 +81,7 @@ function renderRPTable(){
     var bg   = ST_BG[st]||'var(--bg)';
     var col  = ST_COL[st]||'var(--text)';
     var ico  = ST_ICO[st]||'●';
-    return '<tr class="'+(sel?'rp-row-selected':'')+'" id="rp-row-'+r.id+'">'+
+    return '<tr class="'+(sel?'rp-row-selected':'')+'" id="rp-row-'+r.id+'" data-room-id="'+r.id+'">'+
       '<td class="rt-checkbox"><input type="checkbox" '+(sel?'checked':'')+' onchange="toggleRoomSelect(\''+r.id+'\',this)"/></td>'+
       '<td style="color:var(--muted);font-size:12px">'+srNo+'</td>'+
       '<td style="font-weight:700;color:var(--blue)">'+r.room_number+'</td>'+
@@ -164,8 +164,8 @@ function startRowEdit(roomId){
     '<td><input type="number" class="inline-input" id="re-price-'+roomId+'" value="'+r.price_per_night+'" style="width:90px"/></td>'+
     '<td><select class="inline-input" id="re-status-'+roomId+'">'+stOpts+'</select></td>'+
     '<td style="text-align:right;white-space:nowrap">'+
-      '<button onclick="saveRowEdit(''+roomId+'')" style="padding:5px 10px;background:#15803d;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:4px">✓ Save</button>'+
-      '<button onclick="cancelRowEdit(''+roomId+'')" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--white)">✕</button>'+
+      '<button onclick="saveRowEdit(this.closest(\'[data-room-id]\').dataset.roomId)" style="padding:5px 10px;background:#15803d;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;margin-right:4px">&#10003; Save</button>'+
+      '<button onclick="cancelRowEdit(this.closest(\'[data-room-id]\').dataset.roomId)" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;font-family:DM Sans,sans-serif;background:white">&#10005;</button>'+
     '</td>';
   var numInput=document.getElementById('re-num-'+roomId);
   if(numInput){numInput.focus();numInput.select();
