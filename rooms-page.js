@@ -10,14 +10,24 @@ var activeInlineEdit = null;
 
 // ── PAGE SWITCHING ────────────────────────────────────────────────────────────
 function showRoomsPage(){
-  document.getElementById('dashboard-content').style.display = 'none';
-  document.getElementById('rooms-page').style.display        = 'block';
-  document.getElementById('topbar-title').textContent        = 'Room Inventory';
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  document.getElementById('nav-rooms').classList.add('active');
-  rpSelected.clear();
-  applyRPFilters();
-  renderRPSummary();
+  try {
+    var dc = document.getElementById('dashboard-content');
+    var rp = document.getElementById('rooms-page');
+    var tt = document.getElementById('topbar-title');
+    var nr = document.getElementById('nav-rooms');
+    if(!dc || !rp){ alert('Rooms page elements missing. Please hard-refresh (Ctrl+Shift+R).'); return; }
+    dc.style.display = 'none';
+    rp.style.display = 'block';
+    if(tt) tt.textContent = 'Room Inventory';
+    document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
+    if(nr) nr.classList.add('active');
+    rpSelected.clear();
+    applyRPFilters();
+    renderRPSummary();
+  } catch(e){
+    console.error('showRoomsPage error:',e);
+    alert('Error opening Rooms page: '+e.message);
+  }
 }
 
 function showDashboard(){
