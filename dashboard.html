@@ -172,6 +172,50 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .add-room-form.open{display:block}
 .add-room-form .modal-row2{margin-bottom:10px}
 
+/* ── ROOMS PAGE ── */
+.rp-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.rp-head-left h2{font-size:17px;font-weight:600}
+.rp-head-left p{font-size:12px;color:var(--muted);margin-top:2px}
+.rp-head-right{display:flex;gap:8px;flex-wrap:wrap}
+.rp-btn-pri{display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+.rp-btn-pri:hover{background:var(--blue-dark)}
+.rp-btn-sec{padding:7px 13px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text)}
+.rp-btn-sec:hover{background:var(--bg)}
+.rp-filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.rp-search{flex:1;min-width:180px;padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--white);outline:none}
+.rp-search:focus{border-color:var(--blue)}
+.rp-filter-sel{padding:7px 10px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--white);outline:none;cursor:pointer}
+.rp-bulk-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--blue-light);border-radius:10px;margin-bottom:10px;flex-wrap:wrap}
+.rp-bulk-bar select{padding:6px 10px;font-size:12px;border:1px solid #bfdbfe;border-radius:6px;background:var(--white);font-family:'DM Sans',sans-serif;cursor:pointer;outline:none}
+.rp-bulk-del{padding:6px 12px;background:#fee2e2;border:1px solid #fecaca;border-radius:6px;font-size:12px;color:#b91c1c;cursor:pointer;font-family:'DM Sans',sans-serif}
+.rp-table-wrap{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+.rp-table{width:100%;border-collapse:collapse}
+.rp-table th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
+.rp-table td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.rp-table tr:last-child td{border-bottom:none}
+.rp-table tbody tr:hover td{background:#fafaf9}
+.rp-row-selected td{background:#eff6ff !important}
+.rp-cell{cursor:pointer}
+.rp-cell:hover .rp-cell-val{text-decoration:underline;text-decoration-style:dotted}
+.rp-row-del{width:26px;height:26px;border-radius:6px;border:1px solid #fecaca;background:#fee2e2;color:#b91c1c;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+.rp-row-del:hover{background:#fecaca}
+.inline-input{width:100%;padding:4px 7px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--blue);border-radius:5px;outline:none;background:var(--white);box-shadow:0 0 0 3px rgba(26,86,160,0.08)}
+.rp-empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.rp-pagination{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
+.rp-page-btn{padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.rp-page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* Bulk add grid */
+.bulk-table{width:100%;border-collapse:collapse}
+.bulk-table th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:8px 6px;border-bottom:1px solid var(--border);text-align:left}
+.bulk-cell{width:100%;padding:6px 8px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:6px;outline:none;background:var(--white)}
+.bulk-cell:focus{border-color:var(--blue)}
+/* Toast */
+.rp-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap}
+.rp-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.rp-toast.rp-toast-success{background:#15803d}
+.rp-toast.rp-toast-error{background:#b91c1c}
+.rp-toast.rp-toast-warn{background:#92400e}
+
 @media(max-width:900px){
   .sidebar{display:none}
   .main{margin-left:0}
@@ -191,7 +235,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
   <nav class="nav">
     <div class="nav-section">Main</div>
-    <div class="nav-item active">
+    <div class="nav-item active" id="nav-dashboard" onclick="showDashboard()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
     </div>
@@ -200,7 +244,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       Add Booking
     </div>
     <div class="nav-section">Hotel</div>
-    <div class="nav-item" onclick="openRoomsModal()">
+    <div class="nav-item" id="nav-rooms" onclick="showRoomsPage()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Rooms
     </div>
@@ -229,7 +273,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-      <h1>Dashboard</h1>
+      <h1 id="topbar-title">Dashboard</h1>
       <p id="topbar-date">Loading…</p>
     </div>
     <div class="topbar-right">
@@ -241,7 +285,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
   </div>
 
-  <div class="content">
+  <div class="content" id="dashboard-content">
 
     <!-- STATS -->
     <div class="stats-grid">
@@ -401,10 +445,135 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
+  </div><!-- end dashboard-content -->
+
+  <!-- ── ROOMS PAGE ── -->
+  <div class="content" id="rooms-page" style="display:none">
+
+    <div class="rp-head">
+      <div class="rp-head-left">
+        <h2>Room Inventory</h2>
+        <p id="rp-summary">Loading…</p>
+      </div>
+      <div class="rp-head-right">
+        <button class="rp-btn-sec" onclick="downloadRoomTemplate()">⬇️ Template</button>
+        <label class="rp-btn-sec" style="cursor:pointer;display:flex;align-items:center;gap:4px">
+          ⬆️ Import CSV
+          <input type="file" id="rp-csv-upload" accept=".csv" onchange="handleRPCSV(this)" style="display:none"/>
+        </label>
+        <button class="rp-btn-sec" onclick="openBulkAdd()">📋 Bulk add</button>
+        <button class="rp-btn-pri" onclick="openRoomsModal()">+ Add room</button>
+      </div>
+    </div>
+
+    <div class="rp-filters">
+      <input type="text" class="rp-search" id="rp-search" placeholder="Search room number or type…" oninput="applyRPFilters()"/>
+      <select class="rp-filter-sel" id="rp-status-filter" onchange="applyRPFilters()">
+        <option value="">All status</option>
+        <option value="available">✅ Available</option>
+        <option value="occupied">🛏️ Occupied</option>
+        <option value="cleaning">🧹 Cleaning</option>
+        <option value="maintenance">🔧 Maintenance</option>
+      </select>
+      <select class="rp-filter-sel" id="rp-type-filter" onchange="applyRPFilters()">
+        <option value="">All types</option>
+        <option>Standard</option><option>Deluxe</option><option>Suite</option>
+        <option>Premium</option><option>Family</option><option>Super Deluxe</option>
+      </select>
+    </div>
+
+    <div class="rp-bulk-bar" id="rp-bulk-bar" style="display:none">
+      <span id="rp-selected-count" style="font-size:13px;font-weight:600;color:var(--blue)">0 selected</span>
+      <select id="rp-bulk-status" onchange="bulkChangeStatus(this.value)">
+        <option value="">Change status…</option>
+        <option value="available">✅ Available</option>
+        <option value="cleaning">🧹 Cleaning</option>
+        <option value="maintenance">🔧 Maintenance</option>
+      </select>
+      <button class="rp-bulk-del" onclick="bulkDeleteRooms()">🗑 Delete selected</button>
+      <button class="rp-btn-sec" style="margin-left:auto" onclick="clearRoomSelection()">Clear</button>
+    </div>
+
+    <div class="rp-table-wrap">
+      <table class="rp-table" id="rp-table">
+        <thead>
+          <tr>
+            <th style="width:36px"><input type="checkbox" id="rp-select-all" onchange="toggleSelectAll(this)"/></th>
+            <th style="width:48px">Sr.No</th>
+            <th>Room No</th>
+            <th>Room Type</th>
+            <th>Capacity</th>
+            <th>Base Rate</th>
+            <th>Status</th>
+            <th style="width:50px"></th>
+          </tr>
+        </thead>
+        <tbody id="rp-tbody"></tbody>
+      </table>
+      <div id="rp-empty" class="rp-empty" style="display:none">
+        <div style="font-size:28px;margin-bottom:8px">🏨</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">No rooms found</div>
+        <div style="font-size:12px">Try adjusting your search or filters</div>
+      </div>
+    </div>
+    <div class="rp-pagination" id="rp-pagination"></div>
+
+  </div><!-- end rooms-page -->
+
+</div><!-- end .main -->
+
+<div class="rp-toast" id="rp-toast"></div>
+
+<!-- BULK ADD MODAL -->
+<div class="modal-overlay" id="bulk-add-modal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <h2>📋 Add multiple rooms</h2>
+      <button class="modal-close" onclick="closeBulkAdd()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">Fill in your rooms directly. Press <strong>Enter</strong> on a row to add the next row. Click any cell to edit.</div>
+      <div style="overflow-x:auto">
+        <table class="bulk-table">
+          <thead>
+            <tr>
+              <th style="width:44px">Sr.No</th>
+              <th>Room No <span style="color:#b91c1c">*</span></th>
+              <th>Room Type <span style="color:#b91c1c">*</span></th>
+              <th style="width:90px">Capacity</th>
+              <th>Price Per Night</th>
+              <th style="width:32px"></th>
+            </tr>
+          </thead>
+          <tbody id="bulk-tbody"></tbody>
+        </table>
+      </div>
+      <button onclick="addBulkRow()" style="margin-top:10px;padding:6px 12px;border:1px dashed var(--border);border-radius:6px;background:var(--bg);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted)">+ Add row</button>
+      <div class="msg" id="bulk-msg" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeBulkAdd()">Cancel</button>
+      <button class="btn-save" id="bulk-save-btn" onclick="saveBulkRooms()">Save rooms →</button>
+    </div>
   </div>
 </div>
 
-<!-- ADD BOOKING MODAL -->
+<!-- CSV IMPORT PREVIEW MODAL -->
+<div class="modal-overlay" id="import-preview-modal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <h2>📋 Import Preview</h2>
+      <button class="modal-close" onclick="closeImportPreview()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="import-preview-content"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeImportPreview()">Cancel</button>
+      <button class="btn-save" id="commit-import-btn" onclick="commitImport()">Import rooms →</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-head">
@@ -827,6 +996,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <script src="state.js"></script>
 <script src="auth.js"></script>
 <script src="rooms.js"></script>
+<script src="rooms-page.js"></script>
 <script src="bookings.js"></script>
 <script src="guest-link.js"></script>
 <script src="booking-detail.js"></script>

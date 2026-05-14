@@ -242,55 +242,5 @@ async function deleteRoomFromEdit(){
   addActivity('Room '+num+' removed from inventory');
 }
 
-// ── CSV BULK IMPORT ───────────────────────────────────────────────────────────
-function downloadRoomTemplate(){
-  var csv = "room_number,room_type,capacity,price_per_night\n101,Standard,2,2000\n102,Deluxe,2,3000\n201,Suite,4,6000\n301,Premium,2,4500\n401,Family,4,3500";
-  var blob = new Blob([csv],{type:'text/csv'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'revenu_rooms_template.csv';
-  a.click();
-}
-
-async function importRoomsCSV(input){
-  var file = input.files[0];
-  if(!file) return;
-  var csvMsg = document.getElementById('csv-msg');
-  csvMsg.style.display='block'; csvMsg.style.color='var(--muted)';
-  csvMsg.textContent='Reading file...';
-  var text = await file.text();
-  var lines = text.trim().split('\n').filter(l=>l.trim());
-  if(lines.length<2){ csvMsg.style.color='#b91c1c'; csvMsg.textContent='CSV has no data rows.'; return; }
-  var header = lines[0].toLowerCase().replace(/\s/g,'').split(',');
-  var numIdx  = header.indexOf('room_number');
-  var typeIdx = header.indexOf('room_type');
-  var capIdx  = header.indexOf('capacity');
-  var priceIdx= header.findIndex(h=>h.includes('price'));
-  if(numIdx<0||typeIdx<0){ csvMsg.style.color='#b91c1c'; csvMsg.textContent='CSV must have "room_number" and "room_type" columns. Download the template above.'; return; }
-  var rows=[], errors=[];
-  var existingNums = new Set(roomsData.map(r=>r.room_number));
-  for(var i=1;i<lines.length;i++){
-    var cols = lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
-    var num=cols[numIdx], type=cols[typeIdx];
-    if(!num||!type){ errors.push('Row '+(i+1)+': missing data, skipped'); continue; }
-    if(existingNums.has(num)){ errors.push('Room '+num+' already exists, skipped'); continue; }
-    rows.push({user_id:currentUserId,room_number:num,room_type:type,capacity:parseInt(cols[capIdx])||2,price_per_night:parseFloat(cols[priceIdx])||0,status:'available'});
-    existingNums.add(num);
-  }
-  if(rows.length===0){ csvMsg.style.color='#b91c1c'; csvMsg.textContent='No new rooms to import. '+(errors[0]||''); return; }
-  csvMsg.textContent='Importing '+rows.length+' rooms...';
-  var imported=0, chunkSize=50;
-  for(var i=0;i<rows.length;i+=chunkSize){
-    var {data,error} = await sb.from('rooms').insert(rows.slice(i,i+chunkSize)).select();
-    if(error){ csvMsg.style.color='#b91c1c'; csvMsg.textContent='Import error: '+error.message; return; }
-    roomsData.push(...data); imported+=data.length;
-    csvMsg.textContent='Imported '+imported+'/'+rows.length+'...';
-  }
-  roomsData.sort((a,b)=>a.room_number.localeCompare(b.room_number,undefined,{numeric:true}));
-  renderRoomsList(); renderRooms(); populateRoomSelect();
-  addActivity('Bulk imported '+imported+' rooms via CSV');
-  var warnText = errors.length>0 ? ' ('+errors.length+' rows skipped)' : '';
-  csvMsg.style.color='#15803d';
-  csvMsg.textContent='✓ '+imported+' rooms imported!'+warnText;
-  input.value='';
-}
+// ── CSV TEMPLATE & IMPORT — handled by rooms-page.js ─────────────────────────
+// downloadRoomTemplate() and importRoomsCSV() are in rooms-page.js
