@@ -26,7 +26,6 @@ function showDashboard(){
   document.getElementById('topbar-title').textContent        = 'Dashboard';
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('nav-dashboard').classList.add('active');
-  if(activeInlineEdit) cancelInlineEdit();
 }
 
 // ── FILTER & RENDER ───────────────────────────────────────────────────────────
@@ -85,12 +84,15 @@ function renderRPTable(){
     return '<tr class="'+(sel?'rp-row-selected':'')+'" id="rp-row-'+r.id+'">'+
       '<td class="rt-checkbox"><input type="checkbox" '+(sel?'checked':'')+' onchange="toggleRoomSelect(\''+r.id+'\',this)"/></td>'+
       '<td style="color:var(--muted);font-size:12px">'+srNo+'</td>'+
-      '<td class="rp-cell" onclick="inlineEdit(\''+r.id+'\',\'room_number\',\''+r.room_number+'\')" title="Click to edit"><span class="rp-cell-val" style="font-weight:700;color:var(--blue)">'+r.room_number+'</span></td>'+
-      '<td class="rp-cell" onclick="inlineEdit(\''+r.id+'\',\'room_type\',\''+r.room_type+'\')" title="Click to edit"><span class="rp-cell-val">'+r.room_type+'</span></td>'+
-      '<td class="rp-cell" onclick="inlineEdit(\''+r.id+'\',\'capacity\',\''+r.capacity+'\')" title="Click to edit"><span class="rp-cell-val">'+r.capacity+' guest'+(r.capacity!=1?'s':'')+'</span></td>'+
-      '<td class="rp-cell" onclick="inlineEdit(\''+r.id+'\',\'price_per_night\',\''+r.price_per_night+'\')" title="Click to edit"><span class="rp-cell-val">₹'+Number(r.price_per_night).toLocaleString('en-IN')+'</span></td>'+
-      '<td class="rp-cell" onclick="inlineEditStatus(\''+r.id+'\',\''+st+'\')" title="Click to change"><span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:'+bg+';color:'+col+'">'+ico+' '+(statusLabel[st]||st)+'</span></td>'+
-      '<td style="text-align:right"><button class="rp-row-del" onclick="deleteRoomFromPage(\''+r.id+'\')" title="Delete">🗑</button></td>'+
+      '<td style="font-weight:700;color:var(--blue)">'+r.room_number+'</td>'+
+      '<td>'+r.room_type+'</td>'+
+      '<td>'+r.capacity+' guest'+(r.capacity!=1?'s':'')+'</td>'+
+      '<td>₹'+Number(r.price_per_night).toLocaleString('en-IN')+'</td>'+
+      '<td><span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:'+bg+';color:'+col+'">'+ico+' '+(statusLabel[st]||st)+'</span></td>'+
+      '<td style="text-align:right;white-space:nowrap">'+
+        '<button class="rp-row-edit" onclick="startRowEdit(\''+r.id+'\')" title="Edit room">✏️</button>'+
+        '<button class="rp-row-del" onclick="deleteRoomFromPage(\''+r.id+'\')" title="Delete room">🗑</button>'+
+      '</td>'+
       '</tr>';
   }).join('');
 
@@ -138,95 +140,58 @@ function updateBulkBar(){
   document.getElementById('rp-bulk-status').value='';
 }
 
-// ── INLINE EDIT ───────────────────────────────────────────────────────────────
-function fieldToCol(f){return{room_number:3,room_type:4,capacity:5,price_per_night:6}[f]||3;}
+// ── ROW-LEVEL EDIT (click ✏️ → whole row editable → explicit Save/Cancel) ─────
+var activeInlineEdit=null; // kept for compatibility, unused
 
-function inlineEdit(roomId, field, curVal){
-  if(activeInlineEdit) cancelInlineEdit();
+function startRowEdit(roomId){
   var r=roomsData.find(function(x){return x.id===roomId;});
   if(!r) return;
-  var cell=document.querySelector('#rp-row-'+roomId+' td:nth-child('+fieldToCol(field)+')');
-  if(!cell) return;
-  var oldHTML=cell.innerHTML;
-  activeInlineEdit={roomId,field,oldHTML,cell};
-  var inp='';
-  if(field==='room_type'){
-    var opts=['Standard','Deluxe','Suite','Premium','Family','Super Deluxe'].map(function(t){return '<option'+(r.room_type===t?' selected':'')+'>'+t+'</option>';}).join('');
-    inp='<select class="inline-input" id="inline-input" onblur="saveInlineEdit()" onkeydown="inlineKey(event)">'+opts+'</select>';
-  } else if(field==='capacity'){
-    var copts=[1,2,3,4,5].map(function(n){return '<option value="'+n+'"'+(r.capacity==n?' selected':'')+'>'+n+'</option>';}).join('');
-    inp='<select class="inline-input" id="inline-input" onblur="saveInlineEdit()" onkeydown="inlineKey(event)">'+copts+'</select>';
-  } else {
-    var t=field==='price_per_night'?'number':'text';
-    inp='<input type="'+t+'" class="inline-input" id="inline-input" value="'+curVal+'" onblur="saveInlineEdit()" onkeydown="inlineKey(event)"/>';
-  }
-  if(field==='room_number') inp+='<div style="font-size:10px;color:var(--amber);margin-top:2px" id="cascade-warn" style="display:none">⚠️ Will update all bookings for this room</div>';
-  cell.innerHTML=inp;
-  var el=document.getElementById('inline-input');
-  if(el){el.focus();if(el.select&&el.type!=='select-one')el.select();}
-  if(field==='room_number'){
-    el.addEventListener('input',function(){
-      var w=document.getElementById('cascade-warn');
-      if(w) w.style.display=this.value!==r.room_number?'block':'none';
-    });
-  }
+  var row=document.getElementById('rp-row-'+roomId);
+  if(!row) return;
+  row.classList.add('rp-row-editing');
+  var typeOpts=['Standard','Deluxe','Suite','Premium','Family','Super Deluxe'].map(function(t){return'<option'+(r.room_type===t?' selected':'')+'>'+t+'</option>';}).join('');
+  var capOpts=[1,2,3,4,5].map(function(n){return'<option value="'+n+'"'+(r.capacity==n?' selected':'')+'>'+n+'</option>';}).join('');
+  var stOpts=[{v:'available',l:'✅ Available'},{v:'cleaning',l:'🧹 Cleaning'},{v:'maintenance',l:'🔧 Maintenance'}].map(function(s){return'<option value="'+s.v+'"'+(r.status===s.v?' selected':'')+'>'+s.l+'</option>';}).join('');
+  row.innerHTML=
+    '<td><input type="checkbox" disabled/></td>'+
+    '<td style="color:var(--muted);font-size:12px">—</td>'+
+    '<td>'+
+      '<input type="text" class="inline-input" id="re-num-'+roomId+'" value="'+r.room_number+'" style="width:80px"/>'+
+      '<div id="re-numwarn-'+roomId+'" style="display:none;font-size:10px;color:var(--amber);margin-top:2px">⚠️ Updates all bookings</div>'+
+    '</td>'+
+    '<td><select class="inline-input" id="re-type-'+roomId+'">'+typeOpts+'</select></td>'+
+    '<td><select class="inline-input" id="re-cap-'+roomId+'" style="width:72px">'+capOpts+'</select></td>'+
+    '<td><input type="number" class="inline-input" id="re-price-'+roomId+'" value="'+r.price_per_night+'" style="width:90px"/></td>'+
+    '<td><select class="inline-input" id="re-status-'+roomId+'">'+stOpts+'</select></td>'+
+    '<td style="text-align:right;white-space:nowrap">'+
+      '<button onclick="saveRowEdit(''+roomId+'')" style="padding:5px 10px;background:#15803d;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:4px">✓ Save</button>'+
+      '<button onclick="cancelRowEdit(''+roomId+'')" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--white)">✕</button>'+
+    '</td>';
+  var numInput=document.getElementById('re-num-'+roomId);
+  if(numInput){numInput.focus();numInput.select();
+    numInput.addEventListener('input',function(){var w=document.getElementById('re-numwarn-'+roomId);if(w)w.style.display=this.value.trim()!==r.room_number?'block':'none';});}
 }
 
-function inlineKey(e){
-  if(e.key==='Enter'){e.preventDefault();saveInlineEdit();}
-  if(e.key==='Escape') cancelInlineEdit();
+async function saveRowEdit(roomId){
+  var r=roomsData.find(function(x){return x.id===roomId;});if(!r)return;
+  var newNum=((document.getElementById('re-num-'+roomId)||{}).value||'').trim();
+  var newType=(document.getElementById('re-type-'+roomId)||{}).value||r.room_type;
+  var newCap=parseInt((document.getElementById('re-cap-'+roomId)||{}).value)||r.capacity;
+  var newPrice=parseFloat((document.getElementById('re-price-'+roomId)||{}).value);
+  var newStatus=(document.getElementById('re-status-'+roomId)||{}).value||r.status;
+  if(isNaN(newPrice))newPrice=r.price_per_night;
+  if(!newNum){showRPToast('Room number cannot be empty.','error');return;}
+  if(newNum!==r.room_number&&roomsData.find(function(x){return x.room_number===newNum&&x.id!==roomId;})){showRPToast('Room '+newNum+' already exists.','error');return;}
+  if(newPrice<100){if(!confirm('Price ₹'+newPrice+' seems very low for a room rate. Are you sure?'))return;}
+  var res=await sb.from('rooms').update({room_number:newNum,room_type:newType,capacity:newCap,price_per_night:newPrice,status:newStatus}).eq('id',roomId);
+  if(res.error){showRPToast('Save failed: '+res.error.message,'error');return;}
+  if(newNum!==r.room_number){await sb.from('bookings').update({room_no:newNum}).eq('user_id',currentUserId).eq('room_no',r.room_number);addActivity('Room '+r.room_number+' renumbered to '+newNum);}
+  r.room_number=newNum;r.room_type=newType;r.capacity=newCap;r.price_per_night=newPrice;r.status=newStatus;
+  showRPToast('✓ Room '+newNum+' saved','success');
+  applyRPFilters();renderRooms();populateRoomSelect();
 }
 
-async function saveInlineEdit(){
-  if(!activeInlineEdit) return;
-  var ae=activeInlineEdit; activeInlineEdit=null;
-  var el=document.getElementById('inline-input');
-  if(!el){ae.cell.innerHTML=ae.oldHTML;return;}
-  var newVal=el.value.trim();
-  var r=roomsData.find(function(x){return x.id===ae.roomId;});
-  if(!r){ae.cell.innerHTML=ae.oldHTML;return;}
-  if(ae.field==='room_number'){
-    if(!newVal){ae.cell.innerHTML=ae.oldHTML;return;}
-    if(newVal!==r.room_number&&roomsData.find(function(x){return x.room_number===newVal&&x.id!==ae.roomId;})){
-      showRPToast('Room '+newVal+' already exists.','error');ae.cell.innerHTML=ae.oldHTML;return;
-    }
-  }
-  if(ae.field==='price_per_night'&&isNaN(parseFloat(newVal))){ae.cell.innerHTML=ae.oldHTML;return;}
-  var update={};
-  update[ae.field]=ae.field==='capacity'?parseInt(newVal):ae.field==='price_per_night'?parseFloat(newVal):newVal;
-  var res=await sb.from('rooms').update(update).eq('id',ae.roomId);
-  if(res.error){showRPToast('Save failed: '+res.error.message,'error');ae.cell.innerHTML=ae.oldHTML;return;}
-  if(ae.field==='room_number'&&newVal!==r.room_number){
-    await sb.from('bookings').update({room_no:newVal}).eq('user_id',currentUserId).eq('room_no',r.room_number);
-    addActivity('Room '+r.room_number+' renumbered to '+newVal+' — bookings updated');
-  }
-  r[ae.field]=update[ae.field];
-  showRPToast('✓ Saved','success');
-  applyRPFilters();
-  renderRooms(); populateRoomSelect();
-}
-
-function cancelInlineEdit(){
-  if(!activeInlineEdit) return;
-  var ae=activeInlineEdit; activeInlineEdit=null;
-  ae.cell.innerHTML=ae.oldHTML;
-}
-
-function inlineEditStatus(roomId,curStatus){
-  if(activeInlineEdit) cancelInlineEdit();
-  if(curStatus==='occupied'){showRPToast('Status is auto-managed while room is occupied.','warn');return;}
-  var cell=document.querySelector('#rp-row-'+roomId+' td:nth-child(7)');
-  if(!cell) return;
-  var oldHTML=cell.innerHTML;
-  activeInlineEdit={roomId,field:'status',oldHTML,cell};
-  cell.innerHTML='<select class="inline-input" id="inline-input" onblur="saveInlineEdit()" onkeydown="inlineKey(event)">'+
-    '<option value="available"'+(curStatus==='available'?' selected':'')+'>✅ Available</option>'+
-    '<option value="cleaning"'+(curStatus==='cleaning'?' selected':'')+'>🧹 Cleaning</option>'+
-    '<option value="maintenance"'+(curStatus==='maintenance'?' selected':'')+'>🔧 Maintenance</option>'+
-    '</select>';
-  var el=document.getElementById('inline-input');
-  if(el) el.focus();
-}
+function cancelRowEdit(roomId){applyRPFilters();}
 
 // ── BULK ACTIONS ──────────────────────────────────────────────────────────────
 async function bulkChangeStatus(status){

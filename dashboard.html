@@ -197,6 +197,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .rp-row-selected td{background:#eff6ff !important}
 .rp-cell{cursor:pointer}
 .rp-cell:hover .rp-cell-val{text-decoration:underline;text-decoration-style:dotted}
+.rp-row-editing td{background:#fffbeb !important;border-top:2px solid var(--amber) !important;border-bottom:2px solid var(--amber) !important}
+.rp-row-edit{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center;margin-right:3px}
 .rp-row-del{width:26px;height:26px;border-radius:6px;border:1px solid #fecaca;background:#fee2e2;color:#b91c1c;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
 .rp-row-del:hover{background:#fecaca}
 .inline-input{width:100%;padding:4px 7px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--blue);border-radius:5px;outline:none;background:var(--white);box-shadow:0 0 0 3px rgba(26,86,160,0.08)}
@@ -819,24 +821,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- MANAGE ROOMS MODAL -->
 <div class="modal-overlay" id="rooms-modal">
-  <div class="modal" style="max-width:580px">
+  <div class="modal" style="max-width:480px">
     <div class="modal-head">
-      <h2>🏨 Manage rooms</h2>
+      <h2>🏨 Add a room</h2>
       <button class="modal-close" onclick="closeRoomsModal()">✕</button>
     </div>
     <div class="modal-body">
       <div class="msg" id="rooms-msg"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:13px;color:var(--muted)" id="rooms-count">Loading…</div>
-        <button onclick="toggleAddRoomForm()" id="add-room-toggle" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          Add room
-        </button>
-      </div>
-
-      <!-- Add room form -->
-      <div class="add-room-form" id="add-room-form">
-        <div style="font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">New room details</div>
+      <div class="add-room-form open" id="add-room-form">
         <div class="modal-row2">
           <div class="modal-field">
             <label>Room number</label>
@@ -846,12 +838,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             <label>Room type</label>
             <select id="new-room-type">
               <option value="">Select…</option>
-              <option>Standard</option>
-              <option>Deluxe</option>
-              <option>Suite</option>
-              <option>Premium</option>
-              <option>Family</option>
-              <option>Super Deluxe</option>
+              <option>Standard</option><option>Deluxe</option><option>Suite</option>
+              <option>Premium</option><option>Family</option><option>Super Deluxe</option>
             </select>
           </div>
         </div>
@@ -871,36 +859,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             <input type="number" id="new-room-price" placeholder="e.g. 2500"/>
           </div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <button onclick="toggleAddRoomForm()" style="flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Cancel</button>
-          <button onclick="saveNewRoom()" id="save-room-btn" style="flex:2;padding:9px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Save room →</button>
-        </div>
       </div>
-
-      <!-- Rooms list -->
-      <div class="rooms-list" id="rooms-list">
-        <div class="rooms-empty">Loading rooms…</div>
-      </div>
-
-      <div style="margin-top:8px;padding:10px 12px;background:var(--blue-light);border-radius:8px;font-size:12px;color:var(--blue);line-height:1.5">
-        💡 Room status updates automatically when you add bookings. Click any room in the grid to view or edit it.
-      </div>
-
-      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
-        <div style="font-size:12px;font-weight:600;margin-bottom:6px">📥 Bulk import rooms via CSV</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">For large hotels — download the template, fill in your rooms in Excel, then upload.</div>
-        <div style="display:flex;gap:8px">
-          <button onclick="downloadRoomTemplate()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">⬇️ Download template</button>
-          <label style="flex:1;padding:8px;border:1px solid var(--blue);border-radius:8px;background:var(--blue-light);font-size:12px;font-weight:500;cursor:pointer;text-align:center;color:var(--blue)">
-            ⬆️ Upload CSV
-            <input type="file" id="csv-upload" accept=".csv" onchange="importRoomsCSV(this)" style="display:none"/>
-          </label>
-        </div>
-        <div id="csv-msg" style="font-size:12px;margin-top:8px;display:none"></div>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--blue-light);border-radius:8px;font-size:12px;color:var(--blue);line-height:1.5">
+        💡 To manage, edit or bulk-import rooms — open the <strong>Rooms page</strong> from the sidebar.
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-save" onclick="closeRoomsModal()">Done</button>
+      <button class="btn-cancel" onclick="closeRoomsModal()">Cancel</button>
+      <button class="btn-save" id="save-room-btn" onclick="saveNewRoom()">Save room →</button>
     </div>
   </div>
 </div>

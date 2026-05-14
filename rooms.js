@@ -61,7 +61,10 @@ document.getElementById('room_no').addEventListener('change', function(){
 // ── MANAGE ROOMS MODAL ────────────────────────────────────────────────────────
 function openRoomsModal(){
   document.getElementById('rooms-modal').classList.add('open');
-  renderRoomsList();
+  document.getElementById('rooms-msg').className='msg';
+  // Auto-open add form since that's all the modal now shows
+  document.getElementById('add-room-form').classList.add('open');
+  document.getElementById('new-room-num').focus();
 }
 function closeRoomsModal(){
   document.getElementById('rooms-modal').classList.remove('open');
@@ -72,35 +75,16 @@ document.getElementById('rooms-modal').addEventListener('click',e=>{
 });
 
 function toggleAddRoomForm(){
-  const form = document.getElementById('add-room-form');
-  form.classList.toggle('open');
-  const btn = document.getElementById('add-room-toggle');
-  if(form.classList.contains('open')){
-    document.getElementById('new-room-num').focus();
-    btn.innerHTML = 'Cancel';
-  } else {
-    btn.innerHTML = '+ Add room';
-  }
+  // no-op: form is always open in simplified modal
 }
 
 function renderRoomsList(){
-  const list  = document.getElementById('rooms-list');
-  const count = document.getElementById('rooms-count');
-  count.textContent = `${roomsData.length} room${roomsData.length!==1?'s':''} set up`;
-  if(roomsData.length===0){
-    list.innerHTML = '<div class="rooms-empty">No rooms yet. Click "Add room" or upload a CSV below.</div>';
-    return;
-  }
-  list.innerHTML = roomsData.map(r=>`
-    <div class="room-row">
-      <div class="room-row-num">${r.room_number}</div>
-      <div class="room-row-type">${r.room_type}</div>
-      <div class="room-row-cap">${r.capacity} guest${r.capacity!=1?'s':''}</div>
-      <div class="room-row-price">₹${Number(r.price_per_night).toLocaleString('en-IN')}/night</div>
-      <button class="rm-edit" onclick="openRoomView('${r.id}')" title="View/edit">✏️</button>
-      <button class="rm-del"  onclick="deleteRoom('${r.id}')"   title="Delete">🗑</button>
-    </div>
-  `).join('');
+  var list=document.getElementById('rooms-list');
+  if(!list) return; // rooms list removed from modal — handled by rooms page
+  var count=document.getElementById('rooms-count');
+  if(count) count.textContent=roomsData.length+' room'+(roomsData.length!==1?'s':'')+' set up';
+  list.innerHTML=roomsData.length===0?'<div class="rooms-empty">No rooms yet.</div>':
+    roomsData.map(function(r){return'<div class="room-row"><div class="room-row-num">'+r.room_number+'</div><div class="room-row-type">'+r.room_type+'</div><div class="room-row-cap">'+r.capacity+' guest'+(r.capacity!=1?'s':'')+'</div><div class="room-row-price">₹'+Number(r.price_per_night).toLocaleString('en-IN')+'/night</div><button class="rm-edit" onclick="openRoomView(\''+r.id+'\')" title="View/edit">✏️</button><button class="rm-del" onclick="deleteRoom(\''+r.id+'\')" title="Delete">🗑</button></div>';}).join('');
 }
 
 async function saveNewRoom(){
