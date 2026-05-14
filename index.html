@@ -68,6 +68,9 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5r
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .r3{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:7px}
 .hint{font-size:10px;color:var(--ink3);margin-top:2px}
+.phone-row{display:grid;grid-template-columns:108px 1fr;gap:5px}
+.phone-row select{padding:8px 6px;font-size:12px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--ink);outline:none;cursor:pointer}
+.phone-row select:focus{border-color:var(--blue)}
 .sbtn{width:100%;padding:11px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:9px;background:var(--ink);color:#fff;cursor:pointer;transition:all 0.15s;margin-top:6px}
 .sbtn:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .sbtn:disabled{background:#aaa;cursor:not-allowed;transform:none;box-shadow:none}
@@ -199,7 +202,23 @@ footer{border-top:1px solid rgba(255,255,255,0.08);background:var(--ink);padding
           <div class="f"><label>City</label><input type="text" id="city" placeholder="Mumbai"/></div>
           <div class="r2">
             <div class="f"><label>Pincode</label><input type="text" id="pincode" placeholder="400001"/></div>
-            <div class="f"><label>Phone</label><input type="tel" id="phone" placeholder="+91 98765…"/></div>
+            <div class="f"><label>Phone</label>
+              <div class="phone-row">
+                <select id="phone_country">
+                  <option value="+91">🇮🇳 +91</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+61">🇦🇺 +61</option>
+                  <option value="+971">🇦🇪 +971</option>
+                  <option value="+65">🇸🇬 +65</option>
+                  <option value="+60">🇲🇾 +60</option>
+                  <option value="+966">🇸🇦 +966</option>
+                  <option value="+49">🇩🇪 +49</option>
+                  <option value="+33">🇫🇷 +33</option>
+                </select>
+                <input type="tel" id="phone" placeholder="98765 43210"/>
+              </div>
+            </div>
           </div>
           <div class="f"><label>Address</label><input type="text" id="address" placeholder="Street, Area, Landmark"/></div>
         </div>
@@ -281,20 +300,35 @@ function showMsg(t,type){const e=document.getElementById('msg');e.textContent=t;
 async function handleSignup(){
   const v=id=>document.getElementById(id).value.trim();
   const hotel_name=v('hotel_name'),hotel_type=v('hotel_type'),city=v('city'),pincode=v('pincode'),
-    address=v('address'),phone=v('phone'),first_name=v('first_name'),last_name=v('last_name'),
+    address=v('address'),first_name=v('first_name'),last_name=v('last_name'),
     email=v('email'),upi_id=v('upi_id');
   const password=document.getElementById('password').value;
+  const phone_country=v('phone_country');
+  const phone_raw=v('phone');
+  const phone=phone_country+phone_raw.replace(/[^0-9]/g,'');
   const btn=document.getElementById('btn');
-  if(!hotel_name||!hotel_type||!city||!pincode||!address||!phone||!first_name||!last_name||!email||!password){
-    showMsg('Please fill in all required fields.','error');return;
-  }
+
+  // Field-by-field validation with clear messages
+  if(!hotel_name){showMsg('Please enter your hotel name.','error');return;}
+  if(!hotel_type){showMsg('Please select your hotel type.','error');return;}
+  if(!city){showMsg('Please enter your city.','error');return;}
+  if(!pincode){showMsg('Please enter your pincode.','error');return;}
+  if(!/^\d{4,10}$/.test(pincode)){showMsg('Please enter a valid pincode (4–10 digits).','error');return;}
+  if(!address){showMsg('Please enter your hotel address.','error');return;}
+  if(!phone_raw){showMsg('Please enter your phone number.','error');return;}
+  if(phone_raw.replace(/[^0-9]/g,'').length<7){showMsg('Please enter a valid phone number.','error');return;}
+  if(!first_name){showMsg('Please enter your first name.','error');return;}
+  if(!last_name){showMsg('Please enter your last name.','error');return;}
+  if(!email||!email.includes('@')){showMsg('Please enter a valid work email.','error');return;}
+  if(!password){showMsg('Please enter a password.','error');return;}
   if(password.length<8){showMsg('Password must be at least 8 characters.','error');return;}
+
   btn.disabled=true;btn.textContent='Creating your account…';
   const {error}=await sb.auth.signUp({email,password,
     options:{data:{hotel_name,hotel_type,city,pincode,address,phone,first_name,last_name,upi_id}}
   });
   if(error){showMsg(error.message,'error');btn.disabled=false;btn.textContent='Create my Revenu account →';}
-  else{showMsg('Account created! Check your email to confirm, then login.','success');btn.textContent='Account created!';setTimeout(()=>{window.location.href='login.html';},3000);}
+  else{showMsg('✅ Account created! Check your email to confirm your address, then login.','success');btn.textContent='Check your email →';setTimeout(()=>{window.location.href='login.html';},4000);}
 }
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')handleSignup();});
 </script>

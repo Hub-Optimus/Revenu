@@ -505,8 +505,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <input type="time" id="arrival_time"/>
         </div>
         <div class="modal-field">
-          <label>Rate per night (₹)</label>
-          <input type="number" id="rate" placeholder="e.g. 2500"/>
+          <label>Actual rate / night (₹)</label>
+          <input type="number" id="rate" placeholder="Auto-filled from base rate"/>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Pre-filled from room's base rate. Override if OTA rate differs.</div>
         </div>
       </div>
 
@@ -697,7 +698,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             </select>
           </div>
           <div class="modal-field">
-            <label>Price per night (₹)</label>
+            <label>Base rate / night (₹)</label>
             <input type="number" id="new-room-price" placeholder="e.g. 2500"/>
           </div>
         </div>
@@ -713,7 +714,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
 
       <div style="margin-top:8px;padding:10px 12px;background:var(--blue-light);border-radius:8px;font-size:12px;color:var(--blue);line-height:1.5">
-        💡 Room status updates automatically when you add bookings. You can also click any room in the grid to change its status manually.
+        💡 Room status updates automatically when you add bookings. Click any room in the grid to view or edit it.
+      </div>
+
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">📥 Bulk import rooms via CSV</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">For large hotels — download the template, fill in your rooms in Excel, then upload.</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="downloadRoomTemplate()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">⬇️ Download template</button>
+          <label style="flex:1;padding:8px;border:1px solid var(--blue);border-radius:8px;background:var(--blue-light);font-size:12px;font-weight:500;cursor:pointer;text-align:center;color:var(--blue)">
+            ⬆️ Upload CSV
+            <input type="file" id="csv-upload" accept=".csv" onchange="importRoomsCSV(this)" style="display:none"/>
+          </label>
+        </div>
+        <div id="csv-msg" style="font-size:12px;margin-top:8px;display:none"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -723,58 +737,86 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </div>
 
 
-<!-- ROOM EDIT MODAL -->
+<!-- ROOM VIEW / EDIT MODAL -->
 <div class="modal-overlay" id="room-edit-modal">
   <div class="modal" style="max-width:440px">
     <div class="modal-head">
-      <h2 id="room-edit-title">Edit room</h2>
+      <h2 id="room-edit-title">Room 101</h2>
       <button class="modal-close" onclick="closeRoomEdit()">✕</button>
     </div>
     <div class="modal-body">
       <div class="msg" id="room-edit-msg"></div>
       <input type="hidden" id="room-edit-id"/>
-      <div class="modal-field">
-        <label>Room number</label>
-        <div id="room-edit-num-display" style="padding:10px 13px;font-size:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--muted);font-weight:600"></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Room number cannot be changed after creation.</div>
-      </div>
-      <div class="modal-row2">
-        <div class="modal-field">
-          <label>Room type</label>
-          <select id="room-edit-type">
-            <option>Standard</option><option>Deluxe</option><option>Suite</option>
-            <option>Premium</option><option>Family</option><option>Super Deluxe</option>
-          </select>
+      <input type="hidden" id="room-edit-old-num"/>
+
+      <!-- VIEW MODE -->
+      <div id="room-view-mode">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+          <div style="background:var(--bg);border-radius:10px;padding:12px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Room type</div>
+            <div style="font-size:15px;font-weight:600" id="view-room-type">—</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:12px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Capacity</div>
+            <div style="font-size:15px;font-weight:600" id="view-room-cap">—</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:12px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Base rate</div>
+            <div style="font-size:15px;font-weight:600" id="view-room-price">—</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:12px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Status</div>
+            <div style="font-size:13px;font-weight:600" id="view-room-status">—</div>
+          </div>
         </div>
-        <div class="modal-field">
-          <label>Capacity</label>
-          <select id="room-edit-cap">
-            <option value="1">1 guest</option><option value="2">2 guests</option>
-            <option value="3">3 guests</option><option value="4">4 guests</option>
-            <option value="5">5+ guests</option>
-          </select>
-        </div>
-      </div>
-      <div class="modal-row2">
-        <div class="modal-field">
-          <label>Price per night (₹)</label>
-          <input type="number" id="room-edit-price" placeholder="e.g. 2500"/>
-        </div>
-        <div class="modal-field">
-          <label>Status</label>
-          <select id="room-edit-status">
-            <option value="available">✅ Available</option>
-            <option value="cleaning">🧹 Cleaning</option>
-            <option value="maintenance">🔧 Maintenance</option>
-          </select>
+        <div style="display:flex;gap:8px">
+          <button onclick="deleteRoomFromEdit()" style="padding:9px 14px;border:1px solid #fecaca;border-radius:8px;background:#fee2e2;color:#b91c1c;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">🗑 Delete</button>
+          <button onclick="enterRoomEditMode()" style="flex:1;padding:9px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✏️ Edit room →</button>
         </div>
       </div>
-    </div>
-    <div class="modal-footer" style="justify-content:space-between">
-      <button onclick="deleteRoomFromEdit()" style="padding:9px 16px;border:1px solid #fecaca;border-radius:8px;background:#fee2e2;color:#b91c1c;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">🗑 Delete room</button>
-      <div style="display:flex;gap:8px">
-        <button class="btn-cancel" onclick="closeRoomEdit()">Cancel</button>
-        <button class="btn-save" id="room-edit-save-btn" onclick="saveRoomEdit()">Save changes →</button>
+
+      <!-- EDIT MODE (hidden by default) -->
+      <div id="room-edit-mode" style="display:none">
+        <div class="modal-field">
+          <label>Room number</label>
+          <input type="text" id="room-edit-num" placeholder="e.g. 101"/>
+          <div style="font-size:11px;color:var(--amber);margin-top:4px" id="room-num-warn" style="display:none">⚠️ Changing this will update all existing bookings for this room.</div>
+        </div>
+        <div class="modal-row2">
+          <div class="modal-field">
+            <label>Room type</label>
+            <select id="room-edit-type">
+              <option>Standard</option><option>Deluxe</option><option>Suite</option>
+              <option>Premium</option><option>Family</option><option>Super Deluxe</option>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label>Capacity</label>
+            <select id="room-edit-cap">
+              <option value="1">1 guest</option><option value="2">2 guests</option>
+              <option value="3">3 guests</option><option value="4">4 guests</option>
+              <option value="5">5+ guests</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-row2">
+          <div class="modal-field">
+            <label>Base rate / night (₹)</label>
+            <input type="number" id="room-edit-price" placeholder="e.g. 2500"/>
+          </div>
+          <div class="modal-field">
+            <label>Status</label>
+            <select id="room-edit-status">
+              <option value="available">✅ Available</option>
+              <option value="cleaning">🧹 Cleaning</option>
+              <option value="maintenance">🔧 Maintenance</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button onclick="exitRoomEditMode()" style="padding:9px 14px;border:1px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif">Cancel</button>
+          <button class="btn-save" id="room-edit-save-btn" onclick="saveRoomEdit()" style="flex:1">Save changes →</button>
+        </div>
       </div>
     </div>
   </div>
