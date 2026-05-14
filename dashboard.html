@@ -968,5 +968,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <script src="booking-detail.js"></script>
 <script src="payments.js"></script>
 <script>initDashboard();</script>
+
+<script>
+// ── INLINE NAV — guaranteed to work regardless of rooms-page.js load state ───
+function showRoomsPage(){
+  var dc=document.getElementById('dashboard-content');
+  var rp=document.getElementById('rooms-page');
+  if(!dc||!rp){console.error('Missing elements');return;}
+  dc.style.display='none';
+  rp.style.display='block';
+  var tt=document.getElementById('topbar-title');
+  if(tt) tt.textContent='Room Inventory';
+  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
+  var nr=document.getElementById('nav-rooms');
+  if(nr) nr.classList.add('active');
+  if(typeof rpSelected!=='undefined') rpSelected.clear();
+  if(typeof applyRPFilters==='function') try{applyRPFilters();}catch(e){console.error(e);}
+  if(typeof renderRPSummary==='function') try{renderRPSummary();}catch(e){console.error(e);}
+}
+function showDashboard(){
+  var rp=document.getElementById('rooms-page');
+  var dc=document.getElementById('dashboard-content');
+  if(rp) rp.style.display='none';
+  if(dc) dc.style.display='block';
+  var tt=document.getElementById('topbar-title');
+  if(tt) tt.textContent='Dashboard';
+  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
+  var nd=document.getElementById('nav-dashboard');
+  if(nd) nd.classList.add('active');
+}
+</script>
 </body>
 </html>
