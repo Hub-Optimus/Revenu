@@ -74,16 +74,25 @@ function updateStats(){
 
 function addActivity(text){
   const list = document.getElementById('activity-list');
+  if(!list) return;
   const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   const item = document.createElement('div');
   item.className='activity-item';
   item.innerHTML=`
     <div class="activity-dot" style="background:#1a56a0"></div>
     <div><div class="activity-text">${text}</div><div class="activity-time">${time}</div></div>`;
-  if(list.children.length===1 && list.children[0].querySelector('.activity-text').textContent.includes('No activity')){
-    list.innerHTML='';
-  }
+  // Safely clear placeholder if present
+  try {
+    if(list.children.length===1){
+      const placeholderText = list.children[0].querySelector('.activity-text');
+      if(placeholderText && placeholderText.textContent.includes('No activity')){
+        list.innerHTML='';
+      }
+    }
+  } catch(e) { /* ignore — just append below */ }
   list.prepend(item);
+  // Cap to last 15 items to keep card tidy
+  while(list.children.length > 15) list.removeChild(list.lastChild);
 }
 
 // ── ADD BOOKING MODAL ─────────────────────────────────────────────────────────
