@@ -198,9 +198,27 @@ async function saveRowEdit(roomId){
   if(!newNum){showRPToast('Room number cannot be empty.','error');return;}
   if(newNum!==r.room_number&&roomsData.find(function(x){return x.room_number===newNum&&x.id!==roomId;})){showRPToast('Room '+newNum+' already exists.','error');return;}
   if(newPrice<100){if(!confirm('Price ₹'+newPrice+' seems very low for a room rate. Are you sure?'))return;}
+
+  // Detect what changed BEFORE the update so we can log it
+  var changes = [];
+  if(newNum!==r.room_number)         changes.push('number → '+newNum);
+  if(newType!==r.room_type)          changes.push('type → '+newType);
+  if(newCap!==r.capacity)            changes.push('capacity → '+newCap);
+  if(newPrice!==r.price_per_night)   changes.push('rate → ₹'+Number(newPrice).toLocaleString('en-IN'));
+  if(newStatus!==r.status)           changes.push('status → '+(statusLabel[newStatus]||newStatus));
+
   var res=await sb.from('rooms').update({room_number:newNum,room_type:newType,capacity:newCap,price_per_night:newPrice,status:newStatus}).eq('id',roomId);
   if(res.error){showRPToast('Save failed: '+res.error.message,'error');return;}
-  if(newNum!==r.room_number){await sb.from('bookings').update({room_no:newNum}).eq('user_id',currentUserId).eq('room_no',r.room_number);addActivity('Room '+r.room_number+' renumbered to '+newNum);}
+
+  if(newNum!==r.room_number){
+    await sb.from('bookings').update({room_no:newNum}).eq('user_id',currentUserId).eq('room_no',r.room_number);
+  }
+
+  // Log the change in plain English
+  if(changes.length>0){
+    addActivity('Room '+r.room_number+' updated — '+changes.join(', '));
+  }
+
   r.room_number=newNum;r.room_type=newType;r.capacity=newCap;r.price_per_night=newPrice;r.status=newStatus;
   showRPToast('✓ Room '+newNum+' saved','success');
   applyRPFilters();renderRooms();populateRoomSelect();
@@ -216,6 +234,7 @@ async function bulkChangeStatus(status){
   if(res.error){showRPToast('Error: '+res.error.message,'error');return;}
   ids.forEach(function(id){var r=roomsData.find(function(x){return x.id===id;});if(r)r.status=status;});
   showRPToast('✓ '+ids.length+' rooms updated','success');
+  addActivity(ids.length+' room'+(ids.length!==1?'s':'')+' marked as '+(statusLabel[status]||status));
   rpSelected.clear(); applyRPFilters(); renderRooms();
 }
 
@@ -228,6 +247,7 @@ async function bulkDeleteRooms(){
   roomsData=roomsData.filter(function(r){return!ids.includes(r.id);});
   rpSelected.clear();
   showRPToast('✓ '+n+' rooms deleted','success');
+  addActivity(n+' room'+(n!==1?'s':'')+' deleted in bulk');
   applyRPFilters(); renderRooms(); populateRoomSelect();
 }
 
@@ -239,6 +259,7 @@ async function deleteRoomFromPage(roomId){
   roomsData=roomsData.filter(function(x){return x.id!==roomId;});
   rpSelected.delete(roomId);
   applyRPFilters(); renderRooms(); populateRoomSelect();
+  if(r) addActivity('Room '+r.room_number+' deleted from inventory');
   showRPToast('Room deleted','success');
 }
 
@@ -456,6 +477,7 @@ async function undoLastImport(){
   roomsData=roomsData.filter(function(r){return!lastImportBatch.includes(r.id);});
   lastImportBatch=[];
   applyRPFilters(); renderRooms(); populateRoomSelect();
+  addActivity('Last import undone — '+n+' rooms removed');
   showRPToast('✓ Import undone — '+n+' rooms removed.','success');
 }
 
