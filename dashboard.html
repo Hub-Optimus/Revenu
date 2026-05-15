@@ -101,6 +101,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
 .legend-dot{width:8px;height:8px;border-radius:50%}
 
+/* Room snapshot tiles */
+.snap-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.snap-tile{text-align:center;padding:14px 10px;border-radius:10px}
+.snap-tile-val{font-size:24px;font-weight:700;line-height:1;margin-bottom:4px}
+.snap-tile-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
+.snap-tile-tot{background:var(--bg);color:var(--text)}
+.snap-tile-tot .snap-tile-lbl{color:var(--muted)}
+.snap-tile-avl{background:#dcfce7;color:#15803d}
+.snap-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.snap-pill{font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--bg);color:var(--muted)}
+.snap-pill-occ{background:#dbeafe;color:#1a56a0}
+.snap-pill-cln{background:#f3f4f6;color:#374151}
+.snap-pill-mnt{background:#fee2e2;color:#b91c1c}
+.snap-section-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;color:var(--muted);margin-bottom:8px;padding-top:12px;border-top:1px solid var(--border)}
+.snap-type-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:13px}
+.snap-type-name{color:var(--text)}
+.snap-type-count{font-weight:700;color:var(--green);font-size:14px}
+.snap-type-count.zero{color:var(--muted);font-weight:500}
+
 /* GUEST TABLE */
 .guest-table{width:100%;border-collapse:collapse}
 .guest-table th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:8px 18px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg)}
@@ -248,7 +267,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="nav-section">Hotel</div>
     <div class="nav-item" id="nav-rooms" onclick="showRoomsPage()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Manage Rooms
+      Room Inventory
     </div>
     <div class="nav-item">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -337,21 +356,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="grid-2">
       <div class="card">
         <div class="card-head">
-          <h3>Room inventory</h3>
+          <h3>Room snapshot</h3>
           <div class="card-head-right">
-            <span style="font-size:12px;color:var(--muted)" id="room-summary">Loading…</span>
-            <button onclick="openRoomsModal()" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;color:var(--blue);font-family:'DM Sans',sans-serif;font-weight:500">Manage →</button>
+            <button onclick="showRoomsPage()" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;color:var(--blue);font-family:'DM Sans',sans-serif;font-weight:500">Manage rooms →</button>
           </div>
         </div>
-        <div class="room-grid" id="room-grid">
+        <div id="room-snapshot" style="padding:14px 18px 16px">
           <!-- Populated by JS -->
-        </div>
-        <div class="room-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Available</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#1a56a0"></div>Occupied</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Checkout today</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#9ca3af"></div>Cleaning</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Maintenance</div>
         </div>
       </div>
 
