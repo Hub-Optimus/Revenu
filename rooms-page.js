@@ -56,10 +56,15 @@ function applyRPFilters(){
 }
 
 function renderRPSummary(){
-  var total = roomsData.length;
-  var avail = roomsData.filter(function(r){return r.status==='available';}).length;
-  var occ   = roomsData.filter(function(r){return r.status==='occupied';}).length;
-  document.getElementById('rp-summary').textContent = total+' rooms · '+avail+' available · '+occ+' occupied';
+  var total    = roomsData.length;
+  var avail    = roomsData.filter(function(r){return r.status==='available';}).length;
+  var occ      = roomsData.filter(function(r){return r.status==='occupied';}).length;
+  var cleaning = roomsData.filter(function(r){return r.status==='cleaning';}).length;
+  var maint    = roomsData.filter(function(r){return r.status==='maintenance';}).length;
+  var parts = [total+' rooms', avail+' available', occ+' occupied'];
+  if(cleaning>0) parts.push(cleaning+' cleaning');
+  if(maint>0)    parts.push(maint+' maintenance');
+  document.getElementById('rp-summary').textContent = parts.join(' · ');
 }
 
 var ST_BG  = {available:'var(--green-light)',occupied:'var(--blue-light)',checkout:'var(--amber-light)',cleaning:'#f0fdf4',maintenance:'var(--red-light)'};
