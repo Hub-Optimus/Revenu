@@ -11,29 +11,59 @@ async function loadRooms(){
 }
 
 function renderRooms(){
-  const grid = document.getElementById('room-grid');
+  var snap = document.getElementById('room-snapshot');
+  if(!snap) return;
+
   if(roomsData.length===0){
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:28px 20px;color:var(--muted)">
-      <div style="font-size:24px;margin-bottom:8px">🏨</div>
-      <div style="font-size:13px;font-weight:600;margin-bottom:4px">No rooms set up yet</div>
-      <div style="font-size:12px;margin-bottom:12px">Add rooms or bulk-import via CSV</div>
-      <button onclick="openRoomsModal()" style="padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Set up rooms →</button>
-    </div>`;
-    document.getElementById('room-summary').textContent = 'No rooms yet';
-    document.getElementById('stat-occupied').textContent = '0';
+    snap.innerHTML='<div style="text-align:center;padding:24px 20px;color:var(--muted)">'+
+      '<div style="font-size:28px;margin-bottom:8px">🏨</div>'+
+      '<div style="font-size:13px;font-weight:600;margin-bottom:4px">No rooms set up yet</div>'+
+      '<div style="font-size:12px;margin-bottom:12px">Add rooms or bulk-import via CSV</div>'+
+      '<button onclick="showRoomsPage()" style="padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Set up rooms →</button>'+
+      '</div>';
+    document.getElementById('stat-occupied').textContent='0';
     return;
   }
-  grid.innerHTML = roomsData.map(r=>`
-    <div class="room-cell ${r.status}" onclick="openRoomView('${r.id}')"
-      title="Room ${r.room_number} — ${r.room_type} — Click to view">
-      <div class="room-num">${r.room_number}</div>
-      <div class="room-type">${r.room_type.substring(0,4)}</div>
-      <div class="room-status-text">${statusLabel[r.status]||r.status}</div>
-    </div>
-  `).join('');
-  const avail = roomsData.filter(r=>r.status==='available').length;
-  const occ   = roomsData.filter(r=>r.status==='occupied').length;
-  document.getElementById('room-summary').textContent = `${avail} available · ${occ} occupied`;
+
+  var total = roomsData.length;
+  var avail = roomsData.filter(function(r){return r.status==='available';}).length;
+  var occ   = roomsData.filter(function(r){return r.status==='occupied';}).length;
+  var cln   = roomsData.filter(function(r){return r.status==='cleaning';}).length;
+  var mnt   = roomsData.filter(function(r){return r.status==='maintenance';}).length;
+
+  // Count available by type
+  var availByType = {};
+  roomsData.filter(function(r){return r.status==='available';}).forEach(function(r){
+    availByType[r.room_type] = (availByType[r.room_type]||0) + 1;
+  });
+  // Include zero-count types that exist in inventory but have no available rooms
+  var allTypes = {};
+  roomsData.forEach(function(r){ allTypes[r.room_type]=true; });
+  var typeRows = Object.keys(allTypes).sort().map(function(t){
+    var c = availByType[t]||0;
+    return '<div class="snap-type-row"><span class="snap-type-name">'+t+'</span><span class="snap-type-count'+(c===0?' zero':'')+'">'+c+'</span></div>';
+  }).join('');
+
+  var pills = '';
+  pills += '<span class="snap-pill snap-pill-occ">🛏️ '+occ+' occupied</span>';
+  if(cln>0) pills += '<span class="snap-pill snap-pill-cln">🧹 '+cln+' cleaning</span>';
+  if(mnt>0) pills += '<span class="snap-pill snap-pill-mnt">🔧 '+mnt+' maintenance</span>';
+
+  snap.innerHTML =
+    '<div class="snap-row">'+
+      '<div class="snap-tile snap-tile-tot">'+
+        '<div class="snap-tile-val">'+total+'</div>'+
+        '<div class="snap-tile-lbl">Total rooms</div>'+
+      '</div>'+
+      '<div class="snap-tile snap-tile-avl">'+
+        '<div class="snap-tile-val">'+avail+'</div>'+
+        '<div class="snap-tile-lbl">Available now</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="snap-pills">'+pills+'</div>'+
+    '<div class="snap-section-lbl">Available by type</div>'+
+    typeRows;
+
   document.getElementById('stat-occupied').textContent = occ;
 }
 
@@ -118,6 +148,7 @@ async function saveNewRoom(){
 }
 
 async function deleteRoom(roomId){
+  var r = roomsData.find(function(x){return x.id===roomId;});
   if(!confirm('Remove this room from your inventory?')) return;
   const {error} = await sb.from('rooms').delete().eq('id',roomId);
   if(error){ alert('Error: '+error.message); return; }
@@ -125,6 +156,7 @@ async function deleteRoom(roomId){
   renderRoomsList();
   renderRooms();
   populateRoomSelect();
+  if(r) addActivity('Room '+r.room_number+' deleted from inventory');
 }
 
 // ── ROOM VIEW/EDIT MODAL ──────────────────────────────────────────────────────
