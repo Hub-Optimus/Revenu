@@ -96,11 +96,170 @@ function addActivity(text){
 }
 
 // ── ADD BOOKING MODAL ─────────────────────────────────────────────────────────
-function openModal(){ document.getElementById('modal').classList.add('open'); }
+function openModal(){
+  document.getElementById('modal').classList.add('open');
+  resetBookingForm();
+}
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
-document.getElementById('modal').addEventListener('click',e=>{
+document.getElementById('modal').addEventListener('click',function(e){
   if(e.target===document.getElementById('modal')) closeModal();
 });
+
+function resetBookingForm(){
+  ['pnr','guest_firstname','guest_lastname','guest_phone','guest_email','room_type','rate','notes','arrival_time'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('source').value='';
+  document.getElementById('room_no').value='';
+  document.getElementById('pax_count').value='2';
+  document.getElementById('gst_inclusive').checked=true;
+  document.getElementById('returning-guest-notice').style.display='none';
+  document.getElementById('room-conflict-warn').style.display='none';
+  document.getElementById('gst-note').innerHTML='';
+  document.getElementById('pnr-label').textContent='PNR / Booking ID';
+  document.getElementById('pnr-note').textContent='';
+  document.getElementById('pnr').placeholder='Select booking source first';
+  document.getElementById('modal-msg').className='msg';
+  var today=new Date().toISOString().split('T')[0];
+  var tom=new Date(); tom.setDate(tom.getDate()+1);
+  document.getElementById('checkin').value=today;
+  document.getElementById('checkout').value=tom.toISOString().split('T')[0];
+}
+
+// ── SOURCE → PNR AUTO-GENERATION ─────────────────────────────────────────────
+var IN_HOUSE_SOURCES = ['Walk-in','Direct / phone','Corporate'];
+
+function generatePNR(hotelName){
+  var code=(hotelName||'XXX').replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase();
+  while(code.length<3) code+='X';
+  var d=new Date();
+  var yy=String(d.getFullYear()).slice(-2);
+  var mm=String(d.getMonth()+1).padStart(2,'0');
+  var dd=String(d.getDate()).padStart(2,'0');
+  var hh=String(d.getHours()).padStart(2,'0');
+  var mi=String(d.getMinutes()).padStart(2,'0');
+  return code+'-'+yy+mm+dd+'-'+hh+mi;
+}
+
+function handleSourceChange(){
+  var source=document.getElementById('source').value;
+  var pnrInput=document.getElementById('pnr');
+  var pnrLabel=document.getElementById('pnr-label');
+  var pnrNote=document.getElementById('pnr-note');
+  if(IN_HOUSE_SOURCES.indexOf(source)>=0){
+    var hotelName=document.getElementById('sb-hotel').textContent||'XXX';
+    pnrInput.value=generatePNR(hotelName);
+    pnrInput.readOnly=true;
+    pnrInput.style.background='var(--bg)';
+    pnrLabel.textContent='Auto-generated PNR';
+    pnrNote.textContent='Generated automatically. Saves on commit.';
+    pnrInput.placeholder='';
+  } else if(source){
+    pnrInput.value='';
+    pnrInput.readOnly=false;
+    pnrInput.style.background='';
+    pnrLabel.textContent=source+' PNR / Booking ID';
+    pnrNote.textContent='Enter the PNR from '+source+' confirmation.';
+    var placeholders={'OYO':'e.g. OYO-839201','MakeMyTrip':'e.g. NR4291847','Booking.com':'e.g. 1234567890','Agoda':'e.g. 9876543','Goibibo':'e.g. GOI4291847','Other OTA':'Enter OTA reference'};
+    pnrInput.placeholder=placeholders[source]||'OTA reference';
+  } else {
+    pnrInput.value='';
+    pnrInput.readOnly=true;
+    pnrInput.style.background='var(--bg)';
+    pnrLabel.textContent='PNR / Booking ID';
+    pnrNote.textContent='';
+    pnrInput.placeholder='Select booking source first';
+  }
+}
+
+// ── RETURNING GUEST DETECTION ────────────────────────────────────────────────
+function checkReturningGuest(){
+  var phone=document.getElementById('guest_phone').value.trim();
+  var notice=document.getElementById('returning-guest-notice');
+  if(!phone || phone.replace(/\D/g,'').length<6){ notice.style.display='none'; return; }
+  var key=phone.replace(/\D/g,'').slice(-8);
+  var prev=bookings.filter(function(b){
+    return b.guest_phone && b.guest_phone.replace(/\D/g,'').slice(-8)===key;
+  });
+  if(prev.length>0){
+    var latest=prev[0];
+    notice.innerHTML='👋 <strong>Returning guest:</strong> '+latest.guest_name+' — last stayed '+latest.checkout+', '+prev.length+' prior booking'+(prev.length>1?'s':'')+'. Filled in details for you.';
+    notice.style.display='block';
+    var firstEl=document.getElementById('guest_firstname');
+    var lastEl=document.getElementById('guest_lastname');
+    var emailEl=document.getElementById('guest_email');
+    if(!firstEl.value && !lastEl.value){
+      var nameParts=latest.guest_name.split(' ');
+      firstEl.value=nameParts[0]||'';
+      lastEl.value=nameParts.slice(1).join(' ')||'';
+    }
+    if(!emailEl.value && latest.guest_email) emailEl.value=latest.guest_email;
+  } else {
+    notice.style.display='none';
+  }
+}
+
+// ── ROOM CHANGE: AUTO-FILL TYPE, RATE, PAX ───────────────────────────────────
+function handleRoomChange(){
+  var roomNum=document.getElementById('room_no').value;
+  var room=roomsData.find(function(r){return r.room_number===roomNum;});
+  if(room){
+    document.getElementById('room_type').value=room.room_type;
+    document.getElementById('rate').value=room.price_per_night;
+    var paxSel=document.getElementById('pax_count');
+    var cap=room.capacity;
+    paxSel.value=cap>=5?'5+':String(cap);
+    updateGSTNote();
+  } else {
+    document.getElementById('room_type').value='';
+    document.getElementById('rate').value='';
+    document.getElementById('gst-note').innerHTML='';
+  }
+  checkRoomConflict();
+}
+
+// ── ROOM CONFLICT DETECTION ──────────────────────────────────────────────────
+function checkRoomConflict(){
+  var roomNo=document.getElementById('room_no').value;
+  var ci=document.getElementById('checkin').value;
+  var co=document.getElementById('checkout').value;
+  var warn=document.getElementById('room-conflict-warn');
+  if(!roomNo || !ci || !co){ warn.style.display='none'; return; }
+  if(ci>=co){
+    warn.innerHTML='⚠️ Check-out must be after check-in.';
+    warn.style.display='block'; return;
+  }
+  var conflicts=bookings.filter(function(b){
+    if(b.room_no!==roomNo) return false;
+    if(b.status==='cancelled') return false;
+    return !(b.checkout<=ci || b.checkin>=co);
+  });
+  if(conflicts.length>0){
+    var c=conflicts[0];
+    warn.innerHTML='⚠️ <strong>Room '+roomNo+' already booked</strong> '+c.checkin+' → '+c.checkout+' ('+c.guest_name+'). Pick another room or dates.';
+    warn.style.display='block';
+  } else {
+    warn.style.display='none';
+  }
+}
+
+// ── GST CALCULATION (India: ≤₹7,500 = 12%, >₹7,500 = 18%) ────────────────────
+function updateGSTNote(){
+  var rate=parseFloat(document.getElementById('rate').value)||0;
+  var inclusive=document.getElementById('gst_inclusive').checked;
+  var note=document.getElementById('gst-note');
+  if(rate<=0){ note.innerHTML=''; return; }
+  var pct=rate>7500?18:12;
+  if(inclusive){
+    var base=rate/(1+pct/100);
+    var gst=rate-base;
+    note.innerHTML='Base ₹'+base.toFixed(0)+' + '+pct+'% GST ₹'+gst.toFixed(0)+' = <strong>₹'+rate.toFixed(0)+'</strong>';
+  } else {
+    var gst=rate*pct/100;
+    var total=rate+gst;
+    note.innerHTML='Rate ₹'+rate.toFixed(0)+' + '+pct+'% GST ₹'+gst.toFixed(0)+' = <strong>₹'+total.toFixed(0)+' total</strong>';
+  }
+}
 
 function showModalMsg(text,type){
   const el=document.getElementById('modal-msg');
@@ -122,14 +281,28 @@ async function saveBooking(){
   const checkout        = document.getElementById('checkout').value;
   const arrival_time    = document.getElementById('arrival_time').value;
   const rate            = document.getElementById('rate').value;
-  const early_checkin   = document.getElementById('early_checkin').value;
-  const late_checkout   = document.getElementById('late_checkout').value;
+  const gst_inclusive   = document.getElementById('gst_inclusive').checked;
   const notes           = document.getElementById('notes').value.trim();
   const btn             = document.getElementById('save-btn');
 
-  if(!guest_firstname||!guest_lastname||!guest_phone||!room_no||!room_type||!checkin||!checkout||!source){
-    showModalMsg('Please fill in all required fields.','error'); return;
+  if(!source){showModalMsg('Please select a booking source first.','error'); return;}
+  if(!guest_firstname||!guest_lastname){showModalMsg('Please enter guest first and last name.','error'); return;}
+  if(!guest_phone){showModalMsg('Please enter guest phone number.','error'); return;}
+  if(!room_no){showModalMsg('Please select a room.','error'); return;}
+  if(!checkin||!checkout){showModalMsg('Please set check-in and check-out dates.','error'); return;}
+  if(checkin>=checkout){showModalMsg('Check-out date must be after check-in date.','error'); return;}
+  if(!rate){showModalMsg('Please enter the rate per night.','error'); return;}
+
+  var finalConflicts=bookings.filter(function(b){
+    if(b.room_no!==room_no) return false;
+    if(b.status==='cancelled') return false;
+    return !(b.checkout<=checkin || b.checkin>=checkout);
+  });
+  if(finalConflicts.length>0){
+    showModalMsg('Room '+room_no+' is already booked for these dates. Please choose another room or dates.','error');
+    return;
   }
+
   btn.disabled=true; btn.textContent='Saving…';
 
   const hotelName = document.getElementById('sb-hotel').textContent||'';
@@ -137,30 +310,30 @@ async function saveBooking(){
     user_id:currentUserId, hotel_name:hotelName, upi_id:currentUpiId||null,
     pnr, source, guest_name, guest_phone, guest_email,
     pax_count, room_no, room_type, checkin, checkout,
-    arrival_time, rate:rate||null, early_checkin, late_checkout, notes, status:'booked'
+    arrival_time, rate:rate||null, notes, status:'booked'
   }]).select();
 
   if(error){ showModalMsg('Error: '+error.message,'error'); btn.disabled=false; btn.textContent='Save booking →'; return; }
   if(!data||data.length===0){ showModalMsg('Saved but could not get booking ID. Refresh and try again.','error'); btn.disabled=false; btn.textContent='Save booking →'; return; }
 
-  addActivity(`New booking — ${guest_name}, Room ${room_no} (${source}${pnr?' · '+pnr:''})`);
+  addActivity('New booking — '+guest_name+', Room '+room_no+' ('+source+(pnr?' · '+pnr:'')+')');
   showModalMsg('✓ Booking saved! Sending email to guest…','success');
   btn.textContent='Saved!';
   await loadBookings();
 
   const savedId  = data[0].id;
   const baseUrl  = window.location.origin;
-  const guestLink= `${baseUrl}/guest.html?booking=${savedId}`;
+  const guestLink= baseUrl+'/guest.html?booking='+savedId;
 
   if(guest_email){
     await sendGuestEmail({guest_name,guest_email,room_no,room_type,checkin,checkout,source,pnr}, guestLink);
     showModalMsg('✓ Booking saved! Email sent to guest automatically.','success');
-    addActivity(`Email sent to ${guest_name} (${guest_email})`);
+    addActivity('Email sent to '+guest_name+' ('+guest_email+')');
   } else {
     showModalMsg('✓ Booking saved! No email provided — share link manually.','success');
   }
 
-  setTimeout(()=>{
+  setTimeout(function(){
     closeModal();
     btn.disabled=false; btn.textContent='Save booking →';
     document.getElementById('modal-msg').className='msg';

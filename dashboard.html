@@ -596,122 +596,115 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="modal-body">
       <div class="msg" id="modal-msg"></div>
 
-      <div class="section-divider">Booking details</div>
+      <!-- STEP 1: SOURCE & PNR -->
       <div class="modal-row2">
         <div class="modal-field">
-          <label>PNR / Booking ID</label>
-          <input type="text" id="pnr" placeholder="e.g. OYO-839201"/>
+          <label>Booking source <span style="color:#b91c1c">*</span></label>
+          <select id="source" onchange="handleSourceChange()">
+            <option value="">Select source first…</option>
+            <optgroup label="Direct">
+              <option value="Walk-in">🚶 Walk-in</option>
+              <option value="Direct / phone">📞 Direct / phone</option>
+              <option value="Corporate">🏢 Corporate</option>
+            </optgroup>
+            <optgroup label="OTA / Channel">
+              <option value="OYO">OYO</option>
+              <option value="MakeMyTrip">MakeMyTrip</option>
+              <option value="Booking.com">Booking.com</option>
+              <option value="Agoda">Agoda</option>
+              <option value="Goibibo">Goibibo</option>
+              <option value="Other OTA">Other OTA</option>
+            </optgroup>
+          </select>
         </div>
         <div class="modal-field">
-          <label>Booking source</label>
-          <select id="source">
-            <option value="">Select…</option>
-            <option>OYO</option>
-            <option>MakeMyTrip</option>
-            <option>Booking.com</option>
-            <option>Agoda</option>
-            <option>Walk-in</option>
-            <option>Direct / phone</option>
-            <option>Corporate</option>
-          </select>
+          <label id="pnr-label">PNR / Booking ID</label>
+          <input type="text" id="pnr" readonly style="background:var(--bg)" placeholder="Select booking source first"/>
+          <div id="pnr-note" style="font-size:11px;color:var(--muted);margin-top:3px"></div>
         </div>
       </div>
 
+      <!-- GUEST DETAILS — phone first -->
       <div class="section-divider">Guest details</div>
       <div class="modal-row2">
         <div class="modal-field">
-          <label>First name</label>
-          <input type="text" id="guest_firstname" placeholder="e.g. Rahul"/>
-        </div>
-        <div class="modal-field">
-          <label>Last name</label>
-          <input type="text" id="guest_lastname" placeholder="e.g. Sharma"/>
-        </div>
-      </div>
-      <div class="modal-row2">
-        <div class="modal-field">
-          <label>Phone number</label>
-          <input type="tel" id="guest_phone" placeholder="+91 98765 43210"/>
+          <label>Phone number <span style="color:#b91c1c">*</span></label>
+          <input type="tel" id="guest_phone" placeholder="+91 98765 43210" onblur="checkReturningGuest()"/>
         </div>
         <div class="modal-field">
           <label>Email (optional)</label>
           <input type="email" id="guest_email" placeholder="guest@email.com"/>
         </div>
       </div>
+      <div id="returning-guest-notice" style="display:none;margin-bottom:12px;padding:9px 12px;background:#dbeafe;border-left:3px solid var(--blue);border-radius:6px;font-size:12px;color:var(--blue)"></div>
       <div class="modal-row2">
-        <div class="modal-field" style="grid-column:1/-1">
-          <label>Number of guests</label>
-          <select id="pax_count">
-            <option>1 guest</option>
-            <option>2 guests</option>
-            <option>3 guests</option>
-            <option>4 guests</option>
-            <option>5+ guests</option>
-          </select>
+        <div class="modal-field">
+          <label>First name <span style="color:#b91c1c">*</span></label>
+          <input type="text" id="guest_firstname" placeholder="e.g. Rahul"/>
+        </div>
+        <div class="modal-field">
+          <label>Last name <span style="color:#b91c1c">*</span></label>
+          <input type="text" id="guest_lastname" placeholder="e.g. Sharma"/>
         </div>
       </div>
 
+      <!-- ROOM & STAY -->
       <div class="section-divider">Room & stay</div>
       <div class="modal-row2">
         <div class="modal-field">
-          <label>Room number</label>
-          <select id="room_no">
+          <label>Room number <span style="color:#b91c1c">*</span></label>
+          <select id="room_no" onchange="handleRoomChange()">
             <option value="">Select room…</option>
           </select>
         </div>
         <div class="modal-field">
-          <label>Room type</label>
-          <select id="room_type">
-            <option value="">Select…</option>
-            <option>Standard</option>
-            <option>Deluxe</option>
-            <option>Suite</option>
-            <option>Super Deluxe</option>
-            <option>Premium</option>
+          <label>Number of guests</label>
+          <select id="pax_count">
+            <option value="1">1 guest</option>
+            <option value="2" selected>2 guests</option>
+            <option value="3">3 guests</option>
+            <option value="4">4 guests</option>
+            <option value="5+">5+ guests</option>
           </select>
         </div>
       </div>
       <div class="modal-row2">
         <div class="modal-field">
-          <label>Check-in date</label>
-          <input type="date" id="checkin"/>
+          <label>Room type</label>
+          <input type="text" id="room_type" readonly style="background:var(--bg)" placeholder="Auto-filled from selected room"/>
         </div>
-        <div class="modal-field">
-          <label>Check-out date</label>
-          <input type="date" id="checkout"/>
-        </div>
-      </div>
-      <div class="modal-row2">
         <div class="modal-field">
           <label>Expected arrival time</label>
           <input type="time" id="arrival_time"/>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Leave blank if unknown</div>
+        </div>
+      </div>
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Check-in date <span style="color:#b91c1c">*</span></label>
+          <input type="date" id="checkin" onchange="checkRoomConflict()"/>
         </div>
         <div class="modal-field">
-          <label>Actual rate / night (₹)</label>
-          <input type="number" id="rate" placeholder="Auto-filled from base rate"/>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">Pre-filled from room's base rate. Override if OTA rate differs.</div>
+          <label>Check-out date <span style="color:#b91c1c">*</span></label>
+          <input type="date" id="checkout" onchange="checkRoomConflict()"/>
+        </div>
+      </div>
+      <div id="room-conflict-warn" style="display:none;margin-bottom:12px;padding:9px 12px;background:#fee2e2;border-left:3px solid var(--red);border-radius:6px;font-size:12px;color:var(--red)"></div>
+
+      <div class="modal-row2">
+        <div class="modal-field">
+          <label>Actual rate / night (₹) <span style="color:#b91c1c">*</span></label>
+          <input type="number" id="rate" placeholder="Auto-filled from base rate" oninput="updateGSTNote()"/>
+        </div>
+        <div class="modal-field">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:500">
+            <input type="checkbox" id="gst_inclusive" checked onchange="updateGSTNote()" style="width:auto;margin:0"/>
+            Inclusive of GST
+          </label>
+          <div id="gst-note" style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5"></div>
         </div>
       </div>
 
-      <div class="section-divider">Additional options</div>
-      <div class="modal-row2">
-        <div class="modal-field">
-          <label>Early check-in?</label>
-          <select id="early_checkin">
-            <option>No</option>
-            <option>Yes — offer paid early check-in</option>
-            <option>Yes — complimentary</option>
-          </select>
-        </div>
-        <div class="modal-field">
-          <label>Late check-out?</label>
-          <select id="late_checkout">
-            <option>No</option>
-            <option>Yes — offer paid late checkout</option>
-            <option>Yes — complimentary</option>
-          </select>
-        </div>
-      </div>
       <div class="modal-field">
         <label>Special requests / notes</label>
         <textarea id="notes" placeholder="e.g. Honeymoon couple, needs flowers. Vegetarian food only."></textarea>

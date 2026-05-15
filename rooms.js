@@ -78,15 +78,8 @@ function populateRoomSelect(){
   });
 }
 
-// Auto-fill actual rate when room selected in booking form
-document.getElementById('room_no').addEventListener('change', function(){
-  const room = roomsData.find(r=>r.room_number===this.value);
-  if(room && room.price_per_night){
-    document.getElementById('rate').value = room.price_per_night;
-  } else {
-    document.getElementById('rate').value = '';
-  }
-});
+// Room change handler moved to bookings.js as handleRoomChange()
+// (called via onchange in HTML — handles rate, type, pax and conflict check)
 
 // ── MANAGE ROOMS MODAL ────────────────────────────────────────────────────────
 function openRoomsModal(){
