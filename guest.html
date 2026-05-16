@@ -17,6 +17,18 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 .wrap{max-width:480px;margin:0 auto;padding:16px;min-height:100vh}
+@media(min-width:768px){
+  body{background:linear-gradient(180deg,#f8fafc 0%,#fafaf9 200px)}
+  .wrap{max-width:620px;padding:32px 24px}
+  .welcome{padding:24px 0 8px}
+  .welcome-greet{font-size:28px}
+  .card{padding:22px}
+  .login-card{margin-top:60px;padding:32px 28px}
+  .login-title{font-size:28px}
+}
+@media(min-width:1024px){
+  .wrap{max-width:720px;padding:48px 24px}
+}
 .header{display:flex;justify-content:space-between;align-items:center;padding:8px 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px}
 .logo{font-family:'Fraunces',serif;font-size:20px}
 .logo em{font-style:italic;color:var(--blue)}
@@ -224,14 +236,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         </select>
       </div>
       <div class="field">
-        <label>Upload ID photo</label>
+        <label>Upload ID photo(s)</label>
+        <div id="id-list" style="margin-bottom:8px"></div>
         <label class="id-upload" id="id-upload-box">
           <div class="id-upload-icon" id="id-upload-icon">📷</div>
           <div class="id-upload-text" id="id-upload-text">Tap to take photo or upload</div>
-          <img class="id-preview" id="id-preview" alt="ID preview"/>
           <input type="file" id="id-file" accept="image/*" capture="environment" style="display:none" onchange="handleIDUpload(this)"/>
         </label>
-        <div class="help-text">Required by law for hotel registration. Stored securely — only your hotel can view it.</div>
+        <div class="help-text">Required by law for hotel registration. Upload one ID per guest (Aadhaar, Passport, etc.). All photos stored securely.</div>
       </div>
 
       <div class="section-divider">Digital signature</div>
@@ -261,7 +273,7 @@ var sb = window.supabase.createClient(
 );
 
 var currentBooking = null;
-var uploadedIDUrl = null;
+var uploadedIDs = []; // [{url, blobUrl, fileName}]
 
 function showMsg(elId, text, type){
   var el=document.getElementById(elId);
@@ -421,12 +433,8 @@ function cancelCheckin(){
   if(!confirm('Cancel check-in? Any details entered will be lost.')) return;
   document.getElementById('checkin-form-view').classList.add('hidden');
   document.getElementById('booking-view').classList.remove('hidden');
-  uploadedIDUrl = null;
-  var box = document.getElementById('id-upload-box');
-  box.classList.remove('uploaded');
-  document.getElementById('id-upload-icon').textContent = '📷';
-  document.getElementById('id-upload-text').textContent = 'Tap to take photo or upload';
-  document.getElementById('id-preview').classList.remove('shown');
+  uploadedIDs = [];
+  renderIDList();
   document.getElementById('id-file').value = '';
   clearSignature();
 }
@@ -442,21 +450,50 @@ async function handleIDUpload(input){
   }
   showCheckinMsg('Uploading ID…','info');
   var ext = (file.name.split('.').pop()||'jpg').toLowerCase();
-  var path = currentBooking.id+'_id_'+Date.now()+'.'+ext;
+  var idx = uploadedIDs.length + 1;
+  var path = currentBooking.id+'_id'+idx+'_'+Date.now()+'.'+ext;
   var res = await sb.storage.from('guest-ids').upload(path, file);
   if(res.error){
     showCheckinMsg('Upload failed: '+res.error.message,'error'); return;
   }
   var urlRes = sb.storage.from('guest-ids').getPublicUrl(path);
-  uploadedIDUrl = urlRes.data.publicUrl;
-
-  var preview = document.getElementById('id-preview');
-  preview.src = URL.createObjectURL(file);
-  preview.classList.add('shown');
-  document.getElementById('id-upload-icon').textContent = '✓';
-  document.getElementById('id-upload-text').textContent = 'ID uploaded successfully';
-  document.getElementById('id-upload-box').classList.add('uploaded');
+  uploadedIDs.push({
+    url: urlRes.data.publicUrl,
+    blobUrl: URL.createObjectURL(file),
+    fileName: file.name
+  });
+  renderIDList();
   showCheckinMsg('','');
+  input.value = ''; // reset so user can pick another
+}
+
+function renderIDList(){
+  var container = document.getElementById('id-list');
+  var box = document.getElementById('id-upload-box');
+  var icon = document.getElementById('id-upload-icon');
+  var text = document.getElementById('id-upload-text');
+  if(uploadedIDs.length === 0){
+    container.innerHTML = '';
+    icon.textContent = '📷';
+    text.textContent = 'Tap to take photo or upload';
+    box.classList.remove('uploaded');
+    return;
+  }
+  container.innerHTML = uploadedIDs.map(function(item, i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--green-light);border-radius:8px;margin-bottom:6px">'+
+      '<img src="'+item.blobUrl+'" style="width:46px;height:46px;object-fit:cover;border-radius:4px;flex-shrink:0"/>'+
+      '<div style="flex:1;font-size:13px;font-weight:600;color:var(--green)">Guest '+(i+1)+' ID uploaded ✓</div>'+
+      '<button type="button" onclick="removeID('+i+')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:4px 8px;font-family:inherit">✕</button>'+
+      '</div>';
+  }).join('');
+  icon.textContent = '+';
+  text.textContent = 'Add another guest\'s ID';
+  box.classList.add('uploaded');
+}
+
+function removeID(idx){
+  uploadedIDs.splice(idx, 1);
+  renderIDList();
 }
 
 var sigCtx = null;
@@ -525,7 +562,7 @@ async function submitCheckin(){
 
   if(!phone){ showCheckinMsg('Please enter your phone number.','error'); return; }
   if(!idType){ showCheckinMsg('Please select your ID type.','error'); return; }
-  if(!uploadedIDUrl){ showCheckinMsg('Please upload your ID photo.','error'); return; }
+  if(uploadedIDs.length === 0){ showCheckinMsg('Please upload at least one guest ID photo.','error'); return; }
   if(!sigHasContent){ showCheckinMsg('Please sign to confirm check-in.','error'); return; }
 
   var btn = document.getElementById('checkin-submit');
@@ -536,10 +573,11 @@ async function submitCheckin(){
     var sigUrl = await uploadSignature();
 
     showCheckinMsg('Saving check-in…','info');
+    var idUrlString = uploadedIDs.map(function(x){return x.url;}).join('|');
     var insRes = await sb.from('guest_checkins').insert([{
       booking_id: currentBooking.id,
       id_type: idType,
-      id_url: uploadedIDUrl,
+      id_url: idUrlString,
       signature_url: sigUrl,
       pax_actual: parseInt(pax)||null
     }]);
