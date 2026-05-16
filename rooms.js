@@ -68,15 +68,89 @@ function renderRooms(){
 }
 
 function populateRoomSelect(){
-  const sel = document.getElementById('room_no');
-  sel.innerHTML = '<option value="">Select room...</option>';
-  roomsData.filter(r=>r.status==='available').forEach(r=>{
-    const o = document.createElement('option');
-    o.value = r.room_number;
-    o.textContent = `Room ${r.room_number} — ${r.room_type}`;
-    sel.appendChild(o);
-  });
+  renderRoomPicker('');
 }
+
+function renderRoomPicker(filter){
+  var list=document.getElementById('room-picker-list');
+  var displayEl=document.getElementById('room-picker-display');
+  if(!list||!displayEl) return;
+
+  // Update placeholder with counts
+  var availCount=roomsData.filter(function(r){return r.status==='available';}).length;
+  displayEl.placeholder=roomsData.length===0?'No rooms set up yet':
+    'Search '+roomsData.length+' room'+(roomsData.length!==1?'s':'')+' ('+availCount+' available)…';
+
+  if(roomsData.length===0){
+    list.innerHTML='<div class="room-picker-empty">No rooms in inventory.<br/>Add rooms in Room Inventory first.</div>';
+    return;
+  }
+
+  var f=(filter||'').toLowerCase();
+  var filtered=roomsData.filter(function(r){
+    if(!f) return true;
+    return r.room_number.toLowerCase().includes(f)||r.room_type.toLowerCase().includes(f);
+  });
+
+  // Available first, then unavailable; both sorted by room number
+  filtered.sort(function(a,b){
+    var aAvail=a.status==='available', bAvail=b.status==='available';
+    if(aAvail&&!bAvail) return -1;
+    if(!aAvail&&bAvail) return 1;
+    return a.room_number.localeCompare(b.room_number,undefined,{numeric:true});
+  });
+
+  if(filtered.length===0){
+    list.innerHTML='<div class="room-picker-empty">No rooms match "'+filter+'"</div>';
+    return;
+  }
+
+  list.innerHTML=filtered.map(function(r){
+    var isAvail=r.status==='available';
+    var stIco={cleaning:'🧹',maintenance:'🔧',occupied:'🛏️',checkout:'🚪'}[r.status]||'';
+    var stLabel=statusLabel[r.status]||r.status;
+    var onclick=isAvail?'onclick="selectRoom(\''+r.room_number+'\')"':'';
+    return '<div class="room-picker-opt'+(isAvail?'':' disabled')+'" '+onclick+'>'+
+      '<div><span class="room-picker-opt-num">Room '+r.room_number+'</span>'+
+        '<span class="room-picker-opt-type">'+r.room_type+' · '+r.capacity+' guest'+(r.capacity!=1?'s':'')+' · ₹'+Number(r.price_per_night).toLocaleString('en-IN')+'</span></div>'+
+      (isAvail?'':'<span class="room-picker-opt-status">'+stIco+' '+stLabel+'</span>')+
+      '</div>';
+  }).join('');
+}
+
+function toggleRoomPicker(){
+  var dd=document.getElementById('room-picker-dd');
+  if(!dd) return;
+  var isOpen=dd.classList.contains('open');
+  if(isOpen){
+    dd.classList.remove('open');
+  } else {
+    document.getElementById('room-picker-search').value='';
+    renderRoomPicker('');
+    dd.classList.add('open');
+    setTimeout(function(){document.getElementById('room-picker-search').focus();},50);
+  }
+}
+
+function filterRoomPicker(value){ renderRoomPicker(value); }
+
+function selectRoom(roomNum){
+  var r=roomsData.find(function(x){return x.room_number===roomNum;});
+  if(!r) return;
+  document.getElementById('room_no').value=roomNum;
+  document.getElementById('room-picker-display').value='Room '+roomNum+' — '+r.room_type;
+  document.getElementById('room-picker-dd').classList.remove('open');
+  if(typeof handleRoomChange==='function') handleRoomChange();
+}
+
+// Close room picker on outside click
+document.addEventListener('click',function(e){
+  var picker=document.querySelector('.room-picker');
+  var dd=document.getElementById('room-picker-dd');
+  if(picker&&dd&&!picker.contains(e.target)){
+    dd.classList.remove('open');
+  }
+});
 
 // Room change handler moved to bookings.js as handleRoomChange()
 // (called via onchange in HTML — handles rate, type, pax and conflict check)

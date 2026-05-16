@@ -111,6 +111,8 @@ function resetBookingForm(){
   });
   document.getElementById('source').value='';
   document.getElementById('room_no').value='';
+  var rpd=document.getElementById('room-picker-display');
+  if(rpd) rpd.value='';
   document.getElementById('pax_count').value='2';
   document.getElementById('gst_inclusive').checked=true;
   document.getElementById('returning-guest-notice').style.display='none';
