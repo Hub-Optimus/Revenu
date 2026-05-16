@@ -138,6 +138,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;border-radius:9px;margin-left:6px}
 .nav-badge.hidden{display:none}
 
+/* Stage G.3 — Pending Tasks (Action Center) */
+.pt-card{margin-bottom:16px;overflow:hidden}
+.pt-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.pt-title-bar{display:flex;align-items:center;gap:10px}
+.pt-h3{font-size:15px;font-weight:700;font-family:'Fraunces',serif}
+.pt-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 7px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;border-radius:11px}
+.pt-subtitle{font-size:11px;color:var(--muted)}
+.pt-item{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--border);transition:background 0.15s}
+.pt-item:last-child{border-bottom:none}
+.pt-item:hover{background:var(--bg)}
+.pt-item.pt-amber{border-left:3px solid #f59e0b}
+.pt-item.pt-blue{border-left:3px solid var(--blue)}
+.pt-item.pt-red{border-left:3px solid var(--red)}
+.pt-item.pt-green{border-left:3px solid var(--green)}
+.pt-info{flex:1;min-width:0}
+.pt-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.pt-sub{font-size:12px;color:var(--muted)}
+.pt-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.pt-action{padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.pt-action:hover{background:var(--blue-dark)}
+.pt-empty{padding:24px 20px;text-align:center;color:var(--muted);font-size:13px}
+
 /* Room picker (searchable dropdown in booking modal) */
 .room-picker{position:relative}
 .room-picker-display{cursor:pointer;background:var(--white) !important}
@@ -406,6 +428,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         </div>
         <div class="stat-val">₹0</div>
         <div class="stat-label">Revenue today</div>
+      </div>
+    </div>
+
+    <!-- PENDING TASKS (Action Center) -->
+    <div class="card pt-card" id="pending-tasks-card">
+      <div class="pt-head">
+        <div class="pt-title-bar">
+          <div class="pt-h3">⚠️ Pending tasks</div>
+          <span class="pt-count" id="pending-tasks-count" style="display:none">0</span>
+        </div>
+        <div class="pt-subtitle">Action items needing your attention</div>
+      </div>
+      <div id="pending-tasks-list">
+        <div class="pt-empty">Loading…</div>
       </div>
     </div>
 

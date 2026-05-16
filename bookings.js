@@ -65,6 +65,64 @@ async function loadBookings(){
   updateStats();
   if(typeof applyBPFilters==='function') try{applyBPFilters();}catch(e){console.error(e);}
   if(typeof updatePendingBadge==='function') try{updatePendingBadge();}catch(e){console.error(e);}
+  if(typeof renderPendingTasks==='function') try{renderPendingTasks();}catch(e){console.error(e);}
+}
+
+// ── PENDING TASKS — Action Center widget (Stage G.3) ──────────────────────────
+// Extensible framework: future stages add more task types (food orders, payments, etc.)
+function renderPendingTasks(){
+  var list = document.getElementById('pending-tasks-list');
+  var countEl = document.getElementById('pending-tasks-count');
+  if(!list || !countEl) return;
+  if(typeof bookings === 'undefined') return;
+
+  var tasks = [];
+
+  // ── Task type 1: Check-in approval needed (Stage G.2/G.3) ────────────────
+  bookings.forEach(function(b){
+    if(b.checkin_status === 'guest-submitted'){
+      tasks.push({
+        type: 'checkin',
+        priority: 1, // higher = more urgent
+        title: '🛏️ Check-in approval needed',
+        subtitle: (b.guest_name||'Guest') + ' — Room ' + b.room_no + (b.room_type ? ' · ' + b.room_type : ''),
+        meta: 'PNR: ' + (b.pnr||'—'),
+        actionFn: 'openBookingDetail(\'' + b.id + '\')',
+        actionLabel: 'Review →',
+        color: 'amber'
+      });
+    }
+  });
+
+  // ── Future stages will add more task types here ──────────────────────────
+  // Stage I: Food orders pending acceptance
+  // Stage I: Service requests (laundry, cab, etc.)
+  // Stage J: Unpaid balance at checkout
+  // Stage J: Overstaying guests
+  // Each task: {type, priority, title, subtitle, meta, actionFn, actionLabel, color}
+
+  // Sort by priority (highest first)
+  tasks.sort(function(a,b){ return b.priority - a.priority; });
+
+  if(tasks.length === 0){
+    list.innerHTML = '<div class="pt-empty">🎉 All clear! No pending tasks right now.</div>';
+    countEl.style.display = 'none';
+    return;
+  }
+
+  countEl.textContent = tasks.length > 99 ? '99+' : tasks.length;
+  countEl.style.display = 'inline-flex';
+
+  list.innerHTML = tasks.map(function(t){
+    return '<div class="pt-item pt-' + t.color + '">' +
+      '<div class="pt-info">' +
+        '<div class="pt-title">' + t.title + '</div>' +
+        '<div class="pt-sub">' + t.subtitle + '</div>' +
+        (t.meta ? '<div class="pt-meta">' + t.meta + '</div>' : '') +
+      '</div>' +
+      '<button class="pt-action" onclick="' + t.actionFn + '">' + t.actionLabel + '</button>' +
+    '</div>';
+  }).join('');
 }
 
 function updateStats(){
