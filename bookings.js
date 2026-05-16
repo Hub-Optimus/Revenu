@@ -63,6 +63,7 @@ async function loadBookings(){
   });
   renderRooms();
   updateStats();
+  if(typeof applyBPFilters==='function') try{applyBPFilters();}catch(e){console.error(e);}
 }
 
 function updateStats(){

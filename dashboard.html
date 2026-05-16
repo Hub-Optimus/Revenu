@@ -288,9 +288,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Room Inventory
     </div>
-    <div class="nav-item">
+    <div class="nav-item" id="nav-bookings" onclick="showBookingsPage()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Guests
+      Bookings
     </div>
     <div class="nav-item">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -551,6 +551,81 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="rp-pagination" id="rp-pagination"></div>
 
   </div><!-- end rooms-page -->
+
+  <!-- ── BOOKINGS PAGE ── -->
+  <div class="content" id="bookings-page" style="display:none">
+    <div class="rp-head">
+      <div class="rp-head-left">
+        <h2>Bookings</h2>
+        <p id="bp-summary">Loading…</p>
+      </div>
+      <div class="rp-head-right">
+        <button class="rp-btn-pri" onclick="openModal()">+ Add booking</button>
+      </div>
+    </div>
+
+    <div class="rp-filters">
+      <input type="text" class="rp-search" id="bp-search" placeholder="Search by name, phone, email, PNR, room…" oninput="applyBPFilters()"/>
+      <select class="rp-filter-sel" id="bp-status-filter" onchange="applyBPFilters()">
+        <option value="">All status</option>
+        <option value="booked">📋 Booked</option>
+        <option value="checked-in">🛏️ Checked-in</option>
+        <option value="checked-out">✓ Checked-out</option>
+        <option value="cancelled">✕ Cancelled</option>
+      </select>
+      <select class="rp-filter-sel" id="bp-source-filter" onchange="applyBPFilters()">
+        <option value="">All sources</option>
+        <optgroup label="Direct">
+          <option value="Walk-in">Walk-in</option>
+          <option value="Direct / phone">Direct / phone</option>
+          <option value="Corporate">Corporate</option>
+        </optgroup>
+        <optgroup label="OTA">
+          <option value="OYO">OYO</option>
+          <option value="MakeMyTrip">MakeMyTrip</option>
+          <option value="Booking.com">Booking.com</option>
+          <option value="Agoda">Agoda</option>
+          <option value="Goibibo">Goibibo</option>
+          <option value="Other OTA">Other OTA</option>
+        </optgroup>
+      </select>
+      <select class="rp-filter-sel" id="bp-date-filter" onchange="applyBPFilters()">
+        <option value="">All dates</option>
+        <option value="active">🟢 Active stays</option>
+        <option value="arriving-today">Arriving today</option>
+        <option value="departing-today">Departing today</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="this-week">This week</option>
+        <option value="this-month">This month</option>
+        <option value="past">Past</option>
+      </select>
+    </div>
+
+    <div class="rp-table-wrap">
+      <table class="rp-table" id="bp-table">
+        <thead>
+          <tr>
+            <th style="width:48px">Sr.No</th>
+            <th>Guest</th>
+            <th>Phone</th>
+            <th>Room</th>
+            <th>Source</th>
+            <th>Check-in → Check-out</th>
+            <th>PNR</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="bp-tbody"></tbody>
+      </table>
+      <div id="bp-empty" class="rp-empty" style="display:none">
+        <div style="font-size:28px;margin-bottom:8px">📋</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">No bookings found</div>
+        <div style="font-size:12px">Try adjusting your search or filters</div>
+      </div>
+    </div>
+    <div class="rp-pagination" id="bp-pagination"></div>
+
+  </div><!-- end bookings-page -->
 
 </div><!-- end .main -->
 
@@ -992,36 +1067,54 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <script src="rooms.js"></script>
 <script src="rooms-page.js"></script>
 <script src="bookings.js"></script>
+<script src="bookings-page.js"></script>
 <script src="guest-link.js"></script>
 <script src="booking-detail.js"></script>
 <script src="payments.js"></script>
 <script>initDashboard();</script>
 
 <script>
-// ── INLINE NAV — guaranteed to work regardless of rooms-page.js load state ───
-function showRoomsPage(){
+// ── INLINE NAV ─────────────────────────────────────────────────────────────
+function _hideAllPages(){
   var dc=document.getElementById('dashboard-content');
   var rp=document.getElementById('rooms-page');
-  if(!dc||!rp){console.error('Missing elements');return;}
-  dc.style.display='none';
-  rp.style.display='block';
+  var bp=document.getElementById('bookings-page');
+  if(dc) dc.style.display='none';
+  if(rp) rp.style.display='none';
+  if(bp) bp.style.display='none';
+  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
+}
+
+function showRoomsPage(){
+  _hideAllPages();
+  var rp=document.getElementById('rooms-page');
+  if(rp) rp.style.display='block';
   var tt=document.getElementById('topbar-title');
   if(tt) tt.textContent='Room Inventory';
-  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
   var nr=document.getElementById('nav-rooms');
   if(nr) nr.classList.add('active');
   if(typeof rpSelected!=='undefined') rpSelected.clear();
   if(typeof applyRPFilters==='function') try{applyRPFilters();}catch(e){console.error(e);}
   if(typeof renderRPSummary==='function') try{renderRPSummary();}catch(e){console.error(e);}
 }
+
+function showBookingsPage(){
+  _hideAllPages();
+  var bp=document.getElementById('bookings-page');
+  if(bp) bp.style.display='block';
+  var tt=document.getElementById('topbar-title');
+  if(tt) tt.textContent='Bookings';
+  var nb=document.getElementById('nav-bookings');
+  if(nb) nb.classList.add('active');
+  if(typeof applyBPFilters==='function') try{applyBPFilters();}catch(e){console.error(e);}
+}
+
 function showDashboard(){
-  var rp=document.getElementById('rooms-page');
+  _hideAllPages();
   var dc=document.getElementById('dashboard-content');
-  if(rp) rp.style.display='none';
   if(dc) dc.style.display='block';
   var tt=document.getElementById('topbar-title');
   if(tt) tt.textContent='Dashboard';
-  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
   var nd=document.getElementById('nav-dashboard');
   if(nd) nd.classList.add('active');
 }
