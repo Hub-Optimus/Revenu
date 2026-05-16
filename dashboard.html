@@ -160,6 +160,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .pt-action:hover{background:var(--blue-dark)}
 .pt-empty{padding:24px 20px;text-align:center;color:var(--muted);font-size:13px}
 
+/* Stage H — Physical arrival / check-in/out section */
+.pa-section{margin:14px 0;border:1.5px solid var(--border);border-radius:12px;overflow:hidden}
+.pa-section-head{padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border)}
+.pa-section-body{padding:14px}
+.pa-timeline{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.pa-row{font-size:13px;font-weight:500;padding:8px 12px;border-radius:8px;display:flex;align-items:center;gap:8px}
+.pa-row.pa-done{background:#dcfce7;color:#15803d}
+.pa-row.pa-pending{background:#fef3c7;color:#92400e}
+.pa-row.pa-warn{background:#fee2e2;color:#b91c1c}
+.pa-row.pa-muted{background:var(--bg);color:var(--muted)}
+.pa-warning{padding:10px 12px;background:#fef3c7;border-left:3px solid #f59e0b;border-radius:6px;font-size:12px;color:#92400e;margin-bottom:12px;line-height:1.5}
+.pa-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.pa-btn{padding:10px 18px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;flex:1;min-width:180px}
+.pa-btn-checkin{background:#15803d;color:#fff}
+.pa-btn-checkin:hover{background:#14532d}
+.pa-btn-checkout{background:var(--blue);color:#fff}
+.pa-btn-checkout:hover{background:var(--blue-dark)}
+.pa-btn-view{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.pa-btn-view:hover{background:var(--white)}
+
 /* Room picker (searchable dropdown in booking modal) */
 .room-picker{position:relative}
 .room-picker-display{cursor:pointer;background:var(--white) !important}
@@ -1190,6 +1210,19 @@ function showDashboard(){
   if(nd) nd.classList.add('active');
 }
 </script>
+<!-- CHECKOUT MODAL (Stage H) -->
+<div class="modal-overlay" id="checkout-modal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h2>Check out</h2>
+      <button class="modal-close" onclick="closeCheckoutModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="checkout-body">Loading…</div>
+    </div>
+  </div>
+</div>
+
 <!-- ID LIGHTBOX (Stage G.2) -->
 <div class="lightbox" id="id-lightbox" onclick="closeIDLightbox()">
   <button class="lightbox-close" onclick="event.stopPropagation();closeIDLightbox()">✕</button>

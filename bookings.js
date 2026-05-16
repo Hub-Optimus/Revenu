@@ -83,13 +83,63 @@ function renderPendingTasks(){
     if(b.checkin_status === 'guest-submitted'){
       tasks.push({
         type: 'checkin',
-        priority: 1, // higher = more urgent
+        priority: 10,
         title: '🛏️ Check-in approval needed',
         subtitle: (b.guest_name||'Guest') + ' — Room ' + b.room_no + (b.room_type ? ' · ' + b.room_type : ''),
         meta: 'PNR: ' + (b.pnr||'—'),
         actionFn: 'openBookingDetail(\'' + b.id + '\')',
         actionLabel: 'Review →',
         color: 'amber'
+      });
+    }
+  });
+
+  // ── Task type 2: Overstaying guests (Stage H) ────────────────────────────
+  // Guests who are checked-in but checkout date has passed
+  var today = new Date().toISOString().split('T')[0];
+  bookings.forEach(function(b){
+    if(b.status === 'checked-in' && b.checkout < today){
+      tasks.push({
+        type: 'overstay',
+        priority: 20, // highest urgency
+        title: '⚠️ Overstaying guest',
+        subtitle: (b.guest_name||'Guest') + ' — Room ' + b.room_no + ' · Checked out ' + b.checkout,
+        meta: 'Past due — verify and check out',
+        actionFn: 'openBookingDetail(\'' + b.id + '\')',
+        actionLabel: 'Check out →',
+        color: 'red'
+      });
+    }
+  });
+
+  // ── Task type 3: Departing today (Stage H) ───────────────────────────────
+  bookings.forEach(function(b){
+    if(b.status === 'checked-in' && b.checkout === today){
+      tasks.push({
+        type: 'departing',
+        priority: 8,
+        title: '🚪 Departing today',
+        subtitle: (b.guest_name||'Guest') + ' — Room ' + b.room_no + (b.room_type ? ' · ' + b.room_type : ''),
+        meta: 'Process checkout & collect any balance',
+        actionFn: 'openBookingDetail(\'' + b.id + '\')',
+        actionLabel: 'Check out →',
+        color: 'blue'
+      });
+    }
+  });
+
+  // ── Task type 4: Arriving today (Stage H) ────────────────────────────────
+  bookings.forEach(function(b){
+    if(b.status === 'booked' && b.checkin === today && b.checkin_status !== 'guest-submitted'){
+      tasks.push({
+        type: 'arriving',
+        priority: 7,
+        title: '🆔 Arriving today — mark check-in',
+        subtitle: (b.guest_name||'Guest') + ' — Room ' + b.room_no + (b.room_type ? ' · ' + b.room_type : ''),
+        meta: b.checkin_status === 'approved' ? 'Online check-in approved · Awaiting physical arrival' : 'No online check-in — verify ID at front desk',
+        actionFn: 'openBookingDetail(\'' + b.id + '\')',
+        actionLabel: 'Check in →',
+        color: 'green'
       });
     }
   });
