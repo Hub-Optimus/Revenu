@@ -131,9 +131,23 @@ function renderBPTable(){
     var pnrCell = b.pnr
       ? '<span style="font-size:11px;font-weight:600;color:var(--blue);background:var(--blue-light);padding:2px 7px;border-radius:5px">'+b.pnr+'</span>'
       : '<span style="color:var(--muted);font-size:12px">—</span>';
-    return '<tr style="cursor:pointer" onclick="openBookingDetail(\''+b.id+'\')">'+
+
+    // Pending check-in indicator (Stage G.2)
+    var ciStatus = b.checkin_status;
+    var rowStyle = 'cursor:pointer';
+    var ciIndicator = '';
+    if(ciStatus === 'guest-submitted'){
+      rowStyle += ';border-left:3px solid #f59e0b;background:#fffbeb';
+      ciIndicator = ' <span title="Check-in awaiting approval" style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#fef3c7;color:#92400e;margin-left:6px;vertical-align:middle">⏳ APPROVAL PENDING</span>';
+    } else if(ciStatus === 'approved'){
+      ciIndicator = ' <span title="Check-in approved" style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#dcfce7;color:#15803d;margin-left:6px;vertical-align:middle">✓ CHECKED IN</span>';
+    } else if(ciStatus === 'rejected'){
+      ciIndicator = ' <span title="Check-in rejected" style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#fee2e2;color:#b91c1c;margin-left:6px;vertical-align:middle">✕ REJECTED</span>';
+    }
+
+    return '<tr style="'+rowStyle+'" onclick="openBookingDetail(\''+b.id+'\')">'+
       '<td style="color:var(--muted);font-size:12px">'+srNo+'</td>'+
-      '<td><div style="font-weight:600">'+(b.guest_name||'—')+'</div>'+(b.guest_email?'<div style="font-size:11px;color:var(--muted)">'+b.guest_email+'</div>':'')+'</td>'+
+      '<td><div style="font-weight:600">'+(b.guest_name||'—')+ciIndicator+'</div>'+(b.guest_email?'<div style="font-size:11px;color:var(--muted)">'+b.guest_email+'</div>':'')+'</td>'+
       '<td style="font-size:12px">'+(b.guest_phone||'—')+'</td>'+
       '<td><strong style="color:var(--blue)">'+(b.room_no||'—')+'</strong> <span style="font-size:11px;color:var(--muted)">'+(b.room_type||'')+'</span></td>'+
       '<td><span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:'+srcBg+';color:'+srcCol+'">'+src+'</span></td>'+
