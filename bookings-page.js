@@ -162,3 +162,17 @@ function renderBPPagination(){
 }
 
 function goBPPage(n){ bpPage=n; renderBPTable(); }
+
+// ── PENDING APPROVAL BADGE (Stage G.2) ───────────────────────────────────────
+function updatePendingBadge(){
+  if(typeof bookings === 'undefined') return;
+  var pendingCount = bookings.filter(function(b){ return b.checkin_status === 'guest-submitted'; }).length;
+  var badge = document.getElementById('nav-bookings-badge');
+  if(!badge) return;
+  if(pendingCount > 0){
+    badge.textContent = pendingCount > 99 ? '99+' : pendingCount;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}

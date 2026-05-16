@@ -101,6 +101,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
 .legend-dot{width:8px;height:8px;border-radius:50%}
 
+/* Stage G.2 — Check-in section in booking detail */
+.ci-section{margin:14px 0;border:1.5px solid var(--border);border-radius:12px;overflow:hidden}
+.ci-section-head{padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ci-section-title{font-size:13px;font-weight:600}
+.ci-section-body{padding:14px}
+.ci-status{font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.ci-status-pending{background:#fef3c7;color:#92400e}
+.ci-status-approved{background:#dcfce7;color:#15803d}
+.ci-status-rejected{background:#fee2e2;color:#b91c1c}
+.ci-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-bottom:14px;font-size:12px}
+.ci-meta > div{line-height:1.5}
+.ci-meta span{color:var(--muted)}
+.ci-photos{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.ci-photo{width:90px;height:90px;object-fit:cover;border-radius:6px;cursor:pointer;border:1.5px solid var(--border);transition:transform 0.15s}
+.ci-photo:hover{transform:scale(1.05);border-color:var(--blue)}
+.ci-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ci-btn{padding:9px 14px;border-radius:7px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px}
+.ci-btn-approve{background:#15803d;color:#fff}
+.ci-btn-approve:hover{background:#14532d}
+.ci-btn-reject{background:var(--white);color:#b91c1c;border:1.5px solid #b91c1c}
+.ci-btn-reject:hover{background:#fee2e2}
+.ci-btn-resend{background:var(--bg);color:var(--blue);border:1px solid var(--border)}
+.ci-btn-resend:hover{background:var(--blue-light)}
+.ci-reason{padding:10px 12px;background:#fee2e2;border-left:3px solid #b91c1c;border-radius:6px;font-size:12px;color:#b91c1c;margin-bottom:10px;line-height:1.5}
+.ci-empty{margin:14px 0;padding:14px;background:var(--bg);border:1px dashed var(--border);border-radius:10px;text-align:center;color:var(--muted);font-size:12px}
+
+/* ID lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;cursor:zoom-out}
+.lightbox.open{display:flex}
+.lightbox img{max-width:100%;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.lightbox-close{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.lightbox-close:hover{background:rgba(255,255,255,0.25)}
+
+/* Pending approval badge on Bookings nav */
+.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;border-radius:9px;margin-left:6px}
+.nav-badge.hidden{display:none}
+
 /* Room picker (searchable dropdown in booking modal) */
 .room-picker{position:relative}
 .room-picker-display{cursor:pointer;background:var(--white) !important}
@@ -291,6 +328,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="nav-item" id="nav-bookings" onclick="showBookingsPage()">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Bookings
+      <span class="nav-badge hidden" id="nav-bookings-badge">0</span>
     </div>
     <div class="nav-item">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -1116,5 +1154,11 @@ function showDashboard(){
   if(nd) nd.classList.add('active');
 }
 </script>
+<!-- ID LIGHTBOX (Stage G.2) -->
+<div class="lightbox" id="id-lightbox" onclick="closeIDLightbox()">
+  <button class="lightbox-close" onclick="event.stopPropagation();closeIDLightbox()">✕</button>
+  <img id="id-lightbox-img" alt="ID photo"/>
+</div>
+
 </body>
 </html>
