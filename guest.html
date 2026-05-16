@@ -86,10 +86,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .id-preview{max-width:200px;max-height:120px;border-radius:8px;margin-top:10px;display:none}
 .id-preview.shown{display:inline-block}
 .sig-wrap{display:none}
-.consent-box{display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:10px;margin:14px 0;cursor:pointer}
+.consent-box{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:10px;margin:14px 0;cursor:pointer;user-select:none;transition:background 0.15s}
 .consent-box:hover{background:#c7e0fc}
-.consent-box input[type="checkbox"]{margin-top:2px;width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--blue)}
-.consent-box label{font-size:13px;color:var(--text);line-height:1.5;cursor:pointer}
+.consent-box:has(input:checked){background:#bfdbfe;border-color:var(--blue-dark)}
+.consent-box input[type="checkbox"]{margin-top:2px;width:20px;height:20px;flex-shrink:0;cursor:pointer;accent-color:var(--blue)}
+.consent-box span{font-size:13px;color:var(--text);line-height:1.5}
 .consent-box strong{font-weight:600;color:var(--blue-dark)}
 
 /* Two-column desktop layout */
@@ -275,10 +276,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
 
       <div class="section-divider">Confirm & submit</div>
-      <div class="consent-box" onclick="document.getElementById('consent-check').click()">
+      <label class="consent-box" for="consent-check">
         <input type="checkbox" id="consent-check"/>
-        <label for="consent-check"><strong>I confirm</strong> the above details are correct, and I will produce my <strong>original ID(s)</strong> at reception for physical verification on arrival.</label>
-      </div>
+        <span><strong>I confirm</strong> the above details are correct, and I will produce my <strong>original ID(s)</strong> at reception for physical verification on arrival.</span>
+      </label>
 
       <button class="btn" id="checkin-submit" onclick="submitCheckin()">Submit for hotel approval →</button>
       <button class="btn btn-sec" onclick="cancelCheckin()" style="margin-top:8px">Cancel</button>
