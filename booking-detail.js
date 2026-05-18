@@ -299,8 +299,14 @@ async function markCheckedIn(bookingId, guestName, roomNo){
   const room = (typeof roomsData!=='undefined') ? roomsData.find(function(r){return r.room_number === roomNo;}) : null;
   if(room){
     const roomUpd = await sb.from('rooms').update({status:'occupied'}).eq('id', room.id);
-    if(roomUpd.error){ console.warn('Room status update failed:', roomUpd.error); }
-    else { room.status = 'occupied'; }
+    if(roomUpd.error){
+      alert('⚠️ Could not auto-mark Room '+roomNo+' as Occupied: '+roomUpd.error.message+'\n\nPlease manually change it in Room Inventory.');
+    } else {
+      room.status = 'occupied';
+      if(typeof loadRooms === 'function') await loadRooms();
+    }
+  } else {
+    console.warn('Room '+roomNo+' not found in roomsData');
   }
 
   if(typeof addActivity==='function') addActivity('🛏️ Checked in — '+guestName+' to Room '+roomNo);
@@ -363,7 +369,7 @@ function renderCheckoutModal(){
     <div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px">
       <div style="padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)">Final bill</div>
       <div style="padding:14px">
-        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Room rate × ${nights} night${nights>1?'s':''}</span><strong>₹${Math.round(base).toLocaleString('en-IN')}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Room rate <span style="color:var(--muted)">(₹${Math.round(rate).toLocaleString('en-IN')} × ${nights} night${nights>1?'s':''})</span></span><strong>₹${Math.round(base).toLocaleString('en-IN')}</strong></div>
         ${isInclusive
           ? '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px;color:var(--muted)"><span>GST '+gstPct+'%</span><span>(inclusive)</span></div>'
           : '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>GST '+gstPct+'%</span><strong>₹'+Math.round(total-base).toLocaleString('en-IN')+'</strong></div>'}
@@ -431,12 +437,19 @@ async function confirmCheckout(bookingId, guestName, roomNo, total, due){
   }).eq('id', bookingId);
   if(updRes.error){ alert('Error: '+updRes.error.message); return; }
 
-  // Flip room to cleaning
+  // Flip room to cleaning (auto-housekeeping)
   const room = (typeof roomsData!=='undefined') ? roomsData.find(function(r){return r.room_number === roomNo;}) : null;
   if(room){
     const roomUpd = await sb.from('rooms').update({status:'cleaning'}).eq('id', room.id);
-    if(roomUpd.error){ console.warn('Room status update failed:', roomUpd.error); }
-    else { room.status = 'cleaning'; }
+    if(roomUpd.error){
+      alert('⚠️ Could not auto-mark Room '+roomNo+' as Cleaning: '+roomUpd.error.message+'\n\nPlease manually change it in Room Inventory.');
+    } else {
+      room.status = 'cleaning';
+      // Reload rooms from DB to ensure consistency
+      if(typeof loadRooms === 'function') await loadRooms();
+    }
+  } else {
+    console.warn('Room '+roomNo+' not found in roomsData — skipping auto-clean flag');
   }
 
   const dueNote = due > 0 ? ' (₹'+Math.round(due).toLocaleString('en-IN')+' balance due)' : ' (fully paid)';

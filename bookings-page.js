@@ -140,7 +140,7 @@ function renderBPTable(){
       rowStyle += ';border-left:3px solid #f59e0b;background:#fffbeb';
       ciIndicator = ' <span title="Check-in awaiting approval" style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#fef3c7;color:#92400e;margin-left:6px;vertical-align:middle">⏳ APPROVAL PENDING</span>';
     } else if(ciStatus === 'approved'){
-      ciIndicator = ' <span title="Check-in approved" style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#dcfce7;color:#15803d;margin-left:6px;vertical-align:middle">✓ CHECKED IN</span>';
+      ciIndicator = ' <span title="Online ID verified — physical arrival still pending" style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#dcfce7;color:#15803d;margin-left:6px;vertical-align:middle">✓ ID VERIFIED</span>';
     } else if(ciStatus === 'rejected'){
       ciIndicator = ' <span title="Check-in rejected" style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#fee2e2;color:#b91c1c;margin-left:6px;vertical-align:middle">✕ REJECTED</span>';
     }

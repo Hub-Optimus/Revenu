@@ -179,30 +179,59 @@ function updateStats(){
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('stat-checkins').textContent  = bookings.filter(b=>b.checkin===today).length;
   document.getElementById('stat-checkouts').textContent = bookings.filter(b=>b.checkout===today).length;
-  document.getElementById('stat-occupied').textContent  = bookings.filter(b=>b.checkin<=today&&b.checkout>today).length;
+  // Use ACTUAL room status (single source of truth) — matches Room Inventory page
+  if(typeof roomsData !== 'undefined' && roomsData.length > 0){
+    document.getElementById('stat-occupied').textContent = roomsData.filter(r=>r.status==='occupied').length;
+  } else {
+    document.getElementById('stat-occupied').textContent = bookings.filter(b=>b.status==='checked-in').length;
+  }
+}
+
+// ── ACTIVITY LOG (persists across page refresh via localStorage) ─────────────
+var ACTIVITY_KEY = 'revenu_activity_log';
+
+function loadStoredActivities(){
+  try {
+    var raw = localStorage.getItem(ACTIVITY_KEY);
+    if(!raw) return [];
+    return JSON.parse(raw) || [];
+  } catch(e){ return []; }
+}
+
+function saveStoredActivities(arr){
+  try { localStorage.setItem(ACTIVITY_KEY, JSON.stringify(arr.slice(0,15))); }
+  catch(e){ /* storage full or disabled */ }
+}
+
+function renderActivityList(){
+  const list = document.getElementById('activity-list');
+  if(!list) return;
+  var items = loadStoredActivities();
+  if(items.length === 0){
+    list.innerHTML = '<div class="activity-item"><div class="activity-dot" style="background:#9ca3af"></div><div><div class="activity-text" style="color:var(--muted)">No activity yet</div></div></div>';
+    return;
+  }
+  list.innerHTML = items.map(function(item){
+    return '<div class="activity-item">'+
+      '<div class="activity-dot" style="background:#1a56a0"></div>'+
+      '<div><div class="activity-text">'+item.text+'</div><div class="activity-time">'+item.time+'</div></div>'+
+    '</div>';
+  }).join('');
 }
 
 function addActivity(text){
-  const list = document.getElementById('activity-list');
-  if(!list) return;
-  const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  const item = document.createElement('div');
-  item.className='activity-item';
-  item.innerHTML=`
-    <div class="activity-dot" style="background:#1a56a0"></div>
-    <div><div class="activity-text">${text}</div><div class="activity-time">${time}</div></div>`;
-  // Safely clear placeholder if present
-  try {
-    if(list.children.length===1){
-      const placeholderText = list.children[0].querySelector('.activity-text');
-      if(placeholderText && placeholderText.textContent.includes('No activity')){
-        list.innerHTML='';
-      }
-    }
-  } catch(e) { /* ignore — just append below */ }
-  list.prepend(item);
-  // Cap to last 15 items to keep card tidy
-  while(list.children.length > 15) list.removeChild(list.lastChild);
+  var items = loadStoredActivities();
+  var time = new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  items.unshift({text: text, time: time, ts: Date.now()});
+  saveStoredActivities(items);
+  renderActivityList();
+}
+
+// Render activities on page load
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', renderActivityList);
+} else {
+  renderActivityList();
 }
 
 // ── ADD BOOKING MODAL ─────────────────────────────────────────────────────────
