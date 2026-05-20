@@ -73,10 +73,13 @@ async function openBookingDetail(bookingId){
       <div style="font-size:18px;font-weight:700;color:var(--blue)">₹${totalSpend.toLocaleString('en-IN')}</div>
     </div>`:''}
 
-    <div style="margin-top:14px;display:flex;gap:8px">
-      <button onclick="showLinkModal('${b.id}','${(b.guest_name||'').replace(/'/g,'&#39;')}','${b.guest_phone||''}','${b.source||''}','${b.pnr||''}')" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">📱 Resend guest link</button>
-      <button onclick="closeBookingDetail()" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Done</button>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      ${b.status === 'booked' ? '<button onclick="openEditBookingModal(\''+b.id+'\')" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:\'DM Sans\',sans-serif">✏️ Edit booking</button>' : ''}
+      <button onclick="showLinkModal('${b.id}','${(b.guest_name||'').replace(/'/g,'&#39;')}','${b.guest_phone||''}','${b.source||''}','${b.pnr||''}')" style="flex:1;min-width:140px;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">📱 Resend guest link</button>
+      <button onclick="closeBookingDetail()" style="flex:1;min-width:140px;padding:10px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Done</button>
     </div>
+
+    ${b.edits_count > 0 ? '<div style="margin-top:12px;padding:8px 12px;background:#fef3c7;border-radius:6px;font-size:11px;color:#92400e">📝 This booking was edited '+b.edits_count+' time'+(b.edits_count>1?'s':'')+' · Last edit: '+(b.edited_at ? new Date(b.edited_at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—')+'</div>' : ''}
   `;
 }
 
@@ -284,6 +287,42 @@ function renderPhysicalArrivalSection(b){
 }
 
 async function markCheckedIn(bookingId, guestName, roomNo){
+  // Fetch fresh booking data
+  const bRes = await sb.from('bookings').select('*').eq('id', bookingId).single();
+  if(bRes.error || !bRes.data){ alert('Error loading booking.'); return; }
+  const b = bRes.data;
+  const today = new Date().toISOString().split('T')[0];
+
+  // FIX A — Block early physical check-in (with override option)
+  if(b.checkin > today){
+    if(!confirm(
+      '⚠️ EARLY CHECK-IN DETECTED\n\n' +
+      'Booking check-in date: ' + b.checkin + '\n' +
+      'Today: ' + today + '\n\n' +
+      'Normally early check-in is a PAID upsell.\n' +
+      'Are you allowing this as a free early check-in?\n\n' +
+      'Click OK to proceed, Cancel to stop.'
+    )) return;
+  }
+
+  // FIX B — Block room double-occupancy (hard block, no override)
+  const conflictRes = await sb.from('bookings')
+    .select('id, guest_name, checkin, checkout')
+    .eq('room_no', roomNo)
+    .eq('status', 'checked-in')
+    .neq('id', bookingId);
+
+  if(conflictRes.data && conflictRes.data.length > 0){
+    const c = conflictRes.data[0];
+    alert(
+      '⛔ ROOM CONFLICT — Cannot check in.\n\n' +
+      'Room ' + roomNo + ' is currently occupied by:\n' +
+      c.guest_name + ' (' + c.checkin + ' → ' + c.checkout + ')\n\n' +
+      'You must check out the current guest first.'
+    );
+    return;
+  }
+
   if(!confirm('Mark '+guestName+' as physically checked in to Room '+roomNo+'?\n\nThis will:\n• Mark booking as "checked-in"\n• Auto-occupy Room '+roomNo)) return;
 
   const now = new Date().toISOString();
@@ -476,4 +515,182 @@ async function markPaid(requestId, btn){
 
 function closeBookingDetail(){
   document.getElementById('booking-detail-modal').classList.remove('open');
+}
+
+// ── STAGE H — EDIT BOOKING (Fix E + F) ──────────────────────────────────────
+
+var currentEditBooking = null;
+
+async function openEditBookingModal(bookingId){
+  document.getElementById('edit-booking-modal').classList.add('open');
+  document.getElementById('edit-booking-body').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Loading…</div>';
+
+  const res = await sb.from('bookings').select('*').eq('id', bookingId).single();
+  if(res.error || !res.data){
+    document.getElementById('edit-booking-body').innerHTML = '<p style="color:var(--red)">Could not load booking.</p>';
+    return;
+  }
+  currentEditBooking = res.data;
+
+  // Build room options (available rooms + current room)
+  var roomOptions = '';
+  if(typeof roomsData !== 'undefined' && roomsData.length > 0){
+    roomsData.forEach(function(r){
+      const isCurrent = r.room_number === currentEditBooking.room_no;
+      const isAvailable = r.status === 'available';
+      if(isCurrent || isAvailable){
+        roomOptions += '<option value="'+r.room_number+'" data-type="'+r.room_type+'" data-rate="'+r.price_per_night+'"'+(isCurrent?' selected':'')+'>'+
+          r.room_number+' · '+r.room_type+' · ₹'+r.price_per_night+(isCurrent?' (current)':'')+'</option>';
+      }
+    });
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+
+  document.getElementById('edit-booking-body').innerHTML = `
+    <div class="eb-info">
+      Editing booking for <strong>${currentEditBooking.guest_name}</strong> · PNR: <strong>${currentEditBooking.pnr||'—'}</strong>
+    </div>
+
+    ${currentEditBooking.edits_count > 0 ? '<div class="eb-history">⚠️ This booking has been edited '+currentEditBooking.edits_count+' time'+(currentEditBooking.edits_count>1?'s':'')+' before. Last edit: '+new Date(currentEditBooking.edited_at).toLocaleString('en-IN')+'</div>' : ''}
+
+    <div class="eb-row">
+      <div class="eb-field">
+        <label class="eb-label">Check-in date *</label>
+        <input type="date" id="edit-checkin" class="eb-input" value="${currentEditBooking.checkin}" min="${today}" onchange="validateEditForm()"/>
+      </div>
+      <div class="eb-field">
+        <label class="eb-label">Check-out date *</label>
+        <input type="date" id="edit-checkout" class="eb-input" value="${currentEditBooking.checkout}" min="${today}" onchange="validateEditForm()"/>
+      </div>
+    </div>
+
+    <div class="eb-field">
+      <label class="eb-label">Room *</label>
+      <select id="edit-room" class="eb-input" onchange="onEditRoomChange()">
+        ${roomOptions || '<option>No rooms available</option>'}
+      </select>
+    </div>
+
+    <div class="eb-field">
+      <label class="eb-label">Rate per night (₹) *</label>
+      <input type="number" id="edit-rate" class="eb-input" value="${currentEditBooking.rate||0}" min="1" step="100" onchange="validateEditForm()"/>
+    </div>
+
+    <div class="eb-field">
+      <label class="eb-label">Reason for edit * <span style="text-transform:none;font-weight:400;color:var(--muted)">(required — for audit trail)</span></label>
+      <textarea id="edit-reason" class="eb-input" rows="2" placeholder="e.g. Guest requested to extend stay by 2 days"></textarea>
+    </div>
+
+    <div id="edit-conflict-warn" class="eb-warn"></div>
+
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="closeEditBookingModal()" style="flex:1;padding:11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
+      <button id="edit-save-btn" onclick="saveBookingEdit()" style="flex:1;padding:11px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Save changes</button>
+    </div>
+  `;
+}
+
+function onEditRoomChange(){
+  // When room changes, auto-fill its rate
+  const sel = document.getElementById('edit-room');
+  const opt = sel.options[sel.selectedIndex];
+  const rate = opt.getAttribute('data-rate');
+  if(rate) document.getElementById('edit-rate').value = rate;
+  validateEditForm();
+}
+
+function validateEditForm(){
+  const warn = document.getElementById('edit-conflict-warn');
+  const ci = document.getElementById('edit-checkin').value;
+  const co = document.getElementById('edit-checkout').value;
+  const rate = parseFloat(document.getElementById('edit-rate').value) || 0;
+
+  let msg = '';
+  if(ci && co && ci >= co) msg = 'Check-out must be after check-in date.';
+  if(rate <= 0) msg = 'Rate must be greater than 0.';
+
+  if(msg){
+    warn.textContent = '⚠️ ' + msg;
+    warn.classList.add('show');
+  } else {
+    warn.classList.remove('show');
+  }
+}
+
+async function saveBookingEdit(){
+  if(!currentEditBooking) return;
+  const b = currentEditBooking;
+
+  const newCheckin = document.getElementById('edit-checkin').value;
+  const newCheckout = document.getElementById('edit-checkout').value;
+  const newRoom = document.getElementById('edit-room').value;
+  const newRate = parseFloat(document.getElementById('edit-rate').value) || 0;
+  const reason = document.getElementById('edit-reason').value.trim();
+
+  // Validation
+  if(!newCheckin || !newCheckout){ alert('Check-in and check-out dates required.'); return; }
+  if(newCheckin >= newCheckout){ alert('Check-out must be after check-in.'); return; }
+  if(!newRoom){ alert('Room required.'); return; }
+  if(newRate <= 0){ alert('Rate must be greater than 0.'); return; }
+  if(!reason){ alert('Reason for edit is required (for audit trail).'); return; }
+
+  // Detect what actually changed
+  const changes = [];
+  if(newCheckin !== b.checkin) changes.push('Check-in: '+b.checkin+' → '+newCheckin);
+  if(newCheckout !== b.checkout) changes.push('Check-out: '+b.checkout+' → '+newCheckout);
+  if(newRoom !== b.room_no) changes.push('Room: '+b.room_no+' → '+newRoom);
+  if(newRate !== parseFloat(b.rate)) changes.push('Rate: ₹'+b.rate+' → ₹'+newRate);
+
+  if(changes.length === 0){ alert('No changes detected.'); return; }
+
+  // Conflict check on new dates/room
+  const conflictRes = await sb.from('bookings').select('id, guest_name, checkin, checkout')
+    .eq('room_no', newRoom)
+    .neq('id', b.id)
+    .in('status', ['booked','checked-in'])
+    .or('and(checkin.lte.'+newCheckout+',checkout.gte.'+newCheckin+')');
+
+  if(conflictRes.data && conflictRes.data.length > 0){
+    const c = conflictRes.data[0];
+    alert('⛔ CONFLICT — Room '+newRoom+' is not free for these dates.\n\nConflicts with: '+c.guest_name+' ('+c.checkin+' → '+c.checkout+')');
+    return;
+  }
+
+  // Get room type for new room (in case room changed)
+  let newRoomType = b.room_type;
+  if(newRoom !== b.room_no && typeof roomsData !== 'undefined'){
+    const r = roomsData.find(function(rm){return rm.room_number === newRoom;});
+    if(r) newRoomType = r.room_type;
+  }
+
+  if(!confirm('Save these changes?\n\n'+changes.join('\n')+'\n\nReason: '+reason)) return;
+
+  // Save
+  const updRes = await sb.from('bookings').update({
+    checkin: newCheckin,
+    checkout: newCheckout,
+    room_no: newRoom,
+    room_type: newRoomType,
+    rate: newRate,
+    edited_at: new Date().toISOString(),
+    edits_count: (b.edits_count || 0) + 1
+  }).eq('id', b.id);
+
+  if(updRes.error){ alert('Save failed: '+updRes.error.message); return; }
+
+  // Audit log to activity feed (Fix F)
+  if(typeof addActivity === 'function'){
+    addActivity('✏️ Edited booking — '+b.guest_name+' · '+changes.join(', ')+' · Reason: '+reason);
+  }
+
+  alert('✅ Booking updated successfully.');
+  closeEditBookingModal();
+  if(typeof loadBookings === 'function') await loadBookings();
+  await openBookingDetail(b.id);
+}
+
+function closeEditBookingModal(){
+  document.getElementById('edit-booking-modal').classList.remove('open');
+  currentEditBooking = null;
 }

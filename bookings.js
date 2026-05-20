@@ -144,6 +144,23 @@ function renderPendingTasks(){
     }
   });
 
+  // ── Task type 5: Expected arrival overdue (Stage H polish — Fix C) ───────
+  // Booking should have arrived by now but no physical check-in done yet
+  bookings.forEach(function(b){
+    if(b.status === 'booked' && b.checkin < today && b.checkin_status !== 'guest-submitted'){
+      tasks.push({
+        type: 'overdue-arrival',
+        priority: 15,
+        title: '🚨 Expected arrival overdue',
+        subtitle: (b.guest_name||'Guest') + ' — Room ' + b.room_no + ' · Expected ' + b.checkin,
+        meta: 'Possible no-show, or you forgot to mark check-in',
+        actionFn: 'openBookingDetail(\'' + b.id + '\')',
+        actionLabel: 'Resolve →',
+        color: 'red'
+      });
+    }
+  });
+
   // ── Future stages will add more task types here ──────────────────────────
   // Stage I: Food orders pending acceptance
   // Stage I: Service requests (laundry, cab, etc.)

@@ -180,6 +180,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .pa-btn-view{background:var(--bg);color:var(--text);border:1px solid var(--border)}
 .pa-btn-view:hover{background:var(--white)}
 
+/* Stage H — Edit Booking form */
+.eb-field{margin-bottom:12px}
+.eb-label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;font-weight:600}
+.eb-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text);box-sizing:border-box}
+.eb-input:focus{outline:none;border-color:var(--blue)}
+.eb-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.eb-warn{padding:11px 14px;background:#fee2e2;border-left:3px solid #b91c1c;border-radius:6px;font-size:12px;color:#b91c1c;margin-bottom:12px;line-height:1.5;display:none}
+.eb-warn.show{display:block}
+.eb-info{padding:10px 12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.eb-info strong{color:var(--text)}
+.eb-history{padding:8px 12px;background:#fef3c7;border-radius:6px;font-size:11px;color:#92400e;margin-bottom:12px;line-height:1.4}
+
 /* Room picker (searchable dropdown in booking modal) */
 .room-picker{position:relative}
 .room-picker-display{cursor:pointer;background:var(--white) !important}
@@ -1210,6 +1222,19 @@ function showDashboard(){
   if(nd) nd.classList.add('active');
 }
 </script>
+<!-- EDIT BOOKING MODAL (Stage H — Fix E) -->
+<div class="modal-overlay" id="edit-booking-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <h2>✏️ Edit booking</h2>
+      <button class="modal-close" onclick="closeEditBookingModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="edit-booking-body">Loading…</div>
+    </div>
+  </div>
+</div>
+
 <!-- CHECKOUT MODAL (Stage H) -->
 <div class="modal-overlay" id="checkout-modal">
   <div class="modal" style="max-width:560px">
