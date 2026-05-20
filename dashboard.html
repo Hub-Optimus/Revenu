@@ -179,6 +179,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .pa-btn-checkout:hover{background:var(--blue-dark)}
 .pa-btn-view{background:var(--bg);color:var(--text);border:1px solid var(--border)}
 .pa-btn-view:hover{background:var(--white)}
+.pa-btn-noshow{background:var(--white);color:#b91c1c;border:1.5px solid #b91c1c}
+.pa-btn-noshow:hover{background:#fee2e2}
+.pa-overdue-warn{background:#fee2e2;border-left:3px solid #b91c1c;padding:11px 14px;border-radius:6px;font-size:12px;color:#b91c1c;margin-bottom:12px;line-height:1.5;font-weight:500}
 
 /* Stage H — Edit Booking form */
 .eb-field{margin-bottom:12px}
@@ -1222,6 +1225,19 @@ function showDashboard(){
   if(nd) nd.classList.add('active');
 }
 </script>
+<!-- NO-SHOW MODAL (Stage H — added) -->
+<div class="modal-overlay" id="noshow-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h2>🚫 Mark as no-show</h2>
+      <button class="modal-close" onclick="closeNoShowModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="noshow-body">Loading…</div>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT BOOKING MODAL (Stage H — Fix E) -->
 <div class="modal-overlay" id="edit-booking-modal">
   <div class="modal" style="max-width:520px">

@@ -263,11 +263,29 @@ function renderPhysicalArrivalSection(b){
 
   // Decide action button
   if(status === 'booked' && (ciStatus === 'approved' || ciStatus === 'pending' || ciStatus === 'rejected' || ciStatus === 'guest-checked-in')){
-    actionButton = '<button class="pa-btn pa-btn-checkin" onclick="markCheckedIn(\''+b.id+'\',\''+safeName+'\',\''+b.room_no+'\')">🛏️ Mark guest as checked in</button>';
+    // Check if overdue (today > check-in date)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const isOverdue = b.checkin < todayStr;
+    if(isOverdue){
+      const daysOverdue = Math.floor((new Date(todayStr) - new Date(b.checkin)) / 86400000);
+      actionButton = `
+        <div class="pa-overdue-warn">
+          ⚠️ <strong>Arrival overdue by ${daysOverdue} day${daysOverdue!==1?'s':''}</strong> — guest expected on ${b.checkin}.
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="pa-btn pa-btn-checkin" onclick="markCheckedIn('${b.id}','${safeName}','${b.room_no}')">🛏️ Check in (late arrival)</button>
+          <button class="pa-btn pa-btn-noshow" onclick="openNoShowModal('${b.id}','${safeName}','${b.room_no}')">🚫 Mark as no-show</button>
+        </div>
+      `;
+    } else {
+      actionButton = '<button class="pa-btn pa-btn-checkin" onclick="markCheckedIn(\''+b.id+'\',\''+safeName+'\',\''+b.room_no+'\')">🛏️ Mark guest as checked in</button>';
+    }
   } else if(status === 'checked-in'){
     actionButton = '<button class="pa-btn pa-btn-checkout" onclick="openCheckoutModal(\''+b.id+'\')">🚪 Check out guest →</button>';
   } else if(status === 'checked-out'){
     actionButton = '<button class="pa-btn pa-btn-view" onclick="openCheckoutModal(\''+b.id+'\')">📄 View final bill</button>';
+  } else if(status === 'no-show'){
+    actionButton = '<div style="font-size:13px;color:#b91c1c;padding:11px 14px;background:#fee2e2;border-radius:8px;text-align:center;font-weight:600">🚫 Marked as no-show — booking closed</div>';
   } else if(status === 'cancelled'){
     actionButton = '<div style="font-size:12px;color:var(--muted);padding:10px 14px;background:var(--bg);border-radius:8px;text-align:center">Booking cancelled — no action available</div>';
   }
@@ -693,4 +711,94 @@ async function saveBookingEdit(){
 function closeEditBookingModal(){
   document.getElementById('edit-booking-modal').classList.remove('open');
   currentEditBooking = null;
+}
+
+// ── STAGE H — MARK AS NO-SHOW (added per PK feedback) ───────────────────────
+
+var currentNoShowBooking = null;
+
+async function openNoShowModal(bookingId, guestName, roomNo){
+  document.getElementById('noshow-modal').classList.add('open');
+  document.getElementById('noshow-body').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Loading…</div>';
+
+  const bRes = await sb.from('bookings').select('*').eq('id', bookingId).single();
+  if(bRes.error || !bRes.data){
+    document.getElementById('noshow-body').innerHTML = '<p style="color:var(--red)">Could not load booking.</p>';
+    return;
+  }
+  currentNoShowBooking = bRes.data;
+  const b = bRes.data;
+
+  const today = new Date().toISOString().split('T')[0];
+  const daysOverdue = Math.floor((new Date(today) - new Date(b.checkin)) / 86400000);
+
+  document.getElementById('noshow-body').innerHTML = `
+    <div style="padding:12px 14px;background:#fee2e2;border-radius:8px;font-size:13px;color:#b91c1c;margin-bottom:14px;line-height:1.5">
+      <strong>⚠️ ${b.guest_name}</strong> was expected to arrive on <strong>${b.checkin}</strong> · ${daysOverdue} day${daysOverdue!==1?'s':''} ago.
+    </div>
+
+    <div style="font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.5">
+      <strong>Before marking no-show, confirm:</strong>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+      ☐ Tried calling the guest's phone<br>
+      ☐ Sent WhatsApp message<br>
+      ☐ Sent email reminder<br>
+      ☐ Waited until check-in cutoff time
+    </div>
+
+    <div class="eb-field">
+      <label class="eb-label">Contact attempts * <span style="text-transform:none;font-weight:400;color:var(--muted)">(required for audit)</span></label>
+      <textarea id="noshow-contact" class="eb-input" rows="3" placeholder="e.g. Called at 3 PM — phone switched off. WhatsApp sent at 4 PM — no reply. Email sent at 5 PM."></textarea>
+    </div>
+
+    <div class="eb-field">
+      <label class="eb-label">Additional notes <span style="text-transform:none;font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea id="noshow-notes" class="eb-input" rows="2" placeholder="Any other context worth recording"></textarea>
+    </div>
+
+    <div style="padding:10px 12px;background:var(--blue-light);border-radius:6px;font-size:11px;color:var(--blue);margin-bottom:14px;line-height:1.5">
+      💡 <strong>Note:</strong> No-show booking is closed. Room stays available for other bookings. For OTA bookings, refer to the OTA's no-show policy for billing.
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="closeNoShowModal()" style="flex:1;padding:11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
+      <button onclick="confirmNoShow('${bookingId}','${guestName.replace(/'/g,'&#39;')}','${roomNo}')" style="flex:1;padding:11px;border:none;border-radius:8px;background:#b91c1c;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🚫 Confirm no-show</button>
+    </div>
+  `;
+}
+
+async function confirmNoShow(bookingId, guestName, roomNo){
+  const contact = document.getElementById('noshow-contact').value.trim();
+  const notes = document.getElementById('noshow-notes').value.trim();
+
+  if(!contact){
+    alert('⚠️ Please document your contact attempts before marking as no-show.\n\nThis is required for the audit trail.');
+    return;
+  }
+
+  if(!confirm('Mark ' + guestName + ' as NO-SHOW?\n\nThis will:\n• Close the booking (status: no-show)\n• Keep room ' + roomNo + ' available for other bookings\n• Log all your contact attempts\n\nProceed?')) return;
+
+  const today = new Date().toISOString().split('T')[0];
+  const existingNotes = (currentNoShowBooking && currentNoShowBooking.notes) || '';
+  const noShowEntry = '[NO-SHOW ' + today + '] Contact attempts: ' + contact + (notes ? ' | Notes: ' + notes : '');
+  const newNotes = existingNotes ? (existingNotes + '\n\n' + noShowEntry) : noShowEntry;
+
+  const updRes = await sb.from('bookings').update({
+    status: 'no-show',
+    notes: newNotes
+  }).eq('id', bookingId);
+
+  if(updRes.error){ alert('Error: ' + updRes.error.message); return; }
+
+  if(typeof addActivity === 'function') addActivity('🚫 No-show — ' + guestName + ' (Room ' + roomNo + ') · ' + contact.substring(0,60) + (contact.length > 60 ? '…' : ''));
+
+  closeNoShowModal();
+  if(typeof loadBookings === 'function') await loadBookings();
+  await openBookingDetail(bookingId);
+}
+
+function closeNoShowModal(){
+  document.getElementById('noshow-modal').classList.remove('open');
+  currentNoShowBooking = null;
 }

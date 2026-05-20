@@ -91,13 +91,13 @@ var SOURCE_COL = {
 };
 
 var STATUS_BG = {
-  'booked':'#dbeafe','checked-in':'#dcfce7','checked-out':'#f1f5f9','cancelled':'#fee2e2'
+  'booked':'#dbeafe','checked-in':'#dcfce7','checked-out':'#f1f5f9','cancelled':'#fee2e2','no-show':'#ffe4e6'
 };
 var STATUS_COL = {
-  'booked':'#1a56a0','checked-in':'#15803d','checked-out':'#475569','cancelled':'#b91c1c'
+  'booked':'#1a56a0','checked-in':'#15803d','checked-out':'#475569','cancelled':'#b91c1c','no-show':'#9f1239'
 };
 var STATUS_LABEL_BP = {
-  'booked':'📋 Booked','checked-in':'🛏️ Checked-in','checked-out':'✓ Checked-out','cancelled':'✕ Cancelled'
+  'booked':'📋 Booked','checked-in':'🛏️ Checked-in','checked-out':'✓ Checked-out','cancelled':'✕ Cancelled','no-show':'🚫 No-show'
 };
 
 function renderBPTable(){
