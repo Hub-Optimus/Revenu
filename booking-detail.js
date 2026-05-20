@@ -158,7 +158,7 @@ async function approveCheckin(bookingId, guestName, roomNo, phone){
 
   if(res.error){ alert('Error: '+res.error.message); return; }
 
-  if(typeof addActivity==='function') addActivity('✓ Approved check-in — '+guestName+' (Room '+roomNo+')');
+  if(typeof addActivity==='function') addActivity('✓ Approved check-in — '+guestName+' (Room '+roomNo+')', bookingId);
 
   await openBookingDetail(bookingId);
   if(typeof loadBookings==='function') await loadBookings();
@@ -178,7 +178,7 @@ async function rejectCheckin(bookingId, guestName, roomNo, phone){
 
   if(res.error){ alert('Error: '+res.error.message); return; }
 
-  if(typeof addActivity==='function') addActivity('✕ Rejected check-in — '+guestName+' (Room '+roomNo+')'+(reason?' — '+reason:''));
+  if(typeof addActivity==='function') addActivity('✕ Rejected check-in — '+guestName+' (Room '+roomNo+')'+(reason?' — '+reason:''), bookingId);
 
   await openBookingDetail(bookingId);
   if(typeof loadBookings==='function') await loadBookings();
@@ -366,7 +366,7 @@ async function markCheckedIn(bookingId, guestName, roomNo){
     console.warn('Room '+roomNo+' not found in roomsData');
   }
 
-  if(typeof addActivity==='function') addActivity('🛏️ Checked in — '+guestName+' to Room '+roomNo);
+  if(typeof addActivity==='function') addActivity('🛏️ Checked in — '+guestName+' to Room '+roomNo, bookingId);
   if(typeof renderRooms==='function') renderRooms();
   if(typeof loadBookings==='function') await loadBookings();
   await openBookingDetail(bookingId);
@@ -472,7 +472,7 @@ async function settleBalance(bookingId, total){
   if(!confirm('Mark full balance as paid?\n\nThis records ₹'+Math.round(total).toLocaleString('en-IN')+' as received.')) return;
   const res = await sb.from('bookings').update({amount_paid: total}).eq('id', bookingId);
   if(res.error){ alert('Error: '+res.error.message); return; }
-  if(typeof addActivity==='function') addActivity('💰 Payment received — ₹'+Math.round(total).toLocaleString('en-IN'));
+  if(typeof addActivity==='function') addActivity('💰 Payment received — ₹'+Math.round(total).toLocaleString('en-IN'), bookingId);
   // Refresh modal
   const fresh = await sb.from('bookings').select('*').eq('id', bookingId).single();
   currentCheckoutBooking = fresh.data;
@@ -510,7 +510,7 @@ async function confirmCheckout(bookingId, guestName, roomNo, total, due){
   }
 
   const dueNote = due > 0 ? ' (₹'+Math.round(due).toLocaleString('en-IN')+' balance due)' : ' (fully paid)';
-  if(typeof addActivity==='function') addActivity('🚪 Checked out — '+guestName+' from Room '+roomNo+dueNote);
+  if(typeof addActivity==='function') addActivity('🚪 Checked out — '+guestName+' from Room '+roomNo+dueNote, bookingId);
 
   closeCheckoutModal();
   if(typeof renderRooms==='function') renderRooms();
@@ -699,7 +699,7 @@ async function saveBookingEdit(){
 
   // Audit log to activity feed (Fix F)
   if(typeof addActivity === 'function'){
-    addActivity('✏️ Edited booking — '+b.guest_name+' · '+changes.join(', ')+' · Reason: '+reason);
+    addActivity('✏️ Edited booking — '+b.guest_name+' · '+changes.join(', ')+' · Reason: '+reason, b.id);
   }
 
   alert('✅ Booking updated successfully.');
@@ -740,11 +740,23 @@ async function openNoShowModal(bookingId, guestName, roomNo){
     <div style="font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.5">
       <strong>Before marking no-show, confirm:</strong>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">
-      ☐ Tried calling the guest's phone<br>
-      ☐ Sent WhatsApp message<br>
-      ☐ Sent email reminder<br>
-      ☐ Waited until check-in cutoff time
+    <div id="noshow-checks" style="font-size:13px;color:var(--text);margin-bottom:14px;line-height:1.5;display:flex;flex-direction:column;gap:6px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+        <input type="checkbox" id="ns-call" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue);margin:0;flex-shrink:0">
+        <span>Tried calling the guest's phone</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+        <input type="checkbox" id="ns-wa" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue);margin:0;flex-shrink:0">
+        <span>Sent WhatsApp message</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+        <input type="checkbox" id="ns-email" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue);margin:0;flex-shrink:0">
+        <span>Sent email reminder</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+        <input type="checkbox" id="ns-waited" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue);margin:0;flex-shrink:0">
+        <span>Waited until check-in cutoff time</span>
+      </label>
     </div>
 
     <div class="eb-field">
@@ -777,11 +789,25 @@ async function confirmNoShow(bookingId, guestName, roomNo){
     return;
   }
 
+  // Read which contact-attempt checkboxes were ticked (audit trail)
+  const checks = {
+    phone:  document.getElementById('ns-call').checked,
+    wa:     document.getElementById('ns-wa').checked,
+    email:  document.getElementById('ns-email').checked,
+    waited: document.getElementById('ns-waited').checked
+  };
+  const triedParts = [];
+  triedParts.push('phone '   + (checks.phone  ? '✓' : '✗'));
+  triedParts.push('WhatsApp '+ (checks.wa     ? '✓' : '✗'));
+  triedParts.push('email '   + (checks.email  ? '✓' : '✗'));
+  triedParts.push('waited '  + (checks.waited ? '✓' : '✗'));
+  const triedStr = 'Tried: ' + triedParts.join(', ');
+
   if(!confirm('Mark ' + guestName + ' as NO-SHOW?\n\nThis will:\n• Close the booking (status: no-show)\n• Keep room ' + roomNo + ' available for other bookings\n• Log all your contact attempts\n\nProceed?')) return;
 
   const today = new Date().toISOString().split('T')[0];
   const existingNotes = (currentNoShowBooking && currentNoShowBooking.notes) || '';
-  const noShowEntry = '[NO-SHOW ' + today + '] Contact attempts: ' + contact + (notes ? ' | Notes: ' + notes : '');
+  const noShowEntry = '[NO-SHOW ' + today + '] ' + triedStr + ' | Contact attempts: ' + contact + (notes ? ' | Notes: ' + notes : '');
   const newNotes = existingNotes ? (existingNotes + '\n\n' + noShowEntry) : noShowEntry;
 
   const updRes = await sb.from('bookings').update({
@@ -791,7 +817,7 @@ async function confirmNoShow(bookingId, guestName, roomNo){
 
   if(updRes.error){ alert('Error: ' + updRes.error.message); return; }
 
-  if(typeof addActivity === 'function') addActivity('🚫 No-show — ' + guestName + ' (Room ' + roomNo + ') · ' + contact.substring(0,60) + (contact.length > 60 ? '…' : ''));
+  if(typeof addActivity === 'function') addActivity('🚫 No-show — ' + guestName + ' (Room ' + roomNo + ') · ' + triedStr + ' · ' + contact, bookingId);
 
   closeNoShowModal();
   if(typeof loadBookings === 'function') await loadBookings();
