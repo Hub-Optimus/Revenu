@@ -102,7 +102,7 @@ function renderCheckinSection(b, ci){
   if(status==='guest-submitted'){
     statusBadge = '<span class="ci-status ci-status-pending">⏳ Awaiting your approval</span>';
     actionButtons = `
-      <button class="ci-btn ci-btn-approve" onclick="approveCheckin('${b.id}','${safeName}','${b.room_no}','${safePhone}')">✓ Approve check-in</button>
+      <button class="ci-btn ci-btn-approve" onclick="approveCheckin('${b.id}','${safeName}','${b.room_no}','${safePhone}', this)">✓ Approve check-in</button>
       <button class="ci-btn ci-btn-reject" onclick="rejectCheckin('${b.id}','${safeName}','${b.room_no}','${safePhone}')">✕ Reject</button>
     `;
   } else if(status==='approved' || status==='checked-in' || status==='guest-checked-in'){
@@ -117,7 +117,7 @@ function renderCheckinSection(b, ci){
       reasonBlock = `<div class="ci-reason"><strong>Rejection reason sent to guest:</strong> ${b.rejection_reason}</div>`;
     }
     actionButtons = `
-      <button class="ci-btn ci-btn-approve" onclick="approveCheckin('${b.id}','${safeName}','${b.room_no}','${safePhone}')">✓ Approve anyway</button>
+      <button class="ci-btn ci-btn-approve" onclick="approveCheckin('${b.id}','${safeName}','${b.room_no}','${safePhone}', this)">✓ Approve anyway</button>
       <button class="ci-btn ci-btn-resend" onclick="sendCheckinWhatsApp('${b.id}','${safeName}','${b.room_no}','${safePhone}','rejected','${(b.rejection_reason||'').replace(/'/g,'&#39;')}')">📱 Resend rejection message</button>
     `;
   }
@@ -148,15 +148,18 @@ function renderCheckinSection(b, ci){
   `;
 }
 
-async function approveCheckin(bookingId, guestName, roomNo, phone){
-  if(!confirm('Approve this check-in?\n\nGuest will be notified, and you should physically verify their ID on arrival.')) return;
+async function approveCheckin(bookingId, guestName, roomNo, phone, btn){
+  if(!lockBtn(btn, '⏳ Approving…')) return;
+  if(!confirm('Approve this check-in?\n\nGuest will be notified, and you should physically verify their ID on arrival.')){
+    unlockBtn(btn); return;
+  }
 
   const res = await sb.from('bookings').update({
     checkin_status: 'approved',
     rejection_reason: null
   }).eq('id', bookingId);
 
-  if(res.error){ alert('Error: '+res.error.message); return; }
+  if(res.error){ alert('Error: '+res.error.message); unlockBtn(btn); return; }
 
   if(typeof addActivity==='function') addActivity('✓ Approved check-in — '+guestName+' (Room '+roomNo+')', bookingId);
 
@@ -273,12 +276,12 @@ function renderPhysicalArrivalSection(b){
           ⚠️ <strong>Arrival overdue by ${daysOverdue} day${daysOverdue!==1?'s':''}</strong> — guest expected on ${b.checkin}.
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="pa-btn pa-btn-checkin" onclick="markCheckedIn('${b.id}','${safeName}','${b.room_no}')">🛏️ Check in (late arrival)</button>
+          <button class="pa-btn pa-btn-checkin" onclick="markCheckedIn('${b.id}','${safeName}','${b.room_no}', this)">🛏️ Check in (late arrival)</button>
           <button class="pa-btn pa-btn-noshow" onclick="openNoShowModal('${b.id}','${safeName}','${b.room_no}')">🚫 Mark as no-show</button>
         </div>
       `;
     } else {
-      actionButton = '<button class="pa-btn pa-btn-checkin" onclick="markCheckedIn(\''+b.id+'\',\''+safeName+'\',\''+b.room_no+'\')">🛏️ Mark guest as checked in</button>';
+      actionButton = '<button class="pa-btn pa-btn-checkin" onclick="markCheckedIn(\''+b.id+'\',\''+safeName+'\',\''+b.room_no+'\', this)">🛏️ Mark guest as checked in</button>';
     }
   } else if(status === 'checked-in'){
     actionButton = '<button class="pa-btn pa-btn-checkout" onclick="openCheckoutModal(\''+b.id+'\')">🚪 Check out guest →</button>';
@@ -304,10 +307,12 @@ function renderPhysicalArrivalSection(b){
   `;
 }
 
-async function markCheckedIn(bookingId, guestName, roomNo){
+async function markCheckedIn(bookingId, guestName, roomNo, btn){
+  if(!lockBtn(btn, '⏳ Checking in…')) return;
+
   // Fetch fresh booking data
   const bRes = await sb.from('bookings').select('*').eq('id', bookingId).single();
-  if(bRes.error || !bRes.data){ alert('Error loading booking.'); return; }
+  if(bRes.error || !bRes.data){ alert('Error loading booking.'); unlockBtn(btn); return; }
   const b = bRes.data;
   const today = new Date().toISOString().split('T')[0];
 
@@ -320,7 +325,7 @@ async function markCheckedIn(bookingId, guestName, roomNo){
       'Normally early check-in is a PAID upsell.\n' +
       'Are you allowing this as a free early check-in?\n\n' +
       'Click OK to proceed, Cancel to stop.'
-    )) return;
+    )){ unlockBtn(btn); return; }
   }
 
   // FIX B — Block room double-occupancy (hard block, no override)
@@ -338,10 +343,13 @@ async function markCheckedIn(bookingId, guestName, roomNo){
       c.guest_name + ' (' + c.checkin + ' → ' + c.checkout + ')\n\n' +
       'You must check out the current guest first.'
     );
+    unlockBtn(btn);
     return;
   }
 
-  if(!confirm('Mark '+guestName+' as physically checked in to Room '+roomNo+'?\n\nThis will:\n• Mark booking as "checked-in"\n• Auto-occupy Room '+roomNo)) return;
+  if(!confirm('Mark '+guestName+' as physically checked in to Room '+roomNo+'?\n\nThis will:\n• Mark booking as "checked-in"\n• Auto-occupy Room '+roomNo)){
+    unlockBtn(btn); return;
+  }
 
   const now = new Date().toISOString();
 
@@ -350,7 +358,7 @@ async function markCheckedIn(bookingId, guestName, roomNo){
     status: 'checked-in',
     actual_checkin_time: now
   }).eq('id', bookingId);
-  if(updRes.error){ alert('Error: '+updRes.error.message); return; }
+  if(updRes.error){ alert('Error: '+updRes.error.message); unlockBtn(btn); return; }
 
   // Update room to occupied
   const room = (typeof roomsData!=='undefined') ? roomsData.find(function(r){return r.room_number === roomNo;}) : null;
@@ -453,7 +461,7 @@ function renderCheckoutModal(){
     ` : `
       ${!isPaid ? `
       <div style="display:flex;gap:8px;margin-bottom:14px">
-        <button onclick="settleBalance('${b.id}', ${total})" style="flex:1;padding:11px;border:none;border-radius:8px;background:var(--green);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">💰 Settle balance (₹${Math.round(due).toLocaleString('en-IN')})</button>
+        <button onclick="settleBalance('${b.id}', ${total}, this)" style="flex:1;padding:11px;border:none;border-radius:8px;background:var(--green);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">💰 Settle balance (₹${Math.round(due).toLocaleString('en-IN')})</button>
       </div>` : ''}
 
       <div style="padding:11px 14px;background:var(--blue-light);border-radius:8px;font-size:12px;color:var(--blue);margin-bottom:14px;line-height:1.5">
@@ -462,28 +470,36 @@ function renderCheckoutModal(){
 
       <div style="display:flex;gap:8px">
         <button onclick="closeCheckoutModal()" style="flex:1;padding:11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
-        <button onclick="confirmCheckout('${b.id}','${(b.guest_name||'').replace(/'/g,'&#39;')}','${b.room_no}',${total},${due})" style="flex:1;padding:11px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Confirm checkout →</button>
+        <button onclick="confirmCheckout('${b.id}','${(b.guest_name||'').replace(/'/g,'&#39;')}','${b.room_no}',${total},${due}, this)" style="flex:1;padding:11px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Confirm checkout →</button>
       </div>
     `}
   `;
 }
 
-async function settleBalance(bookingId, total){
-  if(!confirm('Mark full balance as paid?\n\nThis records ₹'+Math.round(total).toLocaleString('en-IN')+' as received.')) return;
+async function settleBalance(bookingId, total, btn){
+  if(!lockBtn(btn, '⏳ Settling…')) return;
+  if(!confirm('Mark full balance as paid?\n\nThis records ₹'+Math.round(total).toLocaleString('en-IN')+' as received.')){
+    unlockBtn(btn); return;
+  }
   const res = await sb.from('bookings').update({amount_paid: total}).eq('id', bookingId);
-  if(res.error){ alert('Error: '+res.error.message); return; }
+  if(res.error){ alert('Error: '+res.error.message); unlockBtn(btn); return; }
   if(typeof addActivity==='function') addActivity('💰 Payment received — ₹'+Math.round(total).toLocaleString('en-IN'), bookingId);
-  // Refresh modal
+  // Refresh modal (button gets re-rendered)
   const fresh = await sb.from('bookings').select('*').eq('id', bookingId).single();
   currentCheckoutBooking = fresh.data;
   renderCheckoutModal();
 }
 
-async function confirmCheckout(bookingId, guestName, roomNo, total, due){
+async function confirmCheckout(bookingId, guestName, roomNo, total, due, btn){
+  if(!lockBtn(btn, '⏳ Checking out…')) return;
   if(due > 0){
-    if(!confirm('⚠️ Balance ₹'+Math.round(due).toLocaleString('en-IN')+' is still due.\n\nCheck out '+guestName+' anyway? You can chase payment later.')) return;
+    if(!confirm('⚠️ Balance ₹'+Math.round(due).toLocaleString('en-IN')+' is still due.\n\nCheck out '+guestName+' anyway? You can chase payment later.')){
+      unlockBtn(btn); return;
+    }
   } else {
-    if(!confirm('Confirm checkout for '+guestName+' from Room '+roomNo+'?\n\nRoom will be marked as Cleaning.')) return;
+    if(!confirm('Confirm checkout for '+guestName+' from Room '+roomNo+'?\n\nRoom will be marked as Cleaning.')){
+      unlockBtn(btn); return;
+    }
   }
 
   const now = new Date().toISOString();
@@ -492,7 +508,7 @@ async function confirmCheckout(bookingId, guestName, roomNo, total, due){
     actual_checkout_time: now,
     final_total: total
   }).eq('id', bookingId);
-  if(updRes.error){ alert('Error: '+updRes.error.message); return; }
+  if(updRes.error){ alert('Error: '+updRes.error.message); unlockBtn(btn); return; }
 
   // Flip room to cleaning (auto-housekeeping)
   const room = (typeof roomsData!=='undefined') ? roomsData.find(function(r){return r.room_number === roomNo;}) : null;
@@ -637,7 +653,10 @@ function validateEditForm(){
 }
 
 async function saveBookingEdit(){
-  if(!currentEditBooking) return;
+  const btn = document.getElementById('edit-save-btn');
+  if(!lockBtn(btn, '⏳ Saving…')) return;
+
+  if(!currentEditBooking){ unlockBtn(btn); return; }
   const b = currentEditBooking;
 
   const newCheckin = document.getElementById('edit-checkin').value;
@@ -647,11 +666,11 @@ async function saveBookingEdit(){
   const reason = document.getElementById('edit-reason').value.trim();
 
   // Validation
-  if(!newCheckin || !newCheckout){ alert('Check-in and check-out dates required.'); return; }
-  if(newCheckin >= newCheckout){ alert('Check-out must be after check-in.'); return; }
-  if(!newRoom){ alert('Room required.'); return; }
-  if(newRate <= 0){ alert('Rate must be greater than 0.'); return; }
-  if(!reason){ alert('Reason for edit is required (for audit trail).'); return; }
+  if(!newCheckin || !newCheckout){ alert('Check-in and check-out dates required.'); unlockBtn(btn); return; }
+  if(newCheckin >= newCheckout){ alert('Check-out must be after check-in.'); unlockBtn(btn); return; }
+  if(!newRoom){ alert('Room required.'); unlockBtn(btn); return; }
+  if(newRate <= 0){ alert('Rate must be greater than 0.'); unlockBtn(btn); return; }
+  if(!reason){ alert('Reason for edit is required (for audit trail).'); unlockBtn(btn); return; }
 
   // Detect what actually changed
   const changes = [];
@@ -660,7 +679,7 @@ async function saveBookingEdit(){
   if(newRoom !== b.room_no) changes.push('Room: '+b.room_no+' → '+newRoom);
   if(newRate !== parseFloat(b.rate)) changes.push('Rate: ₹'+b.rate+' → ₹'+newRate);
 
-  if(changes.length === 0){ alert('No changes detected.'); return; }
+  if(changes.length === 0){ alert('No changes detected.'); unlockBtn(btn); return; }
 
   // Conflict check on new dates/room
   const conflictRes = await sb.from('bookings').select('id, guest_name, checkin, checkout')
@@ -672,6 +691,7 @@ async function saveBookingEdit(){
   if(conflictRes.data && conflictRes.data.length > 0){
     const c = conflictRes.data[0];
     alert('⛔ CONFLICT — Room '+newRoom+' is not free for these dates.\n\nConflicts with: '+c.guest_name+' ('+c.checkin+' → '+c.checkout+')');
+    unlockBtn(btn);
     return;
   }
 
@@ -682,7 +702,7 @@ async function saveBookingEdit(){
     if(r) newRoomType = r.room_type;
   }
 
-  if(!confirm('Save these changes?\n\n'+changes.join('\n')+'\n\nReason: '+reason)) return;
+  if(!confirm('Save these changes?\n\n'+changes.join('\n')+'\n\nReason: '+reason)){ unlockBtn(btn); return; }
 
   // Save
   const updRes = await sb.from('bookings').update({
@@ -695,7 +715,7 @@ async function saveBookingEdit(){
     edits_count: (b.edits_count || 0) + 1
   }).eq('id', b.id);
 
-  if(updRes.error){ alert('Save failed: '+updRes.error.message); return; }
+  if(updRes.error){ alert('Save failed: '+updRes.error.message); unlockBtn(btn); return; }
 
   // Audit log to activity feed (Fix F)
   if(typeof addActivity === 'function'){
@@ -760,13 +780,8 @@ async function openNoShowModal(bookingId, guestName, roomNo){
     </div>
 
     <div class="eb-field">
-      <label class="eb-label">Contact attempts * <span style="text-transform:none;font-weight:400;color:var(--muted)">(required for audit)</span></label>
-      <textarea id="noshow-contact" class="eb-input" rows="3" placeholder="e.g. Called at 3 PM — phone switched off. WhatsApp sent at 4 PM — no reply. Email sent at 5 PM."></textarea>
-    </div>
-
-    <div class="eb-field">
-      <label class="eb-label">Additional notes <span style="text-transform:none;font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea id="noshow-notes" class="eb-input" rows="2" placeholder="Any other context worth recording"></textarea>
+      <label class="eb-label">Contact attempts &amp; notes * <span style="text-transform:none;font-weight:400;color:var(--muted)">(required for audit)</span></label>
+      <textarea id="noshow-contact" class="eb-input" rows="5" placeholder="e.g. Called at 3 PM — phone switched off. WhatsApp sent at 4 PM — no reply. Email sent at 5 PM. Guest's brother mentioned flight cancelled, will rebook later."></textarea>
     </div>
 
     <div style="padding:10px 12px;background:var(--blue-light);border-radius:6px;font-size:11px;color:var(--blue);margin-bottom:14px;line-height:1.5">
@@ -775,17 +790,19 @@ async function openNoShowModal(bookingId, guestName, roomNo){
 
     <div style="display:flex;gap:8px;margin-top:14px">
       <button onclick="closeNoShowModal()" style="flex:1;padding:11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
-      <button onclick="confirmNoShow('${bookingId}','${guestName.replace(/'/g,'&#39;')}','${roomNo}')" style="flex:1;padding:11px;border:none;border-radius:8px;background:#b91c1c;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🚫 Confirm no-show</button>
+      <button onclick="confirmNoShow('${bookingId}','${guestName.replace(/'/g,'&#39;')}','${roomNo}', this)" style="flex:1;padding:11px;border:none;border-radius:8px;background:#b91c1c;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🚫 Confirm no-show</button>
     </div>
   `;
 }
 
-async function confirmNoShow(bookingId, guestName, roomNo){
+async function confirmNoShow(bookingId, guestName, roomNo, btn){
+  if(!lockBtn(btn, '⏳ Saving…')) return;
+
   const contact = document.getElementById('noshow-contact').value.trim();
-  const notes = document.getElementById('noshow-notes').value.trim();
 
   if(!contact){
-    alert('⚠️ Please document your contact attempts before marking as no-show.\n\nThis is required for the audit trail.');
+    alert('⚠️ Please document your contact attempts & notes before marking as no-show.\n\nThis is required for the audit trail.');
+    unlockBtn(btn);
     return;
   }
 
@@ -803,11 +820,14 @@ async function confirmNoShow(bookingId, guestName, roomNo){
   triedParts.push('waited '  + (checks.waited ? '✓' : '✗'));
   const triedStr = 'Tried: ' + triedParts.join(', ');
 
-  if(!confirm('Mark ' + guestName + ' as NO-SHOW?\n\nThis will:\n• Close the booking (status: no-show)\n• Keep room ' + roomNo + ' available for other bookings\n• Log all your contact attempts\n\nProceed?')) return;
+  if(!confirm('Mark ' + guestName + ' as NO-SHOW?\n\nThis will:\n• Close the booking (status: no-show)\n• Keep room ' + roomNo + ' available for other bookings\n• Log all your contact attempts\n\nProceed?')){
+    unlockBtn(btn);
+    return;
+  }
 
   const today = new Date().toISOString().split('T')[0];
   const existingNotes = (currentNoShowBooking && currentNoShowBooking.notes) || '';
-  const noShowEntry = '[NO-SHOW ' + today + '] ' + triedStr + ' | Contact attempts: ' + contact + (notes ? ' | Notes: ' + notes : '');
+  const noShowEntry = '[NO-SHOW ' + today + '] ' + triedStr + ' | Notes: ' + contact;
   const newNotes = existingNotes ? (existingNotes + '\n\n' + noShowEntry) : noShowEntry;
 
   const updRes = await sb.from('bookings').update({
@@ -815,7 +835,7 @@ async function confirmNoShow(bookingId, guestName, roomNo){
     notes: newNotes
   }).eq('id', bookingId);
 
-  if(updRes.error){ alert('Error: ' + updRes.error.message); return; }
+  if(updRes.error){ alert('Error: ' + updRes.error.message); unlockBtn(btn); return; }
 
   if(typeof addActivity === 'function') addActivity('🚫 No-show — ' + guestName + ' (Room ' + roomNo + ') · ' + triedStr + ' · ' + contact, bookingId);
 
